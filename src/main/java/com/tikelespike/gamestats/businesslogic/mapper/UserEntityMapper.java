@@ -29,6 +29,7 @@ public class UserEntityMapper implements Mapper<User, UserEntity> {
     public User toBusinessObject(UserEntity transferObject) {
         return new User(
                 transferObject.getId(),
+                transferObject.getName(),
                 transferObject.getEmail(),
                 transferObject.getPassword(),
                 transferObject.getRolesCopy().stream().map(roleMapper::toBusinessObject).collect(Collectors.toSet())
@@ -39,6 +40,7 @@ public class UserEntityMapper implements Mapper<User, UserEntity> {
     public UserEntity toTransferObject(User businessObject) {
         return new UserEntity(
                 businessObject.getId(),
+                businessObject.getName(),
                 businessObject.getEmail(),
                 businessObject.getPassword(),
                 businessObject.getRoles().stream().map(roleMapper::toTransferObject).collect(Collectors.toSet())

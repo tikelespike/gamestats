@@ -52,7 +52,7 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("Username already exists");
         }
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        User newUser = new User(data.email(), encryptedPassword, Set.of(UserRole.USER));
+        User newUser = new User(data.name(), data.email(), encryptedPassword, Set.of(UserRole.USER));
         UserEntity transferObject = mapper.toTransferObject(newUser);
         UserEntity saved = repository.save(transferObject);
         return mapper.toBusinessObject(saved);

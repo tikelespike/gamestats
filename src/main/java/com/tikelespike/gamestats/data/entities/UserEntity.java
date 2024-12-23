@@ -26,6 +26,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
     private String email;
     private String password;
 
@@ -49,8 +50,9 @@ public class UserEntity {
      * @param password password used for login
      * @param roles the roles assigned to the user (for permission management)
      */
-    public UserEntity(Long id, String email, String password, Set<UserRoleEntity> roles) {
+    public UserEntity(Long id, String name, String email, String password, Set<UserRoleEntity> roles) {
         this.id = id;
+        this.name = name;
         this.email = email;
         this.password = password;
         this.roles = roles;
@@ -73,6 +75,24 @@ public class UserEntity {
      */
     protected void setId(Long id) {
         this.id = id;
+    }
+
+    /**
+     * Returns the human-readable name of the user.
+     *
+     * @return the human-readable name of the user
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the human-readable name of the user.
+     *
+     * @param name the new human-readable name of the user
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**

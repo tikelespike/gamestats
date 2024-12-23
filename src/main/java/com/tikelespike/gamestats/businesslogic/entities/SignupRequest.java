@@ -6,6 +6,6 @@ package com.tikelespike.gamestats.businesslogic.entities;
  * @param email user email address
  * @param password user chosen password
  */
-public record SignupRequest(String email, String password) {
+public record SignupRequest(String name, String email, String password) {
 
 }

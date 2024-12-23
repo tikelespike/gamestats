@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 public class SignupMapper implements Mapper<SignupRequest, SignUpDTO> {
     @Override
     public SignupRequest toBusinessObject(SignUpDTO transferObject) {
-        return new SignupRequest(transferObject.email(), transferObject.password());
+        return new SignupRequest(transferObject.name(), transferObject.email(), transferObject.password());
     }
 
     @Override
     public SignUpDTO toTransferObject(SignupRequest businessObject) {
-        return new SignUpDTO(businessObject.email(), businessObject.password());
+        return new SignUpDTO(businessObject.name(), businessObject.email(), businessObject.password());
     }
 }

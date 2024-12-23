@@ -16,9 +16,10 @@ import java.util.Set;
 public class User implements UserDetails {
 
     private final Long id;
-    private final String email;
-    private final String password;
     private final Set<UserRole> roles;
+    private String name;
+    private String email;
+    private String password;
 
     /**
      * Creates a new user object with unassigned id number. This constructor is used when creating a new user, as the id
@@ -29,8 +30,8 @@ public class User implements UserDetails {
      * @param password password used for login
      * @param roles the roles assigned to the user (for permission management)
      */
-    public User(String email, String password, Set<UserRole> roles) {
-        this(null, email, password, roles);
+    public User(String name, String email, String password, Set<UserRole> roles) {
+        this(null, name, email, password, roles);
     }
 
     /**
@@ -42,8 +43,9 @@ public class User implements UserDetails {
      * @param password password used for login
      * @param roles the roles assigned to the user (for permission management)
      */
-    public User(Long id, String email, String password, Set<UserRole> roles) {
+    public User(Long id, String name, String email, String password, Set<UserRole> roles) {
         this.id = id;
+        this.name = name;
         this.email = email;
         this.password = password;
         this.roles = roles;
@@ -65,12 +67,12 @@ public class User implements UserDetails {
     }
 
     /**
-     * Returns the email address of the user.
+     * Sets the new password of the user.
      *
-     * @return the email address of the user
+     * @param password the new password of the user
      */
-    public String getEmail() {
-        return email;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     /**
@@ -80,6 +82,42 @@ public class User implements UserDetails {
      */
     public Long getId() {
         return id;
+    }
+
+    /**
+     * Returns the human-readable name of the user.
+     *
+     * @return the human-readable name of the user
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the human-readable name of the user.
+     *
+     * @param name the new human-readable name of the user
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Returns the email address of the user.
+     *
+     * @return the email address of the user
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * Sets the email address of the user.
+     *
+     * @param email the new email address of the user
+     */
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     /**

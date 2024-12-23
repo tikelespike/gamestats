@@ -4,15 +4,15 @@ public class PlayerDTO {
 
     private long id;
     private String name;
-    private PlayerExperienceLevelDTO experienceLevel;
+    private Long ownerId;
 
     public PlayerDTO() {
     }
 
-    public PlayerDTO(long id, String name, PlayerExperienceLevelDTO experienceLevel) {
+    public PlayerDTO(long id, String name, Long ownerId) {
         this.id = id;
         this.name = name;
-        this.experienceLevel = experienceLevel;
+        this.ownerId = ownerId;
     }
 
     public long getId() {
@@ -31,11 +31,11 @@ public class PlayerDTO {
         this.name = name;
     }
 
-    public PlayerExperienceLevelDTO getExperienceLevel() {
-        return experienceLevel;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setExperienceLevel(PlayerExperienceLevelDTO experienceLevel) {
-        this.experienceLevel = experienceLevel;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 }
