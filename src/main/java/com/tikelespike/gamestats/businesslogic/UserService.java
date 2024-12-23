@@ -13,13 +13,23 @@ import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+/**
+ * Service for managing user registration and querying.
+ */
 @Service
-public class AuthService implements UserDetailsService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository repository;
     private final UserEntityMapper mapper;
 
-    public AuthService(UserRepository repository, UserEntityMapper mapper) {
+    /**
+     * Creates a new user service. This is usually done by the Spring framework, which manages the service's lifecycle
+     * and injects the required dependencies.
+     *
+     * @param repository repository managing user entities
+     * @param mapper mapper for converting between user business objects and user entities
+     */
+    public UserService(UserRepository repository, UserEntityMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     }
@@ -30,12 +40,19 @@ public class AuthService implements UserDetailsService {
         return mapper.toBusinessObject(user);
     }
 
+    /**
+     * Creates a new user account.
+     *
+     * @param data the sign-up request data
+     *
+     * @return the credentials of the newly created user
+     */
     public UserDetails signUp(SignupRequest data) {
-        if (repository.findByEmail(data.getEmail()) != null) {
+        if (repository.findByEmail(data.email()) != null) {
             throw new IllegalArgumentException("Username already exists");
         }
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.getPassword());
-        User newUser = new User(data.getEmail(), encryptedPassword, Set.of(UserRole.USER));
+        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+        User newUser = new User(data.email(), encryptedPassword, Set.of(UserRole.USER));
         UserEntity transferObject = mapper.toTransferObject(newUser);
         UserEntity saved = repository.save(transferObject);
         return mapper.toBusinessObject(saved);

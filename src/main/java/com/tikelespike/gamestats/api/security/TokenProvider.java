@@ -11,16 +11,24 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 
+/**
+ * Service that provides methods to generate and validate JSON Web Tokens, used for authentication.
+ */
 @Service
 public class TokenProvider {
     private static final Duration TOKEN_VALIDITY_DURATION = Duration.ofDays(1);
 
     @Value("${security.jwt.token.secret-key}")
-    private String JWT_SECRET;
+    private String jwtSecret;
 
+    /**
+     * @param user the user for which to generate a token
+     *
+     * @return the generated token in string form
+     */
     public String generateAccessToken(User user) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
+            Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
             return JWT.create()
                     .withSubject(user.getUsername())
                     .withClaim("username", user.getUsername())
@@ -31,9 +39,16 @@ public class TokenProvider {
         }
     }
 
+    /**
+     * Validates a token and returns the username it was issued for.
+     *
+     * @param token the token to validate
+     *
+     * @return the username the token was issued for
+     */
     public String validateToken(String token) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
+            Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
             return JWT.require(algorithm)
                     .build()
                     .verify(token)

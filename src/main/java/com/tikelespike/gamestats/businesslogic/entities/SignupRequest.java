@@ -1,30 +1,11 @@
 package com.tikelespike.gamestats.businesslogic.entities;
 
-public class SignupRequest {
-    private String email;
-    private String password;
+/**
+ * A user sign-up request containing the data about the new user.
+ *
+ * @param email user email address
+ * @param password user chosen password
+ */
+public record SignupRequest(String email, String password) {
 
-    public SignupRequest() {
-    }
-
-    public SignupRequest(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }

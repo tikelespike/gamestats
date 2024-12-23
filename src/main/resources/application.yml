@@ -18,3 +18,8 @@ security:
   jwt:
     token:
       secret-key: ${JWT_SECRET}
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
