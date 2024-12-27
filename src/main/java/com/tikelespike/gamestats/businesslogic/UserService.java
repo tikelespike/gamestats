@@ -6,7 +6,6 @@ import com.tikelespike.gamestats.businesslogic.entities.UserRole;
 import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
 import com.tikelespike.gamestats.data.entities.UserEntity;
 import com.tikelespike.gamestats.data.repositories.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,7 +52,7 @@ public class UserService implements UserDetailsService {
      *
      * @return the credentials of the newly created user
      */
-    public UserDetails signUp(SignupRequest data) {
+    public User signUp(SignupRequest data) {
         if (repository.findByEmail(data.email()) != null) {
             throw new IllegalArgumentException("Username already exists");
         }

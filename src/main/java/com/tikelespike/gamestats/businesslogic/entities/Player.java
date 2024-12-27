@@ -103,4 +103,26 @@ public class Player {
     public void setOwner(@NotNull User owner) {
         this.owner = owner;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Player player = (Player) o;
+
+
+        boolean equalOwners;
+        if (owner == null || player.owner == null) {
+            equalOwners = owner == player.owner;
+        } else {
+            equalOwners = Objects.equals(owner.getId(), player.owner.getId());
+        }
+        return Objects.equals(id, player.id) && Objects.equals(name, player.name) && equalOwners;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, owner.getId());
+    }
 }

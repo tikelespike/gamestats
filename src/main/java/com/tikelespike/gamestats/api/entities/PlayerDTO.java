@@ -2,24 +2,24 @@ package com.tikelespike.gamestats.api.entities;
 
 public class PlayerDTO {
 
-    private long id;
+    private Long id;
     private String name;
     private Long ownerId;
 
     public PlayerDTO() {
     }
 
-    public PlayerDTO(long id, String name, Long ownerId) {
+    public PlayerDTO(Long id, String name, Long ownerId) {
         this.id = id;
         this.name = name;
         this.ownerId = ownerId;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

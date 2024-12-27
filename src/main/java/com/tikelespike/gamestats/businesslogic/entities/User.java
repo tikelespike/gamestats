@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -137,5 +138,27 @@ public class User implements UserDetails {
      */
     public Set<UserRole> getRoles() {
         return new HashSet<>(roles);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        User user = (User) o;
+        boolean equalPlayers;
+        if (player == null || user.player == null) {
+            equalPlayers = player == user.player;
+        } else {
+            equalPlayers = Objects.equals(player.getId(), user.player.getId());
+        }
+        return Objects.equals(id, user.id) && Objects.equals(roles, user.roles)
+                && Objects.equals(name, user.name) && Objects.equals(email, user.email)
+                && Objects.equals(password, user.password) && equalPlayers;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, roles, name, email, password, player.getId());
     }
 }
