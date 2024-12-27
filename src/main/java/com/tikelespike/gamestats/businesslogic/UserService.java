@@ -3,7 +3,7 @@ package com.tikelespike.gamestats.businesslogic;
 import com.tikelespike.gamestats.businesslogic.entities.SignupRequest;
 import com.tikelespike.gamestats.businesslogic.entities.User;
 import com.tikelespike.gamestats.businesslogic.entities.UserRole;
-import com.tikelespike.gamestats.businesslogic.mapper.UserEntityMapper;
+import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
 import com.tikelespike.gamestats.data.entities.UserEntity;
 import com.tikelespike.gamestats.data.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +20,7 @@ import java.util.Set;
 public class UserService implements UserDetailsService {
 
     private final UserRepository repository;
-    private final UserEntityMapper mapper;
+    private final UserPlayerEntityMapper mapper;
 
     /**
      * Creates a new user service. This is usually done by the Spring framework, which manages the service's lifecycle
@@ -29,14 +29,20 @@ public class UserService implements UserDetailsService {
      * @param repository repository managing user entities
      * @param mapper mapper for converting between user business objects and user entities
      */
-    public UserService(UserRepository repository, UserEntityMapper mapper) {
+    public UserService(UserRepository repository, UserPlayerEntityMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) {
+    public User loadUserByUsername(String username) {
         var user = repository.findByEmail(username);
+        return mapper.toBusinessObject(user);
+    }
+
+    public User loadUser(Long id) {
+        var user = repository.findById(id)
+                .orElse(null);
         return mapper.toBusinessObject(user);
     }
 

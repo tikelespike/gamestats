@@ -7,13 +7,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * The main class of the application. Starts the Spring Boot application.
  */
-// CHECKSTYLE.OFF: FinalClass // Spring Boot requires this class not to be final
+// Spring Boot requires this class not to be final and to have a public constructor
+// CHECKSTYLE.OFF: FinalClass
+// CHECKSTYLE.OFF: HideUtilityClassConstructor
 @SpringBootApplication
 public class GamestatsApplication {
 // CHECKSTYLE.ON: FinalClass
-
-    private GamestatsApplication() {
-    }
+// CHECKSTYLE.ON: HideUtilityClassConstructor
 
     /**
      * Entry point of the application.

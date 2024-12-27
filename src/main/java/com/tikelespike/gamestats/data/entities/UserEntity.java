@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import java.util.HashSet;
@@ -29,6 +30,9 @@ public class UserEntity {
     private String name;
     private String email;
     private String password;
+
+    @OneToOne(fetch = FetchType.EAGER, mappedBy = "owner")
+    private PlayerEntity player;
 
     @Enumerated(EnumType.STRING)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
@@ -50,11 +54,13 @@ public class UserEntity {
      * @param password password used for login
      * @param roles the roles assigned to the user (for permission management)
      */
-    public UserEntity(Long id, String name, String email, String password, Set<UserRoleEntity> roles) {
+    public UserEntity(Long id, String name, String email, String password,
+                      PlayerEntity player, Set<UserRoleEntity> roles) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.player = player;
         this.roles = roles;
     }
 
@@ -129,6 +135,14 @@ public class UserEntity {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public PlayerEntity getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(PlayerEntity player) {
+        this.player = player;
     }
 
     /**

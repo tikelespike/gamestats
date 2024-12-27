@@ -20,6 +20,7 @@ public class User implements UserDetails {
     private String name;
     private String email;
     private String password;
+    private Player player;
 
     /**
      * Creates a new user object with unassigned id number. This constructor is used when creating a new user, as the id
@@ -31,23 +32,24 @@ public class User implements UserDetails {
      * @param roles the roles assigned to the user (for permission management)
      */
     public User(String name, String email, String password, Set<UserRole> roles) {
-        this(null, name, email, password, roles);
+        this(null, name, email, password, null, roles);
     }
 
     /**
      * Creates a new user. This constructor is used when loading an existing user from the database. To create a new
-     * user without specifying an id, use {@link #User(String, String, Set)}.
+     * user without specifying an id, use {@link #User(String, String, String, Set)}.
      *
      * @param id unique identifier of the user
      * @param email email address used for login
      * @param password password used for login
      * @param roles the roles assigned to the user (for permission management)
      */
-    public User(Long id, String name, String email, String password, Set<UserRole> roles) {
+    public User(Long id, String name, String email, String password, Player player, Set<UserRole> roles) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.player = player;
         this.roles = roles;
     }
 
@@ -118,6 +120,14 @@ public class User implements UserDetails {
      */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     /**
