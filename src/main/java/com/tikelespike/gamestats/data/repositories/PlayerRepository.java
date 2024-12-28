@@ -8,4 +8,5 @@ public interface PlayerRepository extends Repository<PlayerEntity, Long> {
 
     PlayerEntity findById(long id);
 
+    void deleteAll();
 }

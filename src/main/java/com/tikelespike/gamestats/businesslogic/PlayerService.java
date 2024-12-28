@@ -18,12 +18,19 @@ public class PlayerService {
     }
 
     public Player createPlayer(String name) {
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("Name must not be empty");
+        }
         Player player = new Player(name);
         return mapper.toBusinessObject(playerRepository.save(mapper.toTransferObject(player)));
     }
 
     public Player createPlayer(User owner) {
+        if (owner.getPlayer() != null) {
+            throw new IllegalStateException("User already has a player");
+        }
         Player player = new Player(owner);
+        owner.setPlayer(player);
         return mapper.toBusinessObject(playerRepository.save(mapper.toTransferObject(player)));
     }
 }
