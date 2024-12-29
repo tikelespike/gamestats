@@ -46,6 +46,17 @@ public class UserService implements UserDetailsService {
     }
 
     /**
+     * Checks if a user with the given id exists in the system.
+     *
+     * @param id the id of the user to check
+     *
+     * @return true if a user with the given id exists, false otherwise
+     */
+    public boolean userExists(Long id) {
+        return repository.existsById(id);
+    }
+
+    /**
      * Creates a new user account.
      *
      * @param data the sign-up request data

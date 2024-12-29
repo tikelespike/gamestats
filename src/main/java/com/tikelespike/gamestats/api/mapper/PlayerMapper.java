@@ -18,9 +18,9 @@ public class PlayerMapper implements Mapper<Player, PlayerDTO> {
     @Override
     public Player toBusinessObject(PlayerDTO transferObject) {
         return new Player(
-                transferObject.getId(),
-                transferObject.getName(),
-                userService.loadUser(transferObject.getOwnerId())
+                transferObject.id(),
+                transferObject.name(),
+                userService.loadUser(transferObject.ownerId())
         );
     }
 

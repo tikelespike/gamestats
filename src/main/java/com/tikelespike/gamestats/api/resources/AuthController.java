@@ -43,8 +43,8 @@ public class AuthController {
      * @param tokenService the token service generating JWT tokens
      * @param signupMapper the mapper for converting between sign-up data transfer objects and business objects
      */
-    public AuthController(AuthenticationManager authenticationManager, UserService service,
-                          TokenProvider tokenService, SignupMapper signupMapper) {
+    public AuthController(AuthenticationManager authenticationManager, UserService service, TokenProvider tokenService,
+                          SignupMapper signupMapper) {
         this.authenticationManager = authenticationManager;
         this.service = service;
         this.tokenService = tokenService;
@@ -59,10 +59,12 @@ public class AuthController {
      * @return a REST response entity (201 CREATED if the sign-up was successful)
      */
     @Operation(summary = "Sign up a new user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "New user created. Use the signin endpoint to retrieve an "
-                    + "authentication token."),
-    })
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "201",
+                    description = "New user created. Use the signin endpoint to retrieve an authentication token."
+            )}
+    )
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody @Parameter(description = "Sign-up request details") SignUpDTO data) {
         service.signUp(signupMapper.toBusinessObject(data));
@@ -77,13 +79,15 @@ public class AuthController {
      * @return a response entity containing the JWT token
      */
     @Operation(summary = "Sign in an existing user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Signed in successfully. The response body contains "
-                    + "the JWT token.", content = {@Content(schema = @Schema(implementation = JwtDTO.class))}),
-    })
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Signed in successfully. The response body contains the JWT token.",
+                    content = {@Content(schema = @Schema(implementation = JwtDTO.class))}
+            )}
+    )
     @PostMapping("/signin")
-    public ResponseEntity<JwtDTO> signIn(
-            @RequestBody @Schema(description = "Sign-in request details") SignInDTO data) {
+    public ResponseEntity<JwtDTO> signIn(@RequestBody @Schema(description = "Sign-in request details") SignInDTO data) {
         Authentication usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
         Authentication authentication = authenticationManager.authenticate(usernamePassword);
         String accessToken = tokenService.generateAccessToken((User) authentication.getPrincipal());

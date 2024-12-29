@@ -1,41 +1,29 @@
 package com.tikelespike.gamestats.api.entities;
 
-public class PlayerDTO {
+import io.swagger.v3.oas.annotations.media.Schema;
 
-    private Long id;
-    private String name;
-    private Long ownerId;
+/**
+ * REST transfer object for the player in its full state.
+ *
+ * @param id unique numerical identifier
+ * @param name human-readable name
+ * @param ownerId unique numerical identifier of the owning user
+ *
+ * @see PlayerCreationDTO
+ */
+public record PlayerDTO(
+        @Schema(
+                description = "Unique numerical identifier of the player.",
+                example = "12"
+        ) Long id,
+        @Schema(
+                description = "Player's human readable name.",
+                example = "Max Mustermann"
+        ) String name,
+        @Schema(
+                description = "Unique numerical identifier of the owning user.",
+                example = "42"
+        ) Long ownerId
+) {
 
-    public PlayerDTO() {
-    }
-
-    public PlayerDTO(Long id, String name, Long ownerId) {
-        this.id = id;
-        this.name = name;
-        this.ownerId = ownerId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
-    }
 }

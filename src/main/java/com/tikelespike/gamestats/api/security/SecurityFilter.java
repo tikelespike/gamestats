@@ -1,5 +1,6 @@
 package com.tikelespike.gamestats.api.security;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.tikelespike.gamestats.businesslogic.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -40,7 +41,13 @@ public class SecurityFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = this.recoverToken(request);
         if (token != null) {
-            String login = tokenService.validateToken(token);
+            String login = null;
+            try {
+                login = tokenService.validateToken(token);
+            } catch (JWTVerificationException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+                return;
+            }
             var user = userService.loadUserByUsername(login);
 
             var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
