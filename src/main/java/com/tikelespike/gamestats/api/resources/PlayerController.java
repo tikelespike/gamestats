@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -68,11 +67,17 @@ public final class PlayerController {
                     responseCode = "200",
                     description = "List of players retrieved successfully.",
                     content = {@Content(array = @ArraySchema(schema = @Schema(implementation = PlayerDTO.class)))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
             )}
     )
     @GetMapping()
     public ResponseEntity<List<PlayerDTO>> getPlayers() {
-        return ResponseEntity.ok(new ArrayList<>());
+        List<PlayerDTO> players = playerService.getAllPlayers().stream().map(playerMapper::toTransferObject).toList();
+        return ResponseEntity.ok(players);
     }
 
     /**

@@ -6,6 +6,8 @@ import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
 import com.tikelespike.gamestats.data.repositories.PlayerRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Service for managing players. A player is a participant in games and can be associated with a user. There can also be
  * players that do not have a user account in this application.
@@ -26,6 +28,16 @@ public class PlayerService {
     public PlayerService(PlayerRepository playerRepository, UserPlayerEntityMapper mapper) {
         this.playerRepository = playerRepository;
         this.mapper = mapper;
+    }
+
+    /**
+     * Returns all players in the system. This includes players that are associated with users and players that are
+     * not.
+     *
+     * @return a list of all players in the system
+     */
+    public List<Player> getAllPlayers() {
+        return playerRepository.findAll().stream().map(mapper::toBusinessObject).toList();
     }
 
     /**
