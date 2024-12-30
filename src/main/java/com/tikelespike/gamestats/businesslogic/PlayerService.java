@@ -41,6 +41,17 @@ public class PlayerService {
     }
 
     /**
+     * Retrieves a player by its unique identifier.
+     *
+     * @param id the unique identifier of the player
+     *
+     * @return the player with the given id, or null if no such player exists
+     */
+    public Player getPlayerById(long id) {
+        return mapper.toBusinessObject(playerRepository.findById(id));
+    }
+
+    /**
      * Creates a new player in the system with the given name. The player is not associated with any user.
      *
      * @param name human-readable name of the player (usually the real-world name of the person). Must not be

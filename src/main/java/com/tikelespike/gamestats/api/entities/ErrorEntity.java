@@ -48,4 +48,16 @@ public record ErrorEntity(
     public static ErrorEntity badRequest(String message, String path) {
         return new ErrorEntity(Instant.now(), HttpStatus.BAD_REQUEST.value(), "Bad Request", message, path);
     }
+
+    /**
+     * Creates an error entity for a 404 Not Found error.
+     *
+     * @param path the path of the resource that caused the error
+     *
+     * @return the error entity
+     */
+    public static ErrorEntity notFound(String path) {
+        return new ErrorEntity(Instant.now(), HttpStatus.NOT_FOUND.value(), "Not Found",
+                "The requested resource was not found.", path);
+    }
 }

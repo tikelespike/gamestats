@@ -6,6 +6,7 @@ import com.tikelespike.gamestats.api.entities.PlayerDTO;
 import com.tikelespike.gamestats.api.mapper.PlayerMapper;
 import com.tikelespike.gamestats.businesslogic.PlayerService;
 import com.tikelespike.gamestats.businesslogic.UserService;
+import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -143,9 +145,42 @@ public final class PlayerController {
         return ResponseEntity.created(URI.create("/api/v1/players/" + createdPlayer.id())).body(createdPlayer);
     }
 
+    /**
+     * Retrieves a player by its unique identifier.
+     *
+     * @param id the unique identifier of the player
+     *
+     * @return a REST response entity containing the player with the given ID
+     */
+    @Operation(
+            summary = "Retrieves a player by ID",
+            description =
+                    "Retrieves a player by its unique identifier. If no player with the given ID exists, a 404 Not "
+                            + "Found response is returned."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Retrieved player successfully. The response body contains the player.",
+                    content = {@Content(schema = @Schema(implementation = PlayerDTO.class))}
+            ), @ApiResponse(
+                    responseCode = "404",
+                    description = "The player with the requested id does not exist.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerDTO> getPlayer(@PathVariable("id") long id) {
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Object> getPlayer(@PathVariable("id") long id) {
+        Player player = playerService.getPlayerById(id);
+        if (player == null) {
+            return notFound("/api/v1/players/" + id);
+        }
+        return ResponseEntity.ok(playerMapper.toTransferObject(player));
     }
 
     @PutMapping("/{id}")
@@ -160,5 +195,9 @@ public final class PlayerController {
 
     private static ResponseEntity<Object> requestInvalid(String message, String path) {
         return ResponseEntity.badRequest().body(ErrorEntity.badRequest(message, path));
+    }
+
+    private static ResponseEntity<Object> notFound(String path) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorEntity.notFound(path));
     }
 }
