@@ -9,6 +9,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+/**
+ * The database representation of a game participant.
+ */
 @Table()
 @Entity(name = "players")
 public class PlayerEntity {
@@ -20,7 +23,10 @@ public class PlayerEntity {
     private String name;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    @JoinColumn(
+            name = "owner_id",
+            referencedColumnName = "id"
+    )
     private UserEntity owner;
 
     /**

@@ -42,4 +42,11 @@ public interface PlayerRepository extends Repository<PlayerEntity, Long> {
      * @return true if a player with the given id exists, false otherwise
      */
     boolean existsById(Long id);
+
+    /**
+     * Deletes the player entity with the given id from the database.
+     *
+     * @param id the unique identifier of the player
+     */
+    void deleteById(Long id);
 }

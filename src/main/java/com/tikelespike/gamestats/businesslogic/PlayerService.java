@@ -4,6 +4,7 @@ import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.User;
 import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
 import com.tikelespike.gamestats.data.repositories.PlayerRepository;
+import com.tikelespike.gamestats.data.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
     private final UserPlayerEntityMapper mapper;
+    private final UserRepository userRepository;
 
     /**
      * Creates a new player service. This is usually done by the Spring framework, which manages the service's lifecycle
@@ -25,9 +27,11 @@ public class PlayerService {
      * @param playerRepository repository managing player entities in the database
      * @param mapper mapper for converting between player business objects and player entities
      */
-    public PlayerService(PlayerRepository playerRepository, UserPlayerEntityMapper mapper) {
+    public PlayerService(PlayerRepository playerRepository, UserPlayerEntityMapper mapper,
+                         UserRepository userRepository) {
         this.playerRepository = playerRepository;
         this.mapper = mapper;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -114,5 +118,25 @@ public class PlayerService {
             throw new IllegalArgumentException("Player must have a name or an owner");
         }
         return mapper.toBusinessObject(playerRepository.save(mapper.toTransferObject(player)));
+    }
+
+    /**
+     * Deletes a player from the system. The player must already exist in the system.
+     *
+     * @param id the unique identifier of the player to delete
+     */
+    public void deletePlayer(Long id) {
+        Player player = getPlayerById(id);
+        if (player == null) {
+            throw new IllegalArgumentException("Player does not exist");
+        }
+
+        User owner = player.getOwner();
+        if (owner != null) {
+            owner.setPlayer(null);
+            userRepository.save(mapper.toTransferObject(owner));
+        }
+
+        playerRepository.deleteById(id);
     }
 }

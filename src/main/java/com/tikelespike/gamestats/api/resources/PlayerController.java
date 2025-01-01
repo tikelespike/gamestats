@@ -247,9 +247,40 @@ public final class PlayerController {
         return ResponseEntity.ok(playerMapper.toTransferObject(updatedPlayer));
     }
 
+    /**
+     * Deletes a player from the system.
+     *
+     * @param id the unique identifier of the player
+     *
+     * @return a REST response entity indicating the success of the operation
+     */
+    @Operation(
+            summary = "Deletes a player",
+            description = "Deletes a player from the system. If the player does not exist, a 404 Not Found response is "
+                    + "returned."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Deleted player successfully."
+            ), @ApiResponse(
+                    responseCode = "404",
+                    description = "The player with the requested id does not exist.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
     @DeleteMapping("/{id}")
-    public ResponseEntity<PlayerDTO> deletePlayer(@PathVariable("id") long id) {
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Object> deletePlayer(@PathVariable("id") long id) {
+        if (!playerService.playerExists(id)) {
+            return notFound("/api/v1/players/" + id);
+        }
+        playerService.deletePlayer(id);
+        return ResponseEntity.ok().build();
     }
 
     private static ResponseEntity<Object> requestInvalid(String message, String path) {

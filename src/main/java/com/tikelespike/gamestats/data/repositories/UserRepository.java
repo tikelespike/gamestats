@@ -16,4 +16,13 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
      * @return the user entity with the given email address
      */
     UserEntity findByEmail(String email);
+
+    /**
+     * Retrieves the user entity with the given id from the database.
+     *
+     * @param id the unique identifier of the user
+     *
+     * @return the user with the given id, or null if no such user exists
+     */
+    UserEntity findById(long id);
 }
