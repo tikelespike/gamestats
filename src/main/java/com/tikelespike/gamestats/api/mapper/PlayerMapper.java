@@ -6,11 +6,20 @@ import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.common.Mapper;
 import org.springframework.stereotype.Component;
 
+/**
+ * Maps between the player business object and the player data transfer object used in the REST interface.
+ */
 @Component
 public class PlayerMapper implements Mapper<Player, PlayerDTO> {
 
     private final UserService userService;
 
+    /**
+     * Creates a new player mapper. This is usually done by the Spring framework, which manages the mapper's lifecycle
+     * and injects the required dependencies.
+     *
+     * @param userService the user service to use for loading user details
+     */
     public PlayerMapper(UserService userService) {
         this.userService = userService;
     }
@@ -20,7 +29,7 @@ public class PlayerMapper implements Mapper<Player, PlayerDTO> {
         return new Player(
                 transferObject.id(),
                 transferObject.name(),
-                userService.loadUser(transferObject.ownerId())
+                transferObject.ownerId() == null ? null : userService.loadUser(transferObject.ownerId())
         );
     }
 

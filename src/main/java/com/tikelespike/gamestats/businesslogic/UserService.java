@@ -39,6 +39,13 @@ public class UserService implements UserDetailsService {
         return mapper.toBusinessObject(user);
     }
 
+    /**
+     * Loads a user by its unique identifier.
+     *
+     * @param id the unique identifier of the user
+     *
+     * @return the user with the given id, or null if no such user exists
+     */
     public User loadUser(Long id) {
         var user = repository.findById(id)
                 .orElse(null);

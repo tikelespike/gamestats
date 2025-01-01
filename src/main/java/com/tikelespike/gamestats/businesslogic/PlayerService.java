@@ -52,6 +52,17 @@ public class PlayerService {
     }
 
     /**
+     * Checks if a player with the given id exists in the system.
+     *
+     * @param id the unique identifier of the player
+     *
+     * @return true if a player with the given id exists, false otherwise
+     */
+    public boolean playerExists(Long id) {
+        return playerRepository.existsById(id);
+    }
+
+    /**
      * Creates a new player in the system with the given name. The player is not associated with any user.
      *
      * @param name human-readable name of the player (usually the real-world name of the person). Must not be
@@ -82,6 +93,26 @@ public class PlayerService {
         }
         Player player = new Player(owner);
         owner.setPlayer(player);
+        return mapper.toBusinessObject(playerRepository.save(mapper.toTransferObject(player)));
+    }
+
+    /**
+     * Updates the player in the system. The player must already exist in the system.
+     *
+     * @param player the updated player data
+     *
+     * @return the updated player
+     */
+    public Player updatePlayer(Player player) {
+        if (player.getId() == null) {
+            throw new IllegalArgumentException("Player must have an id");
+        }
+        if (!playerRepository.existsById(player.getId())) {
+            throw new IllegalArgumentException("Player does not exist");
+        }
+        if ((player.getName() == null || player.getName().isBlank()) && player.getOwner() == null) {
+            throw new IllegalArgumentException("Player must have a name or an owner");
+        }
         return mapper.toBusinessObject(playerRepository.save(mapper.toTransferObject(player)));
     }
 }

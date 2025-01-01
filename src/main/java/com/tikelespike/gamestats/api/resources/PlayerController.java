@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,6 +36,10 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/players")
+@Tag(
+        name = "Player Management",
+        description = "Operations for managing players"
+)
 public final class PlayerController {
 
     private final PlayerService playerService;
@@ -183,9 +188,63 @@ public final class PlayerController {
         return ResponseEntity.ok(playerMapper.toTransferObject(player));
     }
 
+    /**
+     * Updates a player in the system. The player must already exist in the system.
+     *
+     * @param id the unique identifier of the player
+     * @param player the player data transfer object containing the updated data
+     *
+     * @return a REST response entity containing the updated player
+     */
+    @Operation(
+            summary = "Updates a player",
+            description =
+                    "Updates a player in the system. The player must already exist in the system. The player ID in the "
+                            + "path and in the request body must match. If the player is associated with a user, the "
+                            + "user's name will override the player's name (updating the name directly will not have "
+                            + "any effect. If the player is associated with a user, the owner ID must be provided. If"
+                            + " the player is not associated with a user, the name must be provided. You can change "
+                            + "whether the player is associated with a user by providing or removing the owner ID."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Updated player successfully. The response body contains the updated player.",
+                    content = {@Content(schema = @Schema(implementation = PlayerDTO.class))}
+            ), @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request. The response body contains an error message.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "404",
+                    description = "The player with the requested id does not exist. Create it first by POSTing to "
+                            + "/api/v1/players.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
     @PutMapping("/{id}")
-    public ResponseEntity<PlayerDTO> updatePlayer(@PathVariable("id") long id, PlayerDTO player) {
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Object> updatePlayer(@PathVariable("id") long id, @RequestBody PlayerDTO player) {
+        if (!playerService.playerExists(id)) {
+            return notFound("/api/v1/players/" + id);
+        }
+
+        if (player.id() != id) {
+            return requestInvalid("Player ID in path and body do not match (id cannot be changed)",
+                    "/api/v1/players/" + id);
+        }
+        if ((player.name() == null || player.name().isBlank()) && player.ownerId() == null) {
+            return requestInvalid("Either a name or an owner ID must be provided", "/api/v1/players/" + id);
+        }
+        if (player.ownerId() != null && !userService.userExists(player.ownerId())) {
+            return requestInvalid("Owner ID " + player.ownerId() + " does not exist", "/api/v1/players/" + id);
+        }
+        Player updatedPlayer = playerService.updatePlayer(playerMapper.toBusinessObject(player));
+        return ResponseEntity.ok(playerMapper.toTransferObject(updatedPlayer));
     }
 
     @DeleteMapping("/{id}")

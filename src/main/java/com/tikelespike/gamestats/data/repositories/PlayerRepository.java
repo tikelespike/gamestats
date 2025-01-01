@@ -33,4 +33,13 @@ public interface PlayerRepository extends Repository<PlayerEntity, Long> {
      * @return all player entities in the database
      */
     List<PlayerEntity> findAll();
+
+    /**
+     * Checks if a player with the given id exists in the system.
+     *
+     * @param id the unique identifier of the player
+     *
+     * @return true if a player with the given id exists, false otherwise
+     */
+    boolean existsById(Long id);
 }
