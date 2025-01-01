@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +41,7 @@ import java.util.List;
         name = "Player Management",
         description = "Operations for managing players"
 )
-public final class PlayerController {
+public class PlayerController {
 
     private final PlayerService playerService;
     private final UserService userService;
@@ -118,6 +119,7 @@ public final class PlayerController {
                     content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
             )}
     )
+    @PreAuthorize("hasAuthority('STORYTELLER')")
     @PostMapping()
     public ResponseEntity<Object> createPlayer(@RequestBody PlayerCreationDTO player) {
         if (player.ownerId() != null) {
@@ -228,6 +230,7 @@ public final class PlayerController {
             )}
     )
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('STORYTELLER')")
     public ResponseEntity<Object> updatePlayer(@PathVariable("id") long id, @RequestBody PlayerDTO player) {
         if (!playerService.playerExists(id)) {
             return notFound("/api/v1/players/" + id);
@@ -275,6 +278,7 @@ public final class PlayerController {
             )}
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('STORYTELLER')")
     public ResponseEntity<Object> deletePlayer(@PathVariable("id") long id) {
         if (!playerService.playerExists(id)) {
             return notFound("/api/v1/players/" + id);
