@@ -11,7 +11,7 @@ import java.util.Objects;
  * the user has control over the player and can manage it. This usually means that the user and the player both
  * represent the same real-world person.
  */
-public class Player {
+public class Player implements HasId {
     private final Long id;
     private String name;
     private User owner;
@@ -55,11 +55,7 @@ public class Player {
         }
     }
 
-    /**
-     * Returns the unique identifier of the player.
-     *
-     * @return the unique identifier of the player
-     */
+    @Override
     public Long getId() {
         return id;
     }
