@@ -10,7 +10,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -79,5 +81,21 @@ public class CharacterController {
         List<Character> characters = characterService.getCharacters();
         List<CharacterDTO> transferObjects = characters.stream().map(characterMapper::toTransferObject).toList();
         return ResponseEntity.ok(transferObjects);
+    }
+
+    /**
+     * Updates a character.
+     *
+     * @param id character id (must be the same as in the body, if given there)
+     * @param characterDTO character to update
+     *
+     * @return a REST response entity containing the updated character
+     */
+    @PreAuthorize("hasAuthority('STORYTELLER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateCharacter(@PathVariable("id") long id, @RequestBody CharacterDTO characterDTO) {
+        Character character = characterService.updateCharacter(characterMapper.toBusinessObject(characterDTO));
+        CharacterDTO transferObject = characterMapper.toTransferObject(character);
+        return ResponseEntity.ok(transferObject);
     }
 }

@@ -49,6 +49,17 @@ public class CharacterService {
     }
 
     /**
+     * Updates an existing character in the system.
+     *
+     * @param character the character to update
+     *
+     * @return the updated character
+     */
+    public Character updateCharacter(Character character) {
+        return characterMapper.toBusinessObject(characterRepository.save(characterMapper.toTransferObject(character)));
+    }
+
+    /**
      * Returns the list of characters currently known to the system.
      *
      * @return the list of characters currently known to the system.
