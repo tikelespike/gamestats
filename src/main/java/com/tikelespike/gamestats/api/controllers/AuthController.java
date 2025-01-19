@@ -1,4 +1,4 @@
-package com.tikelespike.gamestats.api.resources;
+package com.tikelespike.gamestats.api.controllers;
 
 import com.tikelespike.gamestats.api.entities.JwtDTO;
 import com.tikelespike.gamestats.api.entities.SignInDTO;

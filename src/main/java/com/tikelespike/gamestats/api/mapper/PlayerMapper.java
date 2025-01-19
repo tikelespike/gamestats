@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * Maps between the player business object and the player data transfer object used in the REST interface.
  */
 @Component
-public class PlayerMapper implements Mapper<Player, PlayerDTO> {
+public class PlayerMapper extends Mapper<Player, PlayerDTO> {
 
     private final UserService userService;
 
@@ -25,7 +25,7 @@ public class PlayerMapper implements Mapper<Player, PlayerDTO> {
     }
 
     @Override
-    public Player toBusinessObject(PlayerDTO transferObject) {
+    public Player toBusinessObjectNoCheck(PlayerDTO transferObject) {
         return new Player(
                 transferObject.id(),
                 transferObject.name(),
@@ -34,7 +34,7 @@ public class PlayerMapper implements Mapper<Player, PlayerDTO> {
     }
 
     @Override
-    public PlayerDTO toTransferObject(Player businessObject) {
+    public PlayerDTO toTransferObjectNoCheck(Player businessObject) {
         return new PlayerDTO(
                 businessObject.getId(),
                 businessObject.getName(),

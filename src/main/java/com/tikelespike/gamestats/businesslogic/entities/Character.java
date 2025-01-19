@@ -34,12 +34,11 @@ public class Character implements HasWikiPage, HasId {
     /**
      * Creates a new character with the minimum required information.
      *
-     * @param id unique identifier for this character
      * @param name display name of this character (e.g. {@code "Fortune Teller"})
      * @param characterType the group of characters this one belongs to
      */
-    public Character(Long id, String name, CharacterType characterType) {
-        this(id, null, name, characterType, null);
+    public Character(String name, CharacterType characterType) {
+        this(null, null, name, characterType, null);
     }
 
     @Override

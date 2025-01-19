@@ -9,15 +9,15 @@ import org.springframework.stereotype.Component;
  * Maps between the user role business object and the user role entity database representation.
  */
 @Component
-public class UserRoleMapper implements Mapper<UserRole, UserRoleEntity> {
+public class UserRoleMapper extends Mapper<UserRole, UserRoleEntity> {
 
     @Override
-    public UserRole toBusinessObject(UserRoleEntity transferObject) {
+    public UserRole toBusinessObjectNoCheck(UserRoleEntity transferObject) {
         return UserRole.valueOf(transferObject.name());
     }
 
     @Override
-    public UserRoleEntity toTransferObject(UserRole businessObject) {
+    public UserRoleEntity toTransferObjectNoCheck(UserRole businessObject) {
         return UserRoleEntity.valueOf(businessObject.name());
     }
 }

@@ -8,7 +8,7 @@ import jakarta.persistence.Enumerated;
 /**
  * Database representation of a game character.
  */
-@Entity(name = "players")
+@Entity(name = "characters")
 public class CharacterEntity extends AbstractEntity {
     private String scriptToolIdentifier;
     private String name;

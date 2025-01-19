@@ -7,23 +7,53 @@ package com.tikelespike.gamestats.common;
  * @param <BusinessType> the business object type
  * @param <TransferType> the transfer object type
  */
-public interface Mapper<BusinessType, TransferType> {
+public abstract class Mapper<BusinessType, TransferType> {
+
+    /**
+     * Maps from a transfer object to a business object. You do not need to check that the transfer object is null. It
+     * is assumed by contract to be non-null.
+     *
+     * @param transferObject the transfer object to map. Is not null.
+     *
+     * @return a corresponding business object
+     */
+    protected abstract BusinessType toBusinessObjectNoCheck(TransferType transferObject);
+
+    /**
+     * Maps from a business object to a transfer object. You do not need to check that the business object is null. It
+     * is assumed by contract to be non-null.
+     *
+     * @param businessObject the business object to map. Is not null.
+     *
+     * @return a corresponding transfer object
+     */
+    protected abstract TransferType toTransferObjectNoCheck(BusinessType businessObject);
 
     /**
      * Maps from a transfer object to a business object.
      *
-     * @param transferObject the transfer object to map
+     * @param transferObject the transfer object to map. May be null.
      *
-     * @return a corresponding business object
+     * @return a corresponding business object, or null if the transfer object is null
      */
-    BusinessType toBusinessObject(TransferType transferObject);
+    public BusinessType toBusinessObject(TransferType transferObject) {
+        if (transferObject == null) {
+            return null;
+        }
+        return toBusinessObjectNoCheck(transferObject);
+    }
 
     /**
      * Maps from a business object to a transfer object.
      *
-     * @param businessObject the business object to map
+     * @param businessObject the business object to map. May be null.
      *
-     * @return a corresponding transfer object
+     * @return a corresponding transfer object, or null if the business object is null
      */
-    TransferType toTransferObject(BusinessType businessObject);
+    public TransferType toTransferObject(BusinessType businessObject) {
+        if (businessObject == null) {
+            return null;
+        }
+        return toTransferObjectNoCheck(businessObject);
+    }
 }

@@ -2,19 +2,23 @@ package com.tikelespike.gamestats.businesslogic.mapper;
 
 import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.User;
+import com.tikelespike.gamestats.businesslogic.entities.UserRole;
+import com.tikelespike.gamestats.common.Mapper;
 import com.tikelespike.gamestats.data.entities.PlayerEntity;
 import com.tikelespike.gamestats.data.entities.UserEntity;
+import com.tikelespike.gamestats.data.entities.UserRoleEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
 
 /**
- * Maps between the user business object and the user entity database representation.
+ * Maps between the user business object and the user entity database representation, as well as between players and
+ * their database representation. These two are tightly coupled, so it is necessary to convert them together.
  */
 @Component
 public class UserPlayerEntityMapper {
 
-    private final UserRoleMapper roleMapper;
+    private final Mapper<UserRole, UserRoleEntity> roleMapper;
 
     /**
      * Creates a new mapper. This is usually done by the Spring framework, which manages the mapper's lifecycle and
@@ -26,6 +30,14 @@ public class UserPlayerEntityMapper {
         this.roleMapper = roleMapper;
     }
 
+    /**
+     * Maps a user entity database object to a user business object. This will also map the associated player object, if
+     * necessary.
+     *
+     * @param transferObject database representation of the user
+     *
+     * @return a user business object equivalent to the transferObject
+     */
     public User toBusinessObject(UserEntity transferObject) {
         if (transferObject == null) {
             return null;
@@ -43,6 +55,14 @@ public class UserPlayerEntityMapper {
         return user;
     }
 
+    /**
+     * Maps a user business object to a user entity database object. This will also map the associated player object, if
+     * necessary.
+     *
+     * @param businessObject business object to map
+     *
+     * @return a user entity equivalent to the businessObject
+     */
     public UserEntity toTransferObject(User businessObject) {
         if (businessObject == null) {
             return null;
@@ -60,6 +80,14 @@ public class UserPlayerEntityMapper {
         return user;
     }
 
+    /**
+     * Maps a player entity database object to a player business object. This will also map the associated user object,
+     * if necessary.
+     *
+     * @param transferObject database representation of the player
+     *
+     * @return a player business object equivalent to the transferObject
+     */
     public Player toBusinessObject(PlayerEntity transferObject) {
         if (transferObject == null) {
             return null;
@@ -77,6 +105,14 @@ public class UserPlayerEntityMapper {
         return player;
     }
 
+    /**
+     * Maps a player business object to a player entity database object. This will also map the associated user object,
+     * if necessary.
+     *
+     * @param businessObject business object to map
+     *
+     * @return a player entity equivalent to the businessObject
+     */
     public PlayerEntity toTransferObject(Player businessObject) {
         if (businessObject == null) {
             return null;
