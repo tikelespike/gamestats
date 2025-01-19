@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
  * Configures the security settings for the application.
@@ -23,15 +24,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class AuthConfig {
     private final SecurityFilter securityFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     /**
      * Creates a new AuthConfig. This is usually done by the Spring framework, which manages the configuration's
      * lifecycle and injects the required dependencies.
      *
      * @param securityFilter the security filter to use for authenticating requests
+     * @param corsConfigurationSource the CORS configuration source to use for configuring CORS settings
      */
-    public AuthConfig(SecurityFilter securityFilter) {
+    public AuthConfig(SecurityFilter securityFilter, CorsConfigurationSource corsConfigurationSource) {
         this.securityFilter = securityFilter;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     /**
@@ -44,9 +48,11 @@ public class AuthConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/*").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
