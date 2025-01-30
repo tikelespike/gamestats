@@ -29,3 +29,8 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
+
+dev:
+  delay:
+    before: ${DELAY_BEFORE:0}
+    after: ${DELAY_AFTER:0}
