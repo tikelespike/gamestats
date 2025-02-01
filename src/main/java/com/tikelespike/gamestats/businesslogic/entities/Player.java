@@ -25,6 +25,10 @@ public class Player implements HasId {
      * @param owner the user that owns this player, or null if the player is not owned by any user
      */
     public Player(Long id, String name, User owner) {
+        if ((name == null || name.isBlank()) && owner == null) {
+            throw new IllegalArgumentException("Either name or owner must be set");
+        }
+
         this.id = id;
         this.name = name;
         this.owner = owner;
@@ -50,9 +54,6 @@ public class Player implements HasId {
      */
     public Player(@NotNull String name) {
         this(null, name, null);
-        if (name.isBlank()) {
-            throw new IllegalArgumentException("Player name must not be empty");
-        }
     }
 
     @Override
