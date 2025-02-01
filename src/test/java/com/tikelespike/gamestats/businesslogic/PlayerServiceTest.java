@@ -8,13 +8,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.HashSet;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = GamestatsApplication.class)
 class PlayerServiceTest {
 
+    private static final long TEST_ID_1 = 12345L;
+    private static final int TEST_ID_2 = 4242;
+    private static final long TEST_ID_3 = 6969L;
     // CUT
     @Autowired
     private PlayerService playerService;
@@ -65,6 +73,97 @@ class PlayerServiceTest {
         playerService.createPlayer(testUser);
 
         assertThrows(IllegalStateException.class, () -> playerService.createPlayer(testUser));
+    }
+
+    @Test
+    void testCreateAssignedInvalidUser() {
+        User user = new User(TEST_ID_1, "I dont exist", "invalid@test.com", "", null, new HashSet<>());
+
+        assertThrows(IllegalArgumentException.class, () -> playerService.createPlayer(user));
+    }
+
+    @Test
+    void testGetAll() {
+        User testUser = createTestUser("testGetAll");
+        Player firstPlayer = playerService.createPlayer("Example Name");
+        Player secondPlayer = playerService.createPlayer(testUser);
+
+
+        List<Player> allPlayers = playerService.getAllPlayers();
+
+        assertTrue(allPlayers.contains(firstPlayer));
+        assertTrue(allPlayers.contains(secondPlayer));
+    }
+
+    @Test
+    void testGetSingle() {
+        Player player = playerService.createPlayer("testGetSingle");
+
+        Player retrievedPlayer = playerService.getPlayerById(player.getId());
+
+        assertEquals(player, retrievedPlayer);
+    }
+
+    @Test
+    void testGetSingleNotExistent() {
+        Player player = playerService.getPlayerById(TEST_ID_2);
+
+        assertNull(player);
+    }
+
+    @Test
+    void testUpdateOwner() {
+        User testUser = createTestUser("testUpdateOwner");
+        Player player = playerService.createPlayer("Old Name");
+        player.setOwner(testUser);
+
+        playerService.updatePlayer(player);
+
+        assertEquals(player, playerService.getPlayerById(player.getId()));
+    }
+
+    @Test
+    void testUpdateNonExistentPlayer() {
+        Player player = new Player(TEST_ID_3, "", null);
+
+        assertThrows(IllegalArgumentException.class, () -> playerService.updatePlayer(player));
+    }
+
+    @Test
+    void testUpdatePlayerNameRemoved() {
+        Player player = playerService.createPlayer("testUpdatePlayerNameRemoved");
+        player.setName("");
+
+        assertThrows(IllegalArgumentException.class, () -> playerService.updatePlayer(player));
+    }
+
+    @Test
+    void testUpdatePlayerOwnerRemoved() {
+        User user = createTestUser("testUpdatePlayerOwnerRemoved");
+        Player player = playerService.createPlayer(user);
+        player.setOwner(null);
+
+        assertThrows(IllegalArgumentException.class, () -> playerService.updatePlayer(player));
+    }
+
+    @Test
+    void testUpdateNullId() {
+        Player player = new Player(null, "testUpdateNullId", null);
+        assertThrows(NullPointerException.class, () -> playerService.updatePlayer(player));
+    }
+
+    @Test
+    void testUpdateNullPlayer() {
+        assertThrows(NullPointerException.class, () -> playerService.updatePlayer(null));
+    }
+
+    @Test
+    void testDeletePlayer() {
+        Player player = playerService.createPlayer("testDeletePlayer");
+
+        playerService.deletePlayer(player.getId());
+
+        assertNull(playerService.getPlayerById(player.getId()));
     }
 
     private User createTestUser(String testId) {

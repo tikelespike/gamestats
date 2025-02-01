@@ -26,6 +26,7 @@ public class PlayerService {
      *
      * @param playerRepository repository managing player entities in the database
      * @param mapper mapper for converting between player business objects and player entities
+     * @param userRepository repository managing user accounts
      */
     public PlayerService(PlayerRepository playerRepository, UserPlayerEntityMapper mapper,
                          UserRepository userRepository) {

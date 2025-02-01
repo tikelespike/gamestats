@@ -11,3 +11,9 @@ security:
   jwt:
     token:
       secret-key: "mytopsecrettestingkey"
+  cors:
+    allowed-origins: "*"
+dev:
+  delay:
+    before: 0
+    after: 0
