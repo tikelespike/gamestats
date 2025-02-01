@@ -3,6 +3,7 @@ package com.tikelespike.gamestats.businesslogic;
 import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.User;
 import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
+import com.tikelespike.gamestats.data.entities.UserEntity;
 import com.tikelespike.gamestats.data.repositories.PlayerRepository;
 import com.tikelespike.gamestats.data.repositories.UserRepository;
 import org.springframework.stereotype.Service;
@@ -93,6 +94,22 @@ public class PlayerService {
      * @return the newly created player
      */
     public Player createPlayer(User owner) {
+        return createPlayer(owner.getId());
+    }
+
+    /**
+     * Creates a new player in the system that is controlled by the given user. The owning user and the player usually
+     * represent the same real-world person who both uses the application and participates in games.
+     *
+     * @param ownerId the id of user that manages the player. Must exist in the system and must not already have
+     *         a different player associated with it.
+     */
+    public Player createPlayer(long ownerId) {
+        UserEntity userEntity = userRepository.findById(ownerId);
+        if (userEntity == null) {
+            throw new IllegalArgumentException("User does not exist");
+        }
+        User owner = mapper.toBusinessObject(userEntity);
         if (owner.getPlayer() != null) {
             throw new IllegalStateException("User already has a player");
         }

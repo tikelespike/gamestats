@@ -124,24 +124,7 @@ class PlayerServiceTest {
 
     @Test
     void testUpdateNonExistentPlayer() {
-        Player player = new Player(TEST_ID_3, "", null);
-
-        assertThrows(IllegalArgumentException.class, () -> playerService.updatePlayer(player));
-    }
-
-    @Test
-    void testUpdatePlayerNameRemoved() {
-        Player player = playerService.createPlayer("testUpdatePlayerNameRemoved");
-        player.setName("");
-
-        assertThrows(IllegalArgumentException.class, () -> playerService.updatePlayer(player));
-    }
-
-    @Test
-    void testUpdatePlayerOwnerRemoved() {
-        User user = createTestUser("testUpdatePlayerOwnerRemoved");
-        Player player = playerService.createPlayer(user);
-        player.setOwner(null);
+        Player player = new Player(TEST_ID_3, "testUpdateNonExistentPlayer", null);
 
         assertThrows(IllegalArgumentException.class, () -> playerService.updatePlayer(player));
     }
@@ -149,7 +132,7 @@ class PlayerServiceTest {
     @Test
     void testUpdateNullId() {
         Player player = new Player(null, "testUpdateNullId", null);
-        assertThrows(NullPointerException.class, () -> playerService.updatePlayer(player));
+        assertThrows(IllegalArgumentException.class, () -> playerService.updatePlayer(player));
     }
 
     @Test

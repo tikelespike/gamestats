@@ -115,7 +115,8 @@ public class Player implements HasId {
         } else {
             equalOwners = Objects.equals(owner.getId(), player.owner.getId());
         }
-        return Objects.equals(id, player.id) && Objects.equals(name, player.name) && equalOwners;
+        // getter used for name to allow for owner name override
+        return Objects.equals(id, player.id) && Objects.equals(getName(), player.getName()) && equalOwners;
     }
 
     @Override
