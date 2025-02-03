@@ -1,5 +1,7 @@
 package com.tikelespike.gamestats.businesslogic.entities;
 
+import java.util.Objects;
+
 /**
  * A character is the role that a player takes on in a game.  Players are assigned a character at the start of the game,
  * but it may change during the game due to various game mechanics.
@@ -15,7 +17,7 @@ public class Character implements HasWikiPage, HasId {
     /**
      * Creates a new character.
      *
-     * @param id unique identifier for this character
+     * @param id unique identifier for this character. May not be null.
      * @param scriptToolIdentifier identifier used in the official script tool for this character, if it exists
      *         there (optional). Must be unique among all characters.
      * @param name display name of this character (e.g. {@code "Fortune Teller"})
@@ -24,21 +26,14 @@ public class Character implements HasWikiPage, HasId {
      */
     public Character(Long id, String scriptToolIdentifier, String name, CharacterType characterType,
                      String wikiPageLink) {
-        this.id = id;
+        this.id = Objects.requireNonNull(id);
         this.scriptToolIdentifier = scriptToolIdentifier;
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Name must not be null or blank");
+        }
         this.name = name;
-        this.characterType = characterType;
+        this.characterType = Objects.requireNonNull(characterType);
         this.wikiPageLink = wikiPageLink;
-    }
-
-    /**
-     * Creates a new character with the minimum required information.
-     *
-     * @param name display name of this character (e.g. {@code "Fortune Teller"})
-     * @param characterType the group of characters this one belongs to
-     */
-    public Character(String name, CharacterType characterType) {
-        this(null, null, name, characterType, null);
     }
 
     @Override

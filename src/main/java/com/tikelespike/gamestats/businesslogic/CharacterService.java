@@ -2,8 +2,10 @@ package com.tikelespike.gamestats.businesslogic;
 
 import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterCreationRequest;
+import com.tikelespike.gamestats.businesslogic.entities.CharacterType;
 import com.tikelespike.gamestats.common.Mapper;
 import com.tikelespike.gamestats.data.entities.CharacterEntity;
+import com.tikelespike.gamestats.data.entities.CharacterTypeEntity;
 import com.tikelespike.gamestats.data.repositories.CharacterRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ import java.util.List;
 public class CharacterService {
     private final CharacterRepository characterRepository;
     private final Mapper<Character, CharacterEntity> characterMapper;
+    private final Mapper<CharacterType, CharacterTypeEntity> typeMapper;
+
 
     /**
      * Creates a new character service. This is usually done by the Spring framework, which manages the service's
@@ -23,11 +27,15 @@ public class CharacterService {
      *
      * @param characterRepository repository managing character entities in the database
      * @param characterMapper mapper for converting between character business objects and character entities
+     * @param typeMapper mapper for converting between character type business objects and character type
+     *         entities
      */
     public CharacterService(CharacterRepository characterRepository,
-                            Mapper<Character, CharacterEntity> characterMapper) {
+                            Mapper<Character, CharacterEntity> characterMapper,
+                            Mapper<CharacterType, CharacterTypeEntity> typeMapper) {
         this.characterRepository = characterRepository;
         this.characterMapper = characterMapper;
+        this.typeMapper = typeMapper;
     }
 
     /**
@@ -38,14 +46,14 @@ public class CharacterService {
      * @return the character as created in the system (now including automatically populated fields)
      */
     public Character createCharacter(CharacterCreationRequest creationRequest) {
-        Character character = new Character(
+        CharacterEntity character = new CharacterEntity(
                 null,
                 creationRequest.scriptToolIdentifier(),
                 creationRequest.name(),
-                creationRequest.characterType(),
+                typeMapper.toTransferObject(creationRequest.characterType()),
                 creationRequest.wikiPageLink()
         );
-        return characterMapper.toBusinessObject(characterRepository.save(characterMapper.toTransferObject(character)));
+        return characterMapper.toBusinessObject(characterRepository.save(character));
     }
 
     /**
@@ -66,5 +74,25 @@ public class CharacterService {
      */
     public List<Character> getCharacters() {
         return characterRepository.findAll().stream().map(characterMapper::toBusinessObject).toList();
+    }
+
+    /**
+     * Returns the character with the given id if it is known to the system.
+     *
+     * @param id the id of the character to retrieve
+     *
+     * @return the character with the given id, or null if no such character exists
+     */
+    public Character getCharacter(long id) {
+        return characterMapper.toBusinessObject(characterRepository.findById(id));
+    }
+
+    /**
+     * Removes the character with the given id from the system.
+     *
+     * @param id the id of the character to delete
+     */
+    public void deleteCharacter(long id) {
+        characterRepository.deleteById(id);
     }
 }

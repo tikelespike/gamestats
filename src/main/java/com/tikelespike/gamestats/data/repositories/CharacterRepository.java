@@ -24,4 +24,20 @@ public interface CharacterRepository extends Repository<CharacterEntity, Long> {
      * @return the list of character entities present in the database
      */
     List<CharacterEntity> findAll();
+
+    /**
+     * Retrieves a character entity by its id.
+     *
+     * @param id the id of the character to find
+     *
+     * @return the character entity with the given id, or null if no such entity exists
+     */
+    CharacterEntity findById(Long id);
+
+    /**
+     * Deletes a character entity by its id.
+     *
+     * @param id the id of the character to delete
+     */
+    void deleteById(Long id);
 }
