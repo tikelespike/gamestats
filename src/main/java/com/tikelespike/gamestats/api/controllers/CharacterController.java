@@ -2,9 +2,9 @@ package com.tikelespike.gamestats.api.controllers;
 
 import com.tikelespike.gamestats.api.entities.CharacterCreationDTO;
 import com.tikelespike.gamestats.api.entities.CharacterDTO;
-import com.tikelespike.gamestats.businesslogic.CharacterService;
 import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterCreationRequest;
+import com.tikelespike.gamestats.businesslogic.services.CharacterService;
 import com.tikelespike.gamestats.common.Mapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;

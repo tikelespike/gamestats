@@ -1,8 +1,8 @@
 package com.tikelespike.gamestats.api.mapper;
 
 import com.tikelespike.gamestats.api.entities.PlayerDTO;
-import com.tikelespike.gamestats.businesslogic.UserService;
 import com.tikelespike.gamestats.businesslogic.entities.Player;
+import com.tikelespike.gamestats.businesslogic.services.UserService;
 import com.tikelespike.gamestats.common.Mapper;
 import org.springframework.stereotype.Component;
 

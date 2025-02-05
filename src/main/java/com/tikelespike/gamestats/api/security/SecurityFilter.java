@@ -1,7 +1,7 @@
 package com.tikelespike.gamestats.api.security;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.tikelespike.gamestats.businesslogic.UserService;
+import com.tikelespike.gamestats.businesslogic.services.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

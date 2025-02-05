@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CharacterTest {
@@ -45,6 +46,78 @@ class CharacterTest {
         assertThrows(NullPointerException.class,
                 () -> new Character(1L, "testCreateNullCharacterType", "testCreateNullCharacterType", null,
                         "http://testCreateNullCharacterType"));
+    }
+
+    @Test
+    void testSetScriptToolIdentifier() {
+        Character character = new Character(1L, "testSetScriptToolIdentifier", "testSetScriptToolIdentifier",
+                CharacterType.TOWNSFOLK, "http://testSetScriptToolIdentifier");
+        character.setScriptToolIdentifier("testSetScriptToolIdentifier_updated");
+        assertEquals("testSetScriptToolIdentifier_updated", character.getScriptToolIdentifier());
+    }
+
+    @Test
+    void testSetScriptToolIdentifierNull() {
+        Character character = new Character(1L, "testSetScriptToolIdentifierNull", "testSetScriptToolIdentifierNull",
+                CharacterType.TOWNSFOLK, "http://testSetScriptToolIdentifierNull");
+        character.setScriptToolIdentifier(null);
+        assertNull(character.getScriptToolIdentifier());
+    }
+
+    @Test
+    void testSetName() {
+        Character character = new Character(1L, "testSetName", "testSetName", CharacterType.TOWNSFOLK,
+                "http://testSetName");
+        character.setName("testSetName_updated");
+        assertEquals("testSetName_updated", character.getName());
+    }
+
+    @Test
+    void testSetNameNull() {
+        Character character = new Character(1L, "testSetNameNull", "testSetNameNull", CharacterType.TOWNSFOLK,
+                "http://testSetNameNull");
+        assertThrows(NullPointerException.class, () -> character.setName(null));
+    }
+
+    @Test
+    void testSetNameEmpty() {
+        Character character = new Character(1L, "testSetNameEmpty", "testSetNameEmpty", CharacterType.TOWNSFOLK,
+                "http://testSetNameEmpty");
+        assertThrows(IllegalArgumentException.class, () -> character.setName(""));
+        assertThrows(IllegalArgumentException.class, () -> character.setName("  "));
+    }
+
+    @Test
+    void testSetCharacterType() {
+        Character character = new Character(1L, "testSetCharacterType", "testSetCharacterType", CharacterType.TOWNSFOLK,
+                "http://testSetCharacterType");
+        character.setCharacterType(CharacterType.OUTSIDER);
+        assertEquals(CharacterType.OUTSIDER, character.getCharacterType());
+    }
+
+    @Test
+    void testSetCharacterTypeNull() {
+        Character character =
+                new Character(1L, "testSetCharacterTypeNull", "testSetCharacterTypeNull", CharacterType.TOWNSFOLK,
+                        "http://testSetCharacterTypeNull");
+        assertThrows(NullPointerException.class, () -> character.setCharacterType(null));
+    }
+
+    @Test
+    void testSetWikiPageLink() {
+        Character character = new Character(1L, "testSetWikiPageLink", "testSetWikiPageLink", CharacterType.TOWNSFOLK,
+                "http://testSetWikiPageLink");
+        character.setWikiPageLink("http://testSetWikiPageLink_updated");
+        assertEquals("http://testSetWikiPageLink_updated", character.getWikiPageLink());
+    }
+
+    @Test
+    void testSetWikiPageLinkNull() {
+        Character character =
+                new Character(1L, "testSetWikiPageLinkNull", "testSetWikiPageLinkNull", CharacterType.TOWNSFOLK,
+                        "http://testSetWikiPageLinkNull");
+        character.setWikiPageLink(null);
+        assertNull(character.getWikiPageLink());
     }
 
 }

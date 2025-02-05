@@ -9,19 +9,19 @@ import java.util.Objects;
 public class Character implements HasWikiPage, HasId {
 
     private final Long id;
-    private final String scriptToolIdentifier;
-    private final String name;
-    private final CharacterType characterType;
-    private final String wikiPageLink;
+    private String scriptToolIdentifier;
+    private String name;
+    private CharacterType characterType;
+    private String wikiPageLink;
 
     /**
      * Creates a new character.
      *
      * @param id unique identifier for this character. May not be null.
      * @param scriptToolIdentifier identifier used in the official script tool for this character, if it exists
-     *         there (optional). Must be unique among all characters.
-     * @param name display name of this character (e.g. {@code "Fortune Teller"})
-     * @param characterType the group of characters this one belongs to
+     *         there (optional). Should be unique among all characters.
+     * @param name display name of this character (e.g. {@code "Fortune Teller"}). May not be null or blank.
+     * @param characterType the group of characters this one belongs to. May not be null.
      * @param wikiPageLink URL of the wiki page associated with this character (optional)
      */
     public Character(Long id, String scriptToolIdentifier, String name, CharacterType characterType,
@@ -55,12 +55,38 @@ public class Character implements HasWikiPage, HasId {
     }
 
     /**
+     * Sets the identifier used in the <a href="https://script.bloodontheclocktower.com/">official script tool</a> for
+     * this character, if it exists there. At the time of writing, this seems to be the name of the character in
+     * lowercase with spaces removed (e.g. {@code "fortuneteller"}).
+     * <p>
+     * This allows the creation of scripts based on JSON exports of the official script tool.
+     *
+     * @param scriptToolIdentifier identifier used in the official script tool for this character, if it exists
+     *         there (optional). Should be unique among all characters.
+     */
+    public void setScriptToolIdentifier(String scriptToolIdentifier) {
+        this.scriptToolIdentifier = scriptToolIdentifier;
+    }
+
+    /**
      * Returns the display name of this character (e.g. {@code "Fortune Teller"}).
      *
      * @return the display name of this character
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Sets the display name of this character (e.g. {@code "Fortune Teller"}).
+     *
+     * @param name display name of this character (e.g. {@code "Fortune Teller"}). May not be null or blank.
+     */
+    public void setName(String name) {
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Name must not be blank");
+        }
+        this.name = name;
     }
 
     /**
@@ -72,8 +98,43 @@ public class Character implements HasWikiPage, HasId {
         return characterType;
     }
 
+    /**
+     * Sets which group of characters this one belongs to. Each character belongs to exactly one type.
+     *
+     * @param characterType the group of characters this one belongs to. May not be null.
+     */
+    public void setCharacterType(CharacterType characterType) {
+        this.characterType = Objects.requireNonNull(characterType);
+    }
+
     @Override
     public String getWikiPageLink() {
         return wikiPageLink;
+    }
+
+    /**
+     * Sets the URL of the wiki page associated with this character.
+     *
+     * @param wikiPageLink URL of the wiki page associated with this character (optional)
+     */
+    public void setWikiPageLink(String wikiPageLink) {
+        this.wikiPageLink = wikiPageLink;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Character character = (Character) o;
+        return Objects.equals(id, character.id) && Objects.equals(scriptToolIdentifier,
+                character.scriptToolIdentifier) && Objects.equals(name, character.name)
+                && characterType == character.characterType && Objects.equals(wikiPageLink,
+                character.wikiPageLink);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, scriptToolIdentifier, name, characterType, wikiPageLink);
     }
 }

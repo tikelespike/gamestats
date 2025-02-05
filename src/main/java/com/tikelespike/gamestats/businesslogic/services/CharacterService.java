@@ -1,4 +1,4 @@
-package com.tikelespike.gamestats.businesslogic;
+package com.tikelespike.gamestats.businesslogic.services;
 
 import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterCreationRequest;
@@ -41,7 +41,7 @@ public class CharacterService {
     /**
      * Creates a new character in the system.
      *
-     * @param creationRequest the request containing the data for the character to create
+     * @param creationRequest the request containing the data for the character to create. May not be null.
      *
      * @return the character as created in the system (now including automatically populated fields)
      */
@@ -59,11 +59,14 @@ public class CharacterService {
     /**
      * Updates an existing character in the system.
      *
-     * @param character the character to update
+     * @param character the character to update. A character with the same id must already exist in the system.
      *
      * @return the updated character
      */
     public Character updateCharacter(Character character) {
+        if (characterRepository.findById(character.getId()) == null) {
+            throw new IllegalArgumentException("Character with id " + character.getId() + " does not exist");
+        }
         return characterMapper.toBusinessObject(characterRepository.save(characterMapper.toTransferObject(character)));
     }
 

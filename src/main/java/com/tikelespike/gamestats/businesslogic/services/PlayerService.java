@@ -1,4 +1,4 @@
-package com.tikelespike.gamestats.businesslogic;
+package com.tikelespike.gamestats.businesslogic.services;
 
 import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.User;

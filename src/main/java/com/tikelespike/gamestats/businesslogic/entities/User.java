@@ -21,13 +21,14 @@ public class User implements UserDetails {
     private String name;
     private String email;
     private String password;
-    private Player player;
+    private transient Player player;
 
     /**
      * Creates a new user object with unassigned id number. This constructor is used when creating a new user, as the id
      * is assigned by the database. To register a new user in the application, use the
-     * {@link com.tikelespike.gamestats.businesslogic.UserService#signUp(SignupRequest)} service.
+     * {@link com.tikelespike.gamestats.businesslogic.services.UserService#signUp(SignupRequest)} service.
      *
+     * @param name full name of the user
      * @param email email address used for login
      * @param password password used for login
      * @param roles the roles assigned to the user (for permission management)
@@ -41,8 +42,11 @@ public class User implements UserDetails {
      * user without specifying an id, use {@link #User(String, String, String, Set)}.
      *
      * @param id unique identifier of the user
+     * @param name full name of the user
      * @param email email address used for login
      * @param password password used for login
+     * @param player the player associated with this user (encapsulates the data of the human participating in
+     *         the game)
      * @param roles the roles assigned to the user (for permission management)
      */
     public User(Long id, String name, String email, String password, Player player, Set<UserRole> roles) {
@@ -123,10 +127,24 @@ public class User implements UserDetails {
         this.email = email;
     }
 
+    /**
+     * Returns the player associated with this user. The player encapsulates the data of the human participating in the
+     * game. This is optional, as not all people with user accounts in this app play the game themselves (similarly, not
+     * all players may have an account in the app).
+     *
+     * @return the player associated with this user
+     */
     public Player getPlayer() {
         return player;
     }
 
+    /**
+     * Sets the player associated with this user. The player encapsulates the data of the human participating in the
+     * game. This is optional, as not all people with user accounts in this app play the game themselves (similarly, not
+     * all players may have an account in the app).
+     *
+     * @param player the player associated with this user
+     */
     public void setPlayer(Player player) {
         this.player = player;
     }
