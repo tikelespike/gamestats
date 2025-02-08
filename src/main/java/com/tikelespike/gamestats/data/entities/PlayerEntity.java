@@ -33,11 +33,12 @@ public class PlayerEntity extends AbstractEntity {
      * Creates a new player entity.
      *
      * @param id unique identifier of the player
+     * @param version version counter for optimistic locking
      * @param name human-readable name of the player (usually the real-world name of the person)
      * @param owner the user that owns this player, or null if the player is not owned by any user
      */
-    public PlayerEntity(Long id, String name, UserEntity owner) {
-        super(id);
+    public PlayerEntity(Long id, Long version, String name, UserEntity owner) {
+        super(id, version);
         this.name = name;
         this.owner = owner;
     }

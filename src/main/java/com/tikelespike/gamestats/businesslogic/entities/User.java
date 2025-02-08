@@ -14,9 +14,10 @@ import java.util.Set;
  * An application user. This is not necessarily a player of the game, but a user of the game statistics application, and
  * is as such used for authentication and authorization within the app.
  */
-public class User implements UserDetails {
+public class User implements UserDetails, HasId, HasVersion {
 
     private final Long id;
+    private final Long version;
     private final Set<UserRole> roles;
     private String name;
     private String email;
@@ -34,7 +35,7 @@ public class User implements UserDetails {
      * @param roles the roles assigned to the user (for permission management)
      */
     public User(String name, String email, String password, Set<UserRole> roles) {
-        this(null, name, email, password, null, roles);
+        this(null, null, name, email, password, null, roles);
     }
 
     /**
@@ -42,6 +43,7 @@ public class User implements UserDetails {
      * user without specifying an id, use {@link #User(String, String, String, Set)}.
      *
      * @param id unique identifier of the user
+     * @param version version counter for optimistic locking
      * @param name full name of the user
      * @param email email address used for login
      * @param password password used for login
@@ -49,8 +51,9 @@ public class User implements UserDetails {
      *         the game)
      * @param roles the roles assigned to the user (for permission management)
      */
-    public User(Long id, String name, String email, String password, Player player, Set<UserRole> roles) {
+    public User(Long id, Long version, String name, String email, String password, Player player, Set<UserRole> roles) {
         this.id = id;
+        this.version = version;
         this.name = name;
         this.email = email;
         this.password = password;
@@ -73,6 +76,16 @@ public class User implements UserDetails {
         return getEmail();
     }
 
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public Long getVersion() {
+        return version;
+    }
+
     /**
      * Sets the new password of the user.
      *
@@ -80,15 +93,6 @@ public class User implements UserDetails {
      */
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    /**
-     * Returns the unique identifier of the user.
-     *
-     * @return the unique identifier of the user
-     */
-    public Long getId() {
-        return id;
     }
 
     /**

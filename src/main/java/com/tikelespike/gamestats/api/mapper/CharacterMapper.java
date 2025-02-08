@@ -28,6 +28,7 @@ public class CharacterMapper extends Mapper<Character, CharacterDTO> {
     protected Character toBusinessObjectNoCheck(CharacterDTO transferObject) {
         return new Character(
                 transferObject.id(),
+                transferObject.version(),
                 transferObject.scriptToolIdentifier(),
                 transferObject.name(),
                 characterTypeMapper.toBusinessObject(transferObject.type()),
@@ -39,6 +40,7 @@ public class CharacterMapper extends Mapper<Character, CharacterDTO> {
     protected CharacterDTO toTransferObjectNoCheck(Character businessObject) {
         return new CharacterDTO(
                 businessObject.getId(),
+                businessObject.getVersion(),
                 businessObject.getName(),
                 businessObject.getScriptToolIdentifier(),
                 characterTypeMapper.toTransferObject(businessObject.getCharacterType()),

@@ -4,6 +4,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Version;
 
 /**
  * Base class for all entities in the application. An entity is a database layer object that is persisted and retrieved
@@ -16,6 +17,9 @@ public abstract class AbstractEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     /**
      * Creates a new entity with uninitialized fields. This constructor is used by the JPA provider to create a new
      * instance of this entity from the database.
@@ -27,9 +31,11 @@ public abstract class AbstractEntity {
      * Creates a new entity.
      *
      * @param id unique identifier of the entity
+     * @param version version counter for optimistic locking
      */
-    protected AbstractEntity(Long id) {
+    protected AbstractEntity(Long id, Long version) {
         this.id = id;
+        this.version = version;
     }
 
     /**
@@ -50,5 +56,25 @@ public abstract class AbstractEntity {
      */
     protected void setId(Long id) {
         this.id = id;
+    }
+
+    /**
+     * Returns the version of this entity. The version is used for optimistic locking and is incremented by the JPA
+     * provider when the entity is updated. This allows the provider to detect concurrent modifications to the entity.
+     *
+     * @return the version of this entity
+     */
+    public Long getVersion() {
+        return version;
+    }
+
+    /**
+     * Sets the version of this entity. This method is used by the JPA provider to set the version of a new entity when
+     * it is saved to the database. Should not be called by application code.
+     *
+     * @param version the new version of this entity
+     */
+    protected void setVersion(Long version) {
+        this.version = version;
     }
 }

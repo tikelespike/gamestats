@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * REST transfer object of a character (when retrieved or updated).
  *
  * @param id unique numerical identifier
+ * @param version version counter for optimistic locking
  * @param name human-readable display name of the character
  * @param scriptToolIdentifier identifier as used in the official script tool
  * @param type type of the character, e.g. "townsfolk"
@@ -25,6 +26,10 @@ public record CharacterDTO(
                 description = "Unique numerical identifier of the character.",
                 example = "42"
         ) Long id,
+        @Schema(
+                description = "Version counter for optimistic locking.",
+                example = "1"
+        ) Long version,
         @Schema(
                 description = "Display name of the character.",
                 example = "Fortune Teller"
@@ -54,6 +59,7 @@ public record CharacterDTO(
         return new ValidationChain(
                 new RequiredFieldCheck("id", id),
                 new MatchingIdCheck(pathId, id),
+                new RequiredFieldCheck("version", version),
                 new RequiredFieldCheck("name", name),
                 new RequiredFieldCheck("type", type)
         ).validate();

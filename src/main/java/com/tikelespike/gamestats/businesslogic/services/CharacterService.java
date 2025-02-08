@@ -48,6 +48,7 @@ public class CharacterService {
     public Character createCharacter(CharacterCreationRequest creationRequest) {
         CharacterEntity character = new CharacterEntity(
                 null,
+                null,
                 creationRequest.scriptToolIdentifier(),
                 creationRequest.name(),
                 typeMapper.toTransferObject(creationRequest.characterType()),

@@ -45,8 +45,8 @@ class PlayerTest {
 
     @Test
     void testCreateNeitherNameNorOwner() {
-        assertThrows(IllegalArgumentException.class, () -> new Player(1L, null, null));
-        assertThrows(IllegalArgumentException.class, () -> new Player(1L, " ", null));
+        assertThrows(IllegalArgumentException.class, () -> new Player(1L, null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> new Player(1L, null, " ", null));
     }
 
 }

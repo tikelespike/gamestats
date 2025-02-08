@@ -6,9 +6,10 @@ import java.util.Objects;
  * A character is the role that a player takes on in a game.  Players are assigned a character at the start of the game,
  * but it may change during the game due to various game mechanics.
  */
-public class Character implements HasWikiPage, HasId {
+public class Character implements HasWikiPage, HasId, HasVersion {
 
     private final Long id;
+    private final Long version;
     private String scriptToolIdentifier;
     private String name;
     private CharacterType characterType;
@@ -18,15 +19,17 @@ public class Character implements HasWikiPage, HasId {
      * Creates a new character.
      *
      * @param id unique identifier for this character. May not be null.
+     * @param version version counter for optimistic locking
      * @param scriptToolIdentifier identifier used in the official script tool for this character, if it exists
      *         there (optional). Should be unique among all characters.
      * @param name display name of this character (e.g. {@code "Fortune Teller"}). May not be null or blank.
      * @param characterType the group of characters this one belongs to. May not be null.
      * @param wikiPageLink URL of the wiki page associated with this character (optional)
      */
-    public Character(Long id, String scriptToolIdentifier, String name, CharacterType characterType,
+    public Character(Long id, Long version, String scriptToolIdentifier, String name, CharacterType characterType,
                      String wikiPageLink) {
         this.id = Objects.requireNonNull(id);
+        this.version = version;
         this.scriptToolIdentifier = scriptToolIdentifier;
         if (name.isBlank()) {
             throw new IllegalArgumentException("Name must not be null or blank");
@@ -136,5 +139,10 @@ public class Character implements HasWikiPage, HasId {
     @Override
     public int hashCode() {
         return Objects.hash(id, scriptToolIdentifier, name, characterType, wikiPageLink);
+    }
+
+    @Override
+    public Long getVersion() {
+        return version;
     }
 }

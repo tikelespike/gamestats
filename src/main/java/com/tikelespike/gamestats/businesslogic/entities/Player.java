@@ -11,8 +11,9 @@ import java.util.Objects;
  * the user has control over the player and can manage it. This usually means that the user and the player both
  * represent the same real-world person.
  */
-public class Player implements HasId {
+public class Player implements HasId, HasVersion {
     private final Long id;
+    private final Long version;
     private String name;
     private User owner;
 
@@ -21,10 +22,12 @@ public class Player implements HasId {
      * create a conceptually new player, use the other constructors.
      *
      * @param id unique identifier of the player
+     * @param version version counter for optimistic locking
      * @param name human-readable name of the player (usually the real-world name of the person)
      * @param owner the user that owns this player, or null if the player is not owned by any user
      */
-    public Player(Long id, String name, User owner) {
+    public Player(Long id, Long version, String name, User owner) {
+        this.version = version;
         if ((name == null || name.isBlank()) && owner == null) {
             throw new IllegalArgumentException("Either name or owner must be set");
         }
@@ -42,7 +45,7 @@ public class Player implements HasId {
      *         ownerless players).
      */
     public Player(@NotNull User owner) {
-        this(null, null, Objects.requireNonNull(owner));
+        this(null, null, null, Objects.requireNonNull(owner));
     }
 
     /**
@@ -53,7 +56,7 @@ public class Player implements HasId {
      *         player is assigned an owner, the owners name will override this. May not be null or empty.
      */
     public Player(@NotNull String name) {
-        this(null, name, null);
+        this(null, null, name, null);
     }
 
     @Override
@@ -95,9 +98,12 @@ public class Player implements HasId {
     /**
      * Sets the user that owns this player.
      *
-     * @param owner the user that owns this player. May not be null.
+     * @param owner the user that owns this player. May be null to make the player ownerless.
      */
-    public void setOwner(@NotNull User owner) {
+    public void setOwner(User owner) {
+        if (owner == null && (name == null || name.isBlank())) {
+            throw new IllegalArgumentException("Either name or owner must be set");
+        }
         this.owner = owner;
     }
 
@@ -122,5 +128,10 @@ public class Player implements HasId {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, owner.getId());
+    }
+
+    @Override
+    public Long getVersion() {
+        return version;
     }
 }

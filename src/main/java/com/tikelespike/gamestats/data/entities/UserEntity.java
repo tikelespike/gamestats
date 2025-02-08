@@ -52,15 +52,16 @@ public class UserEntity extends AbstractEntity {
      * Creates a new user entity.
      *
      * @param id unique identifier of the user
+     * @param version version counter for optimistic locking
      * @param name human-readable name of the user
      * @param email email address used for login
      * @param password password used for login
      * @param player the game participant associated with the user (if the user participates in games)
      * @param roles the roles assigned to the user (for permission management)
      */
-    public UserEntity(Long id, String name, String email, String password,
+    public UserEntity(Long id, Long version, String name, String email, String password,
                       PlayerEntity player, Set<UserRoleEntity> roles) {
-        super(id);
+        super(id, version);
         this.name = name;
         this.email = email;
         this.password = password;

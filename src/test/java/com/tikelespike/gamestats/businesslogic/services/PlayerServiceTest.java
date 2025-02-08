@@ -77,7 +77,7 @@ class PlayerServiceTest {
 
     @Test
     void testCreateAssignedInvalidUser() {
-        User user = new User(TEST_ID_1, "I dont exist", "invalid@test.com", "", null, new HashSet<>());
+        User user = new User(TEST_ID_1, null, "I dont exist", "invalid@test.com", "", null, new HashSet<>());
 
         assertThrows(IllegalArgumentException.class, () -> playerService.createPlayer(user));
     }
@@ -124,14 +124,14 @@ class PlayerServiceTest {
 
     @Test
     void testUpdateNonExistentPlayer() {
-        Player player = new Player(TEST_ID_3, "testUpdateNonExistentPlayer", null);
+        Player player = new Player(TEST_ID_3, null, "testUpdateNonExistentPlayer", null);
 
         assertThrows(IllegalArgumentException.class, () -> playerService.updatePlayer(player));
     }
 
     @Test
     void testUpdateNullId() {
-        Player player = new Player(null, "testUpdateNullId", null);
+        Player player = new Player(null, null, "testUpdateNullId", null);
         assertThrows(IllegalArgumentException.class, () -> playerService.updatePlayer(player));
     }
 

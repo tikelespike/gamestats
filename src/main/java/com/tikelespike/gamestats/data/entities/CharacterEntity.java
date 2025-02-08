@@ -29,14 +29,16 @@ public class CharacterEntity extends AbstractEntity {
      * Creates a new character entity.
      *
      * @param id unique identifier of the character
+     * @param version version counter for optimistic locking
      * @param scriptToolIdentifier unique identifier of the character in the script tool
      * @param name display name of the character
      * @param characterType the group of characters this one belongs to
      * @param wikiPageLink URL of the wiki page associated with this character
      */
-    public CharacterEntity(Long id, String scriptToolIdentifier, String name, CharacterTypeEntity characterType,
+    public CharacterEntity(Long id, Long version, String scriptToolIdentifier, String name,
+                           CharacterTypeEntity characterType,
                            String wikiPageLink) {
-        super(id);
+        super(id, version);
         this.scriptToolIdentifier = scriptToolIdentifier;
         this.name = name;
         this.characterType = characterType;

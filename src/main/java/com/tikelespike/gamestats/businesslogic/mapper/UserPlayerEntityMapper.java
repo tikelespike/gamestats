@@ -133,6 +133,7 @@ public class UserPlayerEntityMapper {
     private Player toPartialBusinessObject(PlayerEntity transferObject) {
         return new Player(
                 transferObject.getId(),
+                transferObject.getVersion(),
                 transferObject.getName(),
                 null
         );
@@ -141,6 +142,7 @@ public class UserPlayerEntityMapper {
     private PlayerEntity toPartialTransferObject(Player businessObject) {
         return new PlayerEntity(
                 businessObject.getId(),
+                businessObject.getVersion(),
                 businessObject.getName(),
                 null
         );
@@ -149,6 +151,7 @@ public class UserPlayerEntityMapper {
     private User toPartialBusinessObject(UserEntity transferObject) {
         return new User(
                 transferObject.getId(),
+                transferObject.getVersion(),
                 transferObject.getName(),
                 transferObject.getEmail(),
                 transferObject.getPassword(),
@@ -160,6 +163,7 @@ public class UserPlayerEntityMapper {
     private UserEntity toPartialTransferObject(User businessObject) {
         return new UserEntity(
                 businessObject.getId(),
+                businessObject.getVersion(),
                 businessObject.getName(),
                 businessObject.getEmail(),
                 businessObject.getPassword(),

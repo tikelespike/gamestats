@@ -28,6 +28,7 @@ public class PlayerMapper extends Mapper<Player, PlayerDTO> {
     public Player toBusinessObjectNoCheck(PlayerDTO transferObject) {
         return new Player(
                 transferObject.id(),
+                transferObject.version(),
                 transferObject.name(),
                 transferObject.ownerId() == null ? null : userService.loadUser(transferObject.ownerId())
         );
@@ -37,6 +38,7 @@ public class PlayerMapper extends Mapper<Player, PlayerDTO> {
     public PlayerDTO toTransferObjectNoCheck(Player businessObject) {
         return new PlayerDTO(
                 businessObject.getId(),
+                businessObject.getVersion(),
                 businessObject.getName(),
                 businessObject.getOwner() == null ? null : businessObject.getOwner().getId()
         );

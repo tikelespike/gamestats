@@ -29,6 +29,7 @@ public class CharacterEntityMapper extends Mapper<Character, CharacterEntity> {
     public Character toBusinessObjectNoCheck(CharacterEntity transferObject) {
         return new Character(
                 transferObject.getId(),
+                transferObject.getVersion(),
                 transferObject.getScriptToolIdentifier(),
                 transferObject.getName(),
                 typeMapper.toBusinessObject(transferObject.getCharacterType()),
@@ -40,6 +41,7 @@ public class CharacterEntityMapper extends Mapper<Character, CharacterEntity> {
     public CharacterEntity toTransferObjectNoCheck(Character businessObject) {
         return new CharacterEntity(
                 businessObject.getId(),
+                businessObject.getVersion(),
                 businessObject.getScriptToolIdentifier(),
                 businessObject.getName(),
                 typeMapper.toTransferObject(businessObject.getCharacterType()),

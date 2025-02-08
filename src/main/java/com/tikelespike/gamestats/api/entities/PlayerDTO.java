@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * REST transfer object for the player in its full state.
  *
  * @param id unique numerical identifier
+ * @param version version counter for optimistic locking
  * @param name human-readable name
  * @param ownerId unique numerical identifier of the owning user
  *
@@ -16,6 +17,10 @@ public record PlayerDTO(
                 description = "Unique numerical identifier of the player.",
                 example = "12"
         ) Long id,
+        @Schema(
+                description = "Version counter for optimistic locking.",
+                example = "1"
+        ) Long version,
         @Schema(
                 description = "Player's human readable name.",
                 example = "Max Mustermann"
