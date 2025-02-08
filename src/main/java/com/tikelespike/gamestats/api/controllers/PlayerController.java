@@ -4,6 +4,7 @@ import com.tikelespike.gamestats.api.entities.ErrorEntity;
 import com.tikelespike.gamestats.api.entities.PlayerCreationDTO;
 import com.tikelespike.gamestats.api.entities.PlayerDTO;
 import com.tikelespike.gamestats.api.mapper.PlayerMapper;
+import com.tikelespike.gamestats.api.validation.ValidationUtils;
 import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.User;
 import com.tikelespike.gamestats.businesslogic.services.PlayerService;
@@ -15,7 +16,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -128,7 +128,7 @@ public class PlayerController {
         if (player.name() != null && !player.name().isBlank()) {
             return createUnassociatedPlayer(player);
         }
-        return requestInvalid("Either an owner ID or a name must be provided", "/api/v1/players");
+        return ValidationUtils.requestInvalid("Either an owner ID or a name must be provided", "/api/v1/players");
     }
 
     private ResponseEntity<Object> createUnassociatedPlayer(PlayerCreationDTO player) {
@@ -139,10 +139,12 @@ public class PlayerController {
     private ResponseEntity<Object> createAssociatedPlayer(PlayerCreationDTO player) {
         User owner = userService.loadUser(player.ownerId());
         if (owner == null) {
-            return requestInvalid("Owner ID " + player.ownerId() + " does not exist", "/api/v1/players");
+            return ValidationUtils.requestInvalid("Owner ID " + player.ownerId() + " does not exist",
+                    "/api/v1/players");
         }
         if (owner.getPlayer() != null) {
-            return requestInvalid("User " + player.ownerId() + " already has a player", "/api/v1/players");
+            return ValidationUtils.requestInvalid("User " + player.ownerId() + " already has a player",
+                    "/api/v1/players");
         }
         // Theoretically, this is not thread-safe, because the user could have been e.g. deleted since we loaded it
         // above. For the sake of this small application, we ignore this because it is unlikely to happen with the
@@ -185,7 +187,7 @@ public class PlayerController {
     public ResponseEntity<Object> getPlayer(@PathVariable("id") long id) {
         Player player = playerService.getPlayerById(id);
         if (player == null) {
-            return notFound("/api/v1/players/" + id);
+            return ValidationUtils.notFound("/api/v1/players/" + id);
         }
         return ResponseEntity.ok(playerMapper.toTransferObject(player));
     }
@@ -233,18 +235,20 @@ public class PlayerController {
     @PreAuthorize("hasAuthority('STORYTELLER')")
     public ResponseEntity<Object> updatePlayer(@PathVariable("id") long id, @RequestBody PlayerDTO player) {
         if (!playerService.playerExists(id)) {
-            return notFound("/api/v1/players/" + id);
+            return ValidationUtils.notFound("/api/v1/players/" + id);
         }
 
         if (player.id() != id) {
-            return requestInvalid("Player ID in path and body do not match (id cannot be changed)",
+            return ValidationUtils.requestInvalid("Player ID in path and body do not match (id cannot be changed)",
                     "/api/v1/players/" + id);
         }
         if ((player.name() == null || player.name().isBlank()) && player.ownerId() == null) {
-            return requestInvalid("Either a name or an owner ID must be provided", "/api/v1/players/" + id);
+            return ValidationUtils.requestInvalid("Either a name or an owner ID must be provided",
+                    "/api/v1/players/" + id);
         }
         if (player.ownerId() != null && !userService.userExists(player.ownerId())) {
-            return requestInvalid("Owner ID " + player.ownerId() + " does not exist", "/api/v1/players/" + id);
+            return ValidationUtils.requestInvalid("Owner ID " + player.ownerId() + " does not exist",
+                    "/api/v1/players/" + id);
         }
         Player updatedPlayer = playerService.updatePlayer(playerMapper.toBusinessObject(player));
         return ResponseEntity.ok(playerMapper.toTransferObject(updatedPlayer));
@@ -281,17 +285,10 @@ public class PlayerController {
     @PreAuthorize("hasAuthority('STORYTELLER')")
     public ResponseEntity<Object> deletePlayer(@PathVariable("id") long id) {
         if (!playerService.playerExists(id)) {
-            return notFound("/api/v1/players/" + id);
+            return ValidationUtils.notFound("/api/v1/players/" + id);
         }
         playerService.deletePlayer(id);
         return ResponseEntity.ok().build();
     }
 
-    private static ResponseEntity<Object> requestInvalid(String message, String path) {
-        return ResponseEntity.badRequest().body(ErrorEntity.badRequest(message, path));
-    }
-
-    private static ResponseEntity<Object> notFound(String path) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorEntity.notFound(path));
-    }
 }

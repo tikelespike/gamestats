@@ -2,10 +2,19 @@ package com.tikelespike.gamestats.api.controllers;
 
 import com.tikelespike.gamestats.api.entities.CharacterCreationDTO;
 import com.tikelespike.gamestats.api.entities.CharacterDTO;
+import com.tikelespike.gamestats.api.entities.ErrorEntity;
+import com.tikelespike.gamestats.api.validation.ValidationResult;
+import com.tikelespike.gamestats.api.validation.ValidationUtils;
 import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterCreationRequest;
 import com.tikelespike.gamestats.businesslogic.services.CharacterService;
 import com.tikelespike.gamestats.common.Mapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -62,10 +71,48 @@ public class CharacterController {
      *
      * @return a REST response entity containing the new character
      */
+    @Operation(
+            summary = "Creates a new character",
+            description = "Creates a new in-game character that can be used in scripts, such that players can play "
+                    + "them during games."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "201",
+                    description = "Created character successfully. The response body contains the newly created "
+                            + "character.",
+                    content = {@Content(schema = @Schema(implementation = CharacterDTO.class))}
+            ), @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request. The response body contains an error message.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
     @PreAuthorize("hasAuthority('STORYTELLER')")
     @PostMapping()
     public ResponseEntity<Object> createCharacter(@RequestBody CharacterCreationDTO creationRequest) {
+        ValidationResult validation = creationRequest.validate();
+        if (!validation.isValid()) {
+            return ValidationUtils.requestInvalid(validation.getMessage(), "/api/v1/characters");
+        }
+
         Character character = characterService.createCharacter(creationMapper.toBusinessObject(creationRequest));
+
         CharacterDTO transferObject = characterMapper.toTransferObject(character);
         URI characterURI = URI.create("/api/v1/characters/" + character.getId());
         return ResponseEntity.created(characterURI).body(transferObject);
@@ -76,9 +123,37 @@ public class CharacterController {
      *
      * @return a REST response entity containing all characters currently known to the system
      */
+    @Operation(
+            summary = "Retrieves all characters",
+            description = "Retrieves a list of all characters registered in the system and available for use in "
+                    + "scripts and games."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Retrieval successful. The response body contains the list of characters",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CharacterDTO.class)))}
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
     @GetMapping()
     public ResponseEntity<Object> getCharacters() {
         List<Character> characters = characterService.getCharacters();
+
         List<CharacterDTO> transferObjects = characters.stream().map(characterMapper::toTransferObject).toList();
         return ResponseEntity.ok(transferObjects);
     }
@@ -91,10 +166,51 @@ public class CharacterController {
      *
      * @return a REST response entity containing the updated character
      */
+    @Operation(
+            summary = "Updates a character",
+            description = "Updates the details about an existing character. The character has to be created before it"
+                    + " can be changed by this endpoint."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Updated the character successfully. The response body contains the updated "
+                            + "character.",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CharacterDTO.class)))}
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "404",
+                    description = "Not found. There exists no resource under the given URI.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
     @PreAuthorize("hasAuthority('STORYTELLER')")
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCharacter(@PathVariable("id") long id, @RequestBody CharacterDTO characterDTO) {
+        ValidationResult validation = characterDTO.validateUpdate(id);
+        if (!validation.isValid()) {
+            return ValidationUtils.requestInvalid(validation.getMessage(), "/api/v1/characters/" + id);
+        }
+        if (characterService.getCharacter(id) == null) {
+            return ValidationUtils.notFound("/api/v1/characters/" + id);
+        }
+
         Character character = characterService.updateCharacter(characterMapper.toBusinessObject(characterDTO));
+
         CharacterDTO transferObject = characterMapper.toTransferObject(character);
         return ResponseEntity.ok(transferObject);
     }
