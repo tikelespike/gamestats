@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -194,6 +195,12 @@ public class CharacterController {
                     description = "Not found. There exists no resource under the given URI.",
                     content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
             ), @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict. The resource was deleted concurrently during the processing of this "
+                            + "request, or there already exists a newer version of this resource that would be "
+                            + "overwritten.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
                     responseCode = "500",
                     description = "Internal server error. Please try again later. If the issue persists, contact "
                             + "the system administrator or development team.",
@@ -220,5 +227,47 @@ public class CharacterController {
 
         CharacterDTO transferObject = characterMapper.toTransferObject(newCharacter);
         return ResponseEntity.ok(transferObject);
+    }
+
+    /**
+     * Deletes a character.
+     *
+     * @param id id of the character to delete
+     *
+     * @return an HTTP response code indicating the success of the request
+     */
+    @Operation(
+            summary = "Deletes a character",
+            description = "Deletes a character by its id, if it exists. If the character does not exist, this method "
+                    + "has no effect and will return a 204 response code nonetheless."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "204",
+                    description = "Deleted the character successfully, or there was no character with that id to "
+                            + "begin with."
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
+    @PreAuthorize("hasAuthority('STORYTELLER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteCharacter(@PathVariable("id") long id) {
+        characterService.deleteCharacter(id);
+
+        return ResponseEntity.noContent().build();
     }
 }
