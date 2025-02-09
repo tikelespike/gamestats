@@ -3,10 +3,15 @@ package com.tikelespike.gamestats.businesslogic.services;
 import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterCreationRequest;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterType;
+import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
+import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import com.tikelespike.gamestats.common.Mapper;
 import com.tikelespike.gamestats.data.entities.CharacterEntity;
 import com.tikelespike.gamestats.data.entities.CharacterTypeEntity;
 import com.tikelespike.gamestats.data.repositories.CharacterRepository;
+import jakarta.persistence.OptimisticLockException;
+import org.hibernate.StaleObjectStateException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -63,12 +68,21 @@ public class CharacterService {
      * @param character the character to update. A character with the same id must already exist in the system.
      *
      * @return the updated character
+     * @throws ResourceNotFoundException if the character with the given id does not exist
+     * @throws StaleDataException if the character has been modified or deleted in the meantime (concurrently)
      */
-    public Character updateCharacter(Character character) {
+    public Character updateCharacter(Character character) throws ResourceNotFoundException, StaleDataException {
         if (characterRepository.findById(character.getId()) == null) {
-            throw new IllegalArgumentException("Character with id " + character.getId() + " does not exist");
+            throw new ResourceNotFoundException("Character with id " + character.getId() + " does not exist");
         }
-        return characterMapper.toBusinessObject(characterRepository.save(characterMapper.toTransferObject(character)));
+        CharacterEntity entityToSave = characterMapper.toTransferObject(character);
+        CharacterEntity savedEntity;
+        try {
+            savedEntity = characterRepository.save(entityToSave);
+        } catch (StaleObjectStateException | OptimisticLockException | ObjectOptimisticLockingFailureException e) {
+            throw new StaleDataException(e);
+        }
+        return characterMapper.toBusinessObject(savedEntity);
     }
 
     /**

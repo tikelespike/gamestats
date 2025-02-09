@@ -60,4 +60,16 @@ public record ErrorEntity(
         return new ErrorEntity(Instant.now(), HttpStatus.NOT_FOUND.value(), "Not Found",
                 "The requested resource was not found.", path);
     }
+
+    /**
+     * Creates an error entity for a 409 Conflict error.
+     *
+     * @param message the specific error message
+     * @param path the path of the resource that caused the error
+     *
+     * @return the error entity
+     */
+    public static ErrorEntity conflict(String message, String path) {
+        return new ErrorEntity(Instant.now(), HttpStatus.CONFLICT.value(), "Conflict", message, path);
+    }
 }

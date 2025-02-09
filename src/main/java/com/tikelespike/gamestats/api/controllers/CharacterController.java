@@ -7,6 +7,8 @@ import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.ValidationUtils;
 import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterCreationRequest;
+import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
+import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import com.tikelespike.gamestats.businesslogic.services.CharacterService;
 import com.tikelespike.gamestats.common.Mapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -205,13 +207,18 @@ public class CharacterController {
         if (!validation.isValid()) {
             return ValidationUtils.requestInvalid(validation.getMessage(), "/api/v1/characters/" + id);
         }
-        if (characterService.getCharacter(id) == null) {
+
+        Character characterUpdate = characterMapper.toBusinessObject(characterDTO);
+        Character newCharacter;
+        try {
+            newCharacter = characterService.updateCharacter(characterUpdate);
+        } catch (ResourceNotFoundException e) {
             return ValidationUtils.notFound("/api/v1/characters/" + id);
+        } catch (StaleDataException e) {
+            return ValidationUtils.conflict("/api/v1/characters/" + id);
         }
 
-        Character character = characterService.updateCharacter(characterMapper.toBusinessObject(characterDTO));
-
-        CharacterDTO transferObject = characterMapper.toTransferObject(character);
+        CharacterDTO transferObject = characterMapper.toTransferObject(newCharacter);
         return ResponseEntity.ok(transferObject);
     }
 }

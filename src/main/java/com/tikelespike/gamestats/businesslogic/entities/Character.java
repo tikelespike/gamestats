@@ -19,7 +19,7 @@ public class Character implements HasWikiPage, HasId, HasVersion {
      * Creates a new character.
      *
      * @param id unique identifier for this character. May not be null.
-     * @param version version counter for optimistic locking
+     * @param version version counter for optimistic locking. May not be null
      * @param scriptToolIdentifier identifier used in the official script tool for this character, if it exists
      *         there (optional). Should be unique among all characters.
      * @param name display name of this character (e.g. {@code "Fortune Teller"}). May not be null or blank.
@@ -29,7 +29,7 @@ public class Character implements HasWikiPage, HasId, HasVersion {
     public Character(Long id, Long version, String scriptToolIdentifier, String name, CharacterType characterType,
                      String wikiPageLink) {
         this.id = Objects.requireNonNull(id);
-        this.version = version;
+        this.version = Objects.requireNonNull(version);
         this.scriptToolIdentifier = scriptToolIdentifier;
         if (name.isBlank()) {
             throw new IllegalArgumentException("Name must not be null or blank");

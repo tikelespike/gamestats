@@ -34,4 +34,18 @@ public final class ValidationUtils {
     public static ResponseEntity<Object> notFound(String path) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorEntity.notFound(path));
     }
+
+    /**
+     * Convenience method to create a response entity for a conflict error.
+     *
+     * @param path path of the request that caused the error
+     *
+     * @return a response entity with status code 409 and a descriptive body
+     */
+    public static ResponseEntity<Object> conflict(String path) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorEntity.conflict(
+                "The resource you are trying to update or delete has already been updated or deleted by another "
+                        + "request.",
+                path));
+    }
 }

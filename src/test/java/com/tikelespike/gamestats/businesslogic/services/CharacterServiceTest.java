@@ -4,6 +4,8 @@ import com.tikelespike.gamestats.GamestatsApplication;
 import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterCreationRequest;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterType;
+import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
+import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,7 +47,7 @@ class CharacterServiceTest {
 
 
     @Test
-    void testUpdateCharacter() {
+    void testUpdateCharacter() throws ResourceNotFoundException, StaleDataException {
         Character character = addTestCharacter("testUpdateCharacter");
 
         character.setScriptToolIdentifier("testUpdateCharacter_id_updated");
@@ -68,9 +70,18 @@ class CharacterServiceTest {
     @Test
     void testUpdateCharacterNonExisting() {
         Character character =
-                new Character(NON_EXISTENT_ID, "testUpdateCharacterNonExisting", "testUpdateCharacterNonExisting",
+                new Character(NON_EXISTENT_ID, 1L, "testUpdateCharacterNonExisting", "testUpdateCharacterNonExisting",
                         CharacterType.TOWNSFOLK, "http://testUpdateCharacterNonExisting");
-        assertThrows(IllegalArgumentException.class, () -> characterService.updateCharacter(character));
+        assertThrows(ResourceNotFoundException.class, () -> characterService.updateCharacter(character));
+    }
+
+    @Test
+    void testUpdateCharacterOutdated() throws StaleDataException, ResourceNotFoundException {
+        Character character = addTestCharacter("testUpdateCharacterOutdated");
+        character.setName("testUpdateCharacterOutdated_updated");
+        characterService.updateCharacter(character);
+        character.setName("testUpdateCharacterOutdated_updated2");
+        assertThrows(StaleDataException.class, () -> characterService.updateCharacter(character));
     }
 
 
