@@ -16,7 +16,7 @@ import java.time.Instant;
  */
 @Service
 public class TokenProvider {
-    private static final Duration TOKEN_VALIDITY_DURATION = Duration.ofSeconds(10);
+    private static final Duration TOKEN_VALIDITY_DURATION = Duration.ofHours(24);
 
     @Value("${security.jwt.token.secret-key}")
     private String jwtSecret;
