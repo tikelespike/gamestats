@@ -29,7 +29,8 @@ public class CharacterCreationMapper extends Mapper<CharacterCreationRequest, Ch
                 transferObject.scriptToolIdentifier(),
                 transferObject.name(),
                 typeMapper.toBusinessObject(transferObject.type()),
-                transferObject.wikiPageLink()
+                transferObject.wikiPageLink(),
+                transferObject.imageUrl()
         );
     }
 
@@ -39,7 +40,8 @@ public class CharacterCreationMapper extends Mapper<CharacterCreationRequest, Ch
                 businessObject.name(),
                 businessObject.scriptToolIdentifier(),
                 typeMapper.toTransferObject(businessObject.characterType()),
-                businessObject.wikiPageLink()
+                businessObject.wikiPageLink(),
+                businessObject.imageUrl()
         );
     }
 }

@@ -9,12 +9,14 @@ import java.util.Objects;
  * @param name display name of the character. May not be null or blank.
  * @param characterType type of the character (e.g. townsfolk). May not be null.
  * @param wikiPageLink full URL to the wiki page of that character (optional)
+ * @param imageUrl URL of an image representing this character (optional)
  */
 public record CharacterCreationRequest(
         String scriptToolIdentifier,
         String name,
         CharacterType characterType,
-        String wikiPageLink
+        String wikiPageLink,
+        String imageUrl
 ) {
 
     /**
@@ -24,12 +26,14 @@ public record CharacterCreationRequest(
      * @param name display name of the character. May not be null or blank.
      * @param characterType type of the character (e.g. townsfolk). May not be null.
      * @param wikiPageLink full URL to the wiki page of that character (optional)
+     * @param imageUrl URL of an image representing this character (optional)
      */
     public CharacterCreationRequest(
             String scriptToolIdentifier,
             String name,
             CharacterType characterType,
-            String wikiPageLink
+            String wikiPageLink,
+            String imageUrl
     ) {
         this.scriptToolIdentifier = scriptToolIdentifier;
         if (name.isBlank()) {
@@ -38,6 +42,7 @@ public record CharacterCreationRequest(
         this.name = name;
         this.characterType = Objects.requireNonNull(characterType);
         this.wikiPageLink = wikiPageLink;
+        this.imageUrl = imageUrl;
     }
 
 }

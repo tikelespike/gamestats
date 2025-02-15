@@ -29,7 +29,7 @@ class CharacterServiceTest {
     void testCreateCharacter() {
         CharacterCreationRequest request = new CharacterCreationRequest("testCreateCharacter_id",
                 "testCreateCharacter_name",
-                CharacterType.TOWNSFOLK, "http://testCreateCharacter");
+                CharacterType.TOWNSFOLK, "http://testCreateCharacter", "http://testCreateCharacter/image");
 
         Character newCharacter = characterService.createCharacter(request);
 
@@ -38,6 +38,7 @@ class CharacterServiceTest {
         assertEquals("testCreateCharacter_name", newCharacter.getName());
         assertEquals(CharacterType.TOWNSFOLK, newCharacter.getCharacterType());
         assertEquals("http://testCreateCharacter", newCharacter.getWikiPageLink());
+        assertEquals("http://testCreateCharacter/image", newCharacter.getImageUrl());
     }
 
     @Test
@@ -71,7 +72,8 @@ class CharacterServiceTest {
     void testUpdateCharacterNonExisting() {
         Character character =
                 new Character(NON_EXISTENT_ID, 1L, "testUpdateCharacterNonExisting", "testUpdateCharacterNonExisting",
-                        CharacterType.TOWNSFOLK, "http://testUpdateCharacterNonExisting");
+                        CharacterType.TOWNSFOLK, "http://testUpdateCharacterNonExisting",
+                        "http://testUpdateCharacterNonExisting/image");
         assertThrows(ResourceNotFoundException.class, () -> characterService.updateCharacter(character));
     }
 
@@ -123,7 +125,7 @@ class CharacterServiceTest {
     private Character addTestCharacter(String testName) {
         CharacterCreationRequest request = new CharacterCreationRequest(testName + "_id",
                 testName + "_name",
-                CharacterType.TOWNSFOLK, "http://" + testName);
+                CharacterType.TOWNSFOLK, "http://" + testName, "http://" + testName + "/image");
         return characterService.createCharacter(request);
     }
 }

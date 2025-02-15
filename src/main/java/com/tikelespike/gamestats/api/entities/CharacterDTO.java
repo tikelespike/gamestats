@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param scriptToolIdentifier identifier as used in the official script tool
  * @param type type of the character, e.g. "townsfolk"
  * @param wikiPageLink full URL to the wiki page of that character (optional)
+ * @param imageUrl full URL to an image representing this character (optional)
  */
 @Schema(
         name = "Character",
@@ -46,7 +47,11 @@ public record CharacterDTO(
         @Schema(
                 description = "Full URL to a wiki page about this character (optional).",
                 example = "https://wiki.bloodontheclocktower.com/Fortune_Teller"
-        ) String wikiPageLink
+        ) String wikiPageLink,
+        @Schema(
+                description = "Full URL to an image representing this character (optional).",
+                example = "https://example.com/fortuneteller.png"
+        ) String imageUrl
 ) {
     /**
      * Validates this DTO in the context of updating a character.

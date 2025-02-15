@@ -32,7 +32,8 @@ public class CharacterMapper extends Mapper<Character, CharacterDTO> {
                 transferObject.scriptToolIdentifier(),
                 transferObject.name(),
                 characterTypeMapper.toBusinessObject(transferObject.type()),
-                transferObject.wikiPageLink()
+                transferObject.wikiPageLink(),
+                transferObject.imageUrl()
         );
     }
 
@@ -44,7 +45,8 @@ public class CharacterMapper extends Mapper<Character, CharacterDTO> {
                 businessObject.getName(),
                 businessObject.getScriptToolIdentifier(),
                 characterTypeMapper.toTransferObject(businessObject.getCharacterType()),
-                businessObject.getWikiPageLink()
+                businessObject.getWikiPageLink(),
+                businessObject.getImageUrl()
         );
     }
 }

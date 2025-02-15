@@ -14,6 +14,7 @@ public class Character implements HasWikiPage, HasId, HasVersion {
     private String name;
     private CharacterType characterType;
     private String wikiPageLink;
+    private String imageUrl;
 
     /**
      * Creates a new character.
@@ -25,9 +26,10 @@ public class Character implements HasWikiPage, HasId, HasVersion {
      * @param name display name of this character (e.g. {@code "Fortune Teller"}). May not be null or blank.
      * @param characterType the group of characters this one belongs to. May not be null.
      * @param wikiPageLink URL of the wiki page associated with this character (optional)
+     * @param imageUrl URL of an image representing this character (optional)
      */
     public Character(Long id, Long version, String scriptToolIdentifier, String name, CharacterType characterType,
-                     String wikiPageLink) {
+                     String wikiPageLink, String imageUrl) {
         this.id = Objects.requireNonNull(id);
         this.version = Objects.requireNonNull(version);
         this.scriptToolIdentifier = scriptToolIdentifier;
@@ -37,6 +39,19 @@ public class Character implements HasWikiPage, HasId, HasVersion {
         this.name = name;
         this.characterType = Objects.requireNonNull(characterType);
         this.wikiPageLink = wikiPageLink;
+        this.imageUrl = imageUrl;
+    }
+
+    /**
+     * Creates a new character with the minimum required information.
+     *
+     * @param id unique identifier for this character. May not be null.
+     * @param version version counter for optimistic locking. May not be null
+     * @param name display name of this character (e.g. {@code "Fortune Teller"}). May not be null or blank.
+     * @param characterType the group of characters this one belongs to. May not be null.
+     */
+    public Character(Long id, Long version, String name, CharacterType characterType) {
+        this(id, version, null, name, characterType, null, null);
     }
 
     @Override
@@ -122,6 +137,25 @@ public class Character implements HasWikiPage, HasId, HasVersion {
      */
     public void setWikiPageLink(String wikiPageLink) {
         this.wikiPageLink = wikiPageLink;
+    }
+
+    /**
+     * Returns the URL of an image representing this character. May be external out of the users control and can
+     * therefore be outdated.
+     *
+     * @return URL of an image representing this character (optional)
+     */
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    /**
+     * Sets the URL of an image representing this character.
+     *
+     * @param imageUrl URL of an image representing this character (optional)
+     */
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     @Override

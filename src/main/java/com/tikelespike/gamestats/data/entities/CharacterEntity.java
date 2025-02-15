@@ -17,6 +17,7 @@ public class CharacterEntity extends AbstractEntity {
     private CharacterTypeEntity characterType;
 
     private String wikiPageLink;
+    private String imageUrl;
 
     /**
      * Creates a new character entity with uninitialized fields. This constructor is used by the JPA provider to create
@@ -34,15 +35,17 @@ public class CharacterEntity extends AbstractEntity {
      * @param name display name of the character
      * @param characterType the group of characters this one belongs to
      * @param wikiPageLink URL of the wiki page associated with this character
+     * @param imageUrl URL of the image associated with this character
      */
     public CharacterEntity(Long id, Long version, String scriptToolIdentifier, String name,
                            CharacterTypeEntity characterType,
-                           String wikiPageLink) {
+                           String wikiPageLink, String imageUrl) {
         super(id, version);
         this.scriptToolIdentifier = scriptToolIdentifier;
         this.name = name;
         this.characterType = characterType;
         this.wikiPageLink = wikiPageLink;
+        this.imageUrl = imageUrl;
     }
 
     /**
@@ -122,5 +125,24 @@ public class CharacterEntity extends AbstractEntity {
      */
     protected void setWikiPageLink(String wikiPageLink) {
         this.wikiPageLink = wikiPageLink;
+    }
+
+    /**
+     * Returns the full URL of the image associated with this character, if it exists.
+     *
+     * @return the URL of the image associated with this character. May be null if no image is associated.
+     */
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    /**
+     * Sets the URL of the image associated with this character. This method is used by the JPA provider to set the URL
+     * of a new instance when it is loaded from the database. Should not be called by application code.
+     *
+     * @param imageUrl the new URL of the image associated with this character
+     */
+    protected void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

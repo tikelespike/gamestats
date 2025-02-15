@@ -57,7 +57,8 @@ public class CharacterService {
                 creationRequest.scriptToolIdentifier(),
                 creationRequest.name(),
                 typeMapper.toTransferObject(creationRequest.characterType()),
-                creationRequest.wikiPageLink()
+                creationRequest.wikiPageLink(),
+                creationRequest.imageUrl()
         );
         return characterMapper.toBusinessObject(characterRepository.save(character));
     }
