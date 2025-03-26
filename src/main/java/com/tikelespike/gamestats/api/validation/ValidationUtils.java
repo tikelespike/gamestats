@@ -48,4 +48,16 @@ public final class ValidationUtils {
                         + "request.",
                 path));
     }
+
+    /**
+     * Convenience method to create a response entity for an invalid response from an upstream dependency server.
+     *
+     * @param message message describing the error
+     * @param path path of the request that caused the error
+     *
+     * @return a response entity with status code 502 and a descriptive body
+     */
+    public static ResponseEntity<Object> upstreamError(String message, String path) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ErrorEntity.badGateway(message, path));
+    }
 }

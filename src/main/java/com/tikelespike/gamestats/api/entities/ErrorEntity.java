@@ -72,4 +72,16 @@ public record ErrorEntity(
     public static ErrorEntity conflict(String message, String path) {
         return new ErrorEntity(Instant.now(), HttpStatus.CONFLICT.value(), "Conflict", message, path);
     }
+
+    /**
+     * Creates an error entity for a 502 Bad Gateway error.
+     *
+     * @param message the specific error message
+     * @param path the path of the resource that caused the error
+     *
+     * @return the error entity
+     */
+    public static ErrorEntity badGateway(String message, String path) {
+        return new ErrorEntity(Instant.now(), HttpStatus.BAD_GATEWAY.value(), "Bad Gateway", message, path);
+    }
 }
