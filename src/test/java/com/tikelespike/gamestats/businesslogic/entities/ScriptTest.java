@@ -41,8 +41,6 @@ class ScriptTest {
     void testCreateMissingCharacters() {
         assertThrows(NullPointerException.class, () -> new Script(1L, 0L, "link", "name", "description",
                 null));
-        assertThrows(IllegalArgumentException.class, () -> new Script(1L, 0L, "link", "name", "description",
-                Set.of()));
     }
 
 
@@ -60,6 +58,5 @@ class ScriptTest {
         Script script = new Script(1L, 0L, "link", "name", "description",
                 Set.of(new Character(0L, 0L, "name", CharacterType.TOWNSFOLK)));
         assertThrows(NullPointerException.class, () -> script.setCharacters(null));
-        assertThrows(IllegalArgumentException.class, () -> script.setCharacters(Set.of()));
     }
 }

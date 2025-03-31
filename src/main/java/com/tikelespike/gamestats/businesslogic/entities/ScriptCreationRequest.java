@@ -22,15 +22,14 @@ public record ScriptCreationRequest(
      * @param name name of the new script (e.g. "Trouble Brewing"). May not be null or blank.
      * @param description description of the new script (optional)
      * @param wikiPageLink full URL to the wiki page of that script (optional)
-     * @param characters list of characters that may appear in a game when using this script. May not be null or
-     *         empty.
+     * @param characters list of characters that may appear in a game when using this script. May not be null.
      */
     public ScriptCreationRequest {
         if (name.isBlank()) {
             throw new IllegalArgumentException("Name must not be null or blank");
         }
-        if (characters == null || characters.isEmpty()) {
-            throw new IllegalArgumentException("Characters must not be null or empty");
+        if (characters == null) {
+            throw new IllegalArgumentException("Characters must not be null");
         }
         for (Character character : characters) {
             if (character == null) {

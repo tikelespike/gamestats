@@ -2,9 +2,7 @@ package com.tikelespike.gamestats.businesslogic.entities;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -39,21 +37,6 @@ class ScriptCreationRequestTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new ScriptCreationRequest("  ", "testCreateMissingName", "testCreateMissingName",
                         characters));
-    }
-
-    @Test
-    void testCreateMissingCharacters() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new ScriptCreationRequest("testCreateMissingCharacters", "testCreateMissingCharacters",
-                        "testCreateMissingCharacters", null));
-        Set<Character> emptyList = Set.of();
-        assertThrows(IllegalArgumentException.class,
-                () -> new ScriptCreationRequest("testCreateMissingCharacters", "testCreateMissingCharacters",
-                        "testCreateMissingCharacters", emptyList));
-        Set<Character> nullList = Arrays.stream(new Character[]{null}).collect(Collectors.toSet());
-        assertThrows(NullPointerException.class, () ->
-                new ScriptCreationRequest("testCreateMissingCharacters", "testCreateMissingCharacters",
-                        "testCreateMissingCharacters", nullList));
     }
 
 }
