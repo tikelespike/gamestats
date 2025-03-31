@@ -11,7 +11,7 @@ The vision is that this tool will allow groups to track their games, player stat
 ## Running the Backend
 Build the project using gradle:
 
-```bash
+```sh
 ./gradlew clean build
 ```
 
@@ -21,13 +21,13 @@ Please note that you need to supply a number of environment variables (e.g. via 
 
 Once you have configured the environment variables (or used the example file), you can for example run (from the project directory):
 
-```bash
+```sh
 docker compose up --build # build the application image and run both the database and the application
 ```
 
 or, if you are using another database, just build the application image and run it with docker:
 
-```bash
+```sh
 docker build -t bloodmanager .
 docker run -it bloodmanager
 ```
