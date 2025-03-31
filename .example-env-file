@@ -1,0 +1,16 @@
+# Local testing values
+
+JWT_SECRET="mysecret"
+CORS_ALLOWED_ORIGINS=http://localhost:5173
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/gamestatsdb
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=password
+PORT=8080
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+POSTGRES_DB=gamestatsdb
+
+ # Use this to add an artifical delay before processing each request (for frontend testing purposes). Delay is in ms.
+DELAY_BEFORE=0
+# Use this to add an artifical delay after processing each request (for frontend testing purposes). Delay is in ms.
+DELAY_AFTER=0
