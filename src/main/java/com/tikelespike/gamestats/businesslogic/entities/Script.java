@@ -112,9 +112,13 @@ public class Script implements HasId, HasWikiPage, HasVersion {
     /**
      * Sets the characters that may appear in a game when using this script.
      *
-     * @param characters the characters that may appear in a game when using this script. May not be null.
+     * @param characters the characters that may appear in a game when using this script. May not be null or
+     *         empty.
      */
     public void setCharacters(Set<Character> characters) {
+        if (characters.isEmpty()) {
+            throw new IllegalArgumentException("Characters must not be empty");
+        }
         this.characters = new HashSet<>(characters);
     }
 
