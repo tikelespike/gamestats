@@ -1,7 +1,11 @@
 package com.tikelespike.gamestats.data.repositories;
 
 import com.tikelespike.gamestats.data.entities.CharacterEntity;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -33,6 +37,18 @@ public interface CharacterRepository extends Repository<CharacterEntity, Long> {
      * @return the character entity with the given id, or null if no such entity exists
      */
     CharacterEntity findById(Long id);
+
+    /**
+     * Retrieves exactly those characters the ids of which are in the passed list of ids. Acquires a pessimistic write
+     * lock, that is, the characters cannot be changed until the lock is released.
+     *
+     * @param ids ids of the characters to fetch
+     *
+     * @return the list of characters with those ids
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM characters c WHERE c.id IN :ids")
+    List<CharacterEntity> findAllByIdWithLock(@Param("ids") List<Long> ids);
 
     /**
      * Deletes a character entity by its id.

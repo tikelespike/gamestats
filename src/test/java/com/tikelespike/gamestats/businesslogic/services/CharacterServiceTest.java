@@ -88,11 +88,11 @@ class CharacterServiceTest {
 
 
     @Test
-    void testGetCharacters() {
+    void testGetAllCharacters() {
         Character character = addTestCharacter("testGetCharacters");
 
-        assertNotNull(characterService.getCharacters());
-        assertTrue(characterService.getCharacters().contains(character));
+        assertNotNull(characterService.getAllCharacters());
+        assertTrue(characterService.getAllCharacters().contains(character));
     }
 
     @Test
@@ -119,7 +119,7 @@ class CharacterServiceTest {
 
         characterService.deleteCharacter(character.getId());
 
-        assertFalse(characterService.getCharacters().contains(character));
+        assertFalse(characterService.getAllCharacters().contains(character));
     }
 
     private Character addTestCharacter(String testName) {

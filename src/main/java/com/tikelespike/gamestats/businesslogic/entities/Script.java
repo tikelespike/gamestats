@@ -1,8 +1,8 @@
 package com.tikelespike.gamestats.businesslogic.entities;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A script is a collection of characters that may appear in a game.
@@ -11,10 +11,10 @@ public class Script implements HasId, HasWikiPage, HasVersion {
 
     private final Long id;
     private final Long version;
-    private String wikiPageLink;
     private String name;
     private String description;
-    private List<Character> characters;
+    private String wikiPageLink;
+    private Set<Character> characters;
 
     /**
      * Creates a new script with the given name, description, and characters.
@@ -28,7 +28,7 @@ public class Script implements HasId, HasWikiPage, HasVersion {
      *         empty.
      */
     public Script(Long id, Long version, String wikiPageLink, String name, String description,
-                  List<Character> characters) {
+                  Set<Character> characters) {
         this.id = Objects.requireNonNull(id);
         this.version = Objects.requireNonNull(version);
         this.wikiPageLink = wikiPageLink;
@@ -105,8 +105,8 @@ public class Script implements HasId, HasWikiPage, HasVersion {
      *
      * @return the characters that may appear in a game when using this script
      */
-    public List<Character> getCharacters() {
-        return new ArrayList<>(characters);
+    public Set<Character> getCharacters() {
+        return new HashSet<>(characters);
     }
 
     /**
@@ -115,11 +115,27 @@ public class Script implements HasId, HasWikiPage, HasVersion {
      * @param characters the characters that may appear in a game when using this script. May not be null or
      *         empty.
      */
-    public void setCharacters(List<Character> characters) {
+    public void setCharacters(Set<Character> characters) {
         if (characters.isEmpty()) {
             throw new IllegalArgumentException("Characters must not be empty");
         }
-        this.characters = new ArrayList<>(characters);
+        this.characters = new HashSet<>(characters);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Script script = (Script) o;
+        return Objects.equals(id, script.id) && Objects.equals(version, script.version)
+                && Objects.equals(name, script.name) && Objects.equals(description, script.description)
+                && Objects.equals(wikiPageLink, script.wikiPageLink) && Objects.equals(characters,
+                script.characters);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, version, name, description, wikiPageLink, characters);
+    }
 }
