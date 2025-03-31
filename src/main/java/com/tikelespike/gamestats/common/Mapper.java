@@ -10,8 +10,8 @@ package com.tikelespike.gamestats.common;
 public abstract class Mapper<BusinessType, TransferType> {
 
     /**
-     * Template method that maps from a transfer object to a business object. You do not need to check that the transfer
-     * object is null when implementing this. It is assumed by contract to be non-null.
+     * Maps from a transfer object to a business object. You do not need to check that the transfer object is null. It
+     * is assumed by contract to be non-null.
      *
      * @param transferObject the transfer object to map. Is not null.
      *
@@ -20,8 +20,8 @@ public abstract class Mapper<BusinessType, TransferType> {
     protected abstract BusinessType toBusinessObjectNoCheck(TransferType transferObject);
 
     /**
-     * Template method that maps from a business object to a transfer object. You do not need to check that the business
-     * object is null when implementing this. It is assumed by contract to be non-null.
+     * Maps from a business object to a transfer object. You do not need to check that the business object is null. It
+     * is assumed by contract to be non-null.
      *
      * @param businessObject the business object to map. Is not null.
      *
@@ -36,7 +36,7 @@ public abstract class Mapper<BusinessType, TransferType> {
      *
      * @return a corresponding business object, or null if the transfer object is null
      */
-    public final BusinessType toBusinessObject(TransferType transferObject) {
+    public BusinessType toBusinessObject(TransferType transferObject) {
         if (transferObject == null) {
             return null;
         }
@@ -50,7 +50,7 @@ public abstract class Mapper<BusinessType, TransferType> {
      *
      * @return a corresponding transfer object, or null if the business object is null
      */
-    public final TransferType toTransferObject(BusinessType businessObject) {
+    public TransferType toTransferObject(BusinessType businessObject) {
         if (businessObject == null) {
             return null;
         }

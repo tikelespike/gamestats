@@ -8,14 +8,11 @@ import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import com.tikelespike.gamestats.common.Mapper;
 import com.tikelespike.gamestats.data.entities.CharacterEntity;
 import com.tikelespike.gamestats.data.entities.CharacterTypeEntity;
-import com.tikelespike.gamestats.data.entities.ScriptEntity;
 import com.tikelespike.gamestats.data.repositories.CharacterRepository;
-import com.tikelespike.gamestats.data.repositories.ScriptRepository;
 import jakarta.persistence.OptimisticLockException;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,7 +22,6 @@ import java.util.List;
 @Service
 public class CharacterService {
     private final CharacterRepository characterRepository;
-    private final ScriptRepository scriptRepository;
     private final Mapper<Character, CharacterEntity> characterMapper;
     private final Mapper<CharacterType, CharacterTypeEntity> typeMapper;
 
@@ -35,16 +31,14 @@ public class CharacterService {
      * lifecycle and injects the required dependencies.
      *
      * @param characterRepository repository managing character entities in the database
-     * @param scriptRepository repository managing script entities in the database
      * @param characterMapper mapper for converting between character business objects and character entities
      * @param typeMapper mapper for converting between character type business objects and character type
      *         entities
      */
-    public CharacterService(CharacterRepository characterRepository, ScriptRepository scriptRepository,
+    public CharacterService(CharacterRepository characterRepository,
                             Mapper<Character, CharacterEntity> characterMapper,
                             Mapper<CharacterType, CharacterTypeEntity> typeMapper) {
         this.characterRepository = characterRepository;
-        this.scriptRepository = scriptRepository;
         this.characterMapper = characterMapper;
         this.typeMapper = typeMapper;
     }
@@ -97,7 +91,7 @@ public class CharacterService {
      *
      * @return the list of characters currently known to the system.
      */
-    public List<Character> getAllCharacters() {
+    public List<Character> getCharacters() {
         return characterRepository.findAll().stream().map(characterMapper::toBusinessObject).toList();
     }
 
@@ -113,27 +107,11 @@ public class CharacterService {
     }
 
     /**
-     * Removes the character with the given id from the system. No effect if no such character exists.
+     * Removes the character with the given id from the system.
      *
      * @param id the id of the character to delete
      */
-    @Transactional
     public void deleteCharacter(long id) {
-        CharacterEntity character = characterRepository.findById(id);
-        if (character == null) {
-            return;
-        }
-
-        List<ScriptEntity> scriptsWithCharacter = scriptRepository.findAllByCharactersContains(List.of(character));
-        for (ScriptEntity script : scriptsWithCharacter) {
-            script.removeCharacter(character);
-            scriptRepository.save(script);
-        }
-
         characterRepository.deleteById(id);
-        // Note: Committing this transaction will fail if the character is concurrently re-added into one of the
-        // scripts (or a new script with it is created) inbetween removing the character from the scripts and
-        // deleting the character (due to referential integrity violation). We accept this for now instead of adding
-        // more pessimistic locking and risking creating deadlocks accidentally.
     }
 }

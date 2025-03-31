@@ -155,7 +155,7 @@ public class CharacterController {
     )
     @GetMapping()
     public ResponseEntity<Object> getCharacters() {
-        List<Character> characters = characterService.getAllCharacters();
+        List<Character> characters = characterService.getCharacters();
 
         List<CharacterDTO> transferObjects = characters.stream().map(characterMapper::toTransferObject).toList();
         return ResponseEntity.ok(transferObjects);
