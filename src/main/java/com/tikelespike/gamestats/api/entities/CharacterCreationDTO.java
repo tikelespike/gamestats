@@ -1,5 +1,6 @@
 package com.tikelespike.gamestats.api.entities;
 
+import com.tikelespike.gamestats.api.validation.Validateable;
 import com.tikelespike.gamestats.api.validation.ValidationChain;
 import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.checks.RequiredFieldCheck;
@@ -41,16 +42,14 @@ public record CharacterCreationDTO(
                 description = "Full URL to an image representing this character (optional).",
                 example = "https://example.com/fortuneteller.png"
         ) String imageUrl
-) {
-    /**
-     * Validates this character creation request.
-     *
-     * @return the validation result of this character creation request
-     */
+) implements Validateable {
+
+    @Override
     public ValidationResult validate() {
         return new ValidationChain(
                 new RequiredFieldCheck("name", name),
                 new RequiredFieldCheck("type", type)
         ).validate();
     }
+
 }

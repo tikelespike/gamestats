@@ -3,7 +3,7 @@ package com.tikelespike.gamestats.businesslogic.exceptions;
 /**
  * Indicates that a requested resource does not exist.
  */
-public class ResourceNotFoundException extends Exception {
+public class ResourceNotFoundException extends RuntimeException {
 
     private static final String MESSAGE = "No resource with id %d found.";
 

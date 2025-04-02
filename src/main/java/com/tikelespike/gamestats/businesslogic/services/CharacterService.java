@@ -113,6 +113,22 @@ public class CharacterService {
     }
 
     /**
+     * Returns the list of characters with the given ids.
+     *
+     * @param ids the ids of the characters to retrieve
+     *
+     * @return the list of characters with the given ids
+     * @throws ResourceNotFoundException if at least one of the characters with the given ids does not exist
+     */
+    public List<Character> getCharactersByIds(List<Long> ids) {
+        List<Character> foundCharacters = getAllCharacters().stream().filter(c -> ids.contains(c.getId())).toList();
+        if (foundCharacters.size() != ids.size()) {
+            throw new ResourceNotFoundException("At least one of the characters with the given ids does not exist");
+        }
+        return foundCharacters;
+    }
+
+    /**
      * Removes the character with the given id from the system. No effect if no such character exists.
      *
      * @param id the id of the character to delete

@@ -10,9 +10,20 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
+/**
+ * Global exception handler that acts as a fallback for all exceptions that are not handled by specific controllers.
+ */
 @ControllerAdvice
 public class GlobalErrorHandler extends ResponseEntityExceptionHandler {
 
+    /**
+     * Handles JWT verification exceptions. This is used to handle cases where the JWT token is invalid or expired.
+     *
+     * @param exception exception resulting from a failed JWT verification
+     * @param request the request that caused the exception
+     *
+     * @return a response entity with the error message and a 401 Unauthorized status code
+     */
     @ExceptionHandler(JWTVerificationException.class)
     protected ResponseEntity<Object> handleTokenValidationException(JWTVerificationException exception,
                                                                     WebRequest request) {
