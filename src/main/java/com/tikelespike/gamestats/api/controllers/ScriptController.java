@@ -1,5 +1,6 @@
 package com.tikelespike.gamestats.api.controllers;
 
+import com.tikelespike.gamestats.api.entities.CharacterDTO;
 import com.tikelespike.gamestats.api.entities.ErrorEntity;
 import com.tikelespike.gamestats.api.entities.ScriptCreationDTO;
 import com.tikelespike.gamestats.api.entities.ScriptDTO;
@@ -11,6 +12,7 @@ import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundExcept
 import com.tikelespike.gamestats.businesslogic.services.ScriptService;
 import com.tikelespike.gamestats.common.Mapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,12 +20,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.util.List;
 
 /**
  * REST controller for managing scripts. A script is a collection of characters that defines which characters may be in
@@ -107,7 +111,7 @@ public class ScriptController {
             script = scriptService.createScript(creationMapper.toBusinessObject(creationRequest));
         } catch (ResourceNotFoundException e) {
             return ValidationUtils.requestInvalid(
-                    "The script creation request contains a character id that does not exist.",
+                    e.getMessage(),
                     "/api/v1/scripts"
             );
         }
@@ -115,5 +119,45 @@ public class ScriptController {
         ScriptDTO transferObject = scriptMapper.toTransferObject(script);
         URI scriptURI = URI.create("/api/v1/scripts/" + script.getId());
         return ResponseEntity.created(scriptURI).body(transferObject);
+    }
+
+    /**
+     * Retrieves all scripts.
+     *
+     * @return a REST response entity containing all scripts currently known to the system
+     */
+    @Operation(
+            summary = "Retrieves all scripts",
+            description = "Retrieves a list of all scripts registered in the system and available for use in "
+                    + "games."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Retrieval successful. The response body contains the list of scripts",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CharacterDTO.class)))}
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
+    @GetMapping()
+    public ResponseEntity<Object> getCharacters() {
+        List<Script> scripts = scriptService.getAllScripts();
+
+        List<ScriptDTO> transferObjects = scripts.stream().map(scriptMapper::toTransferObject).toList();
+        return ResponseEntity.ok(transferObjects);
     }
 }
