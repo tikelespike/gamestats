@@ -1,5 +1,9 @@
 package com.tikelespike.gamestats.api.entities;
 
+import com.tikelespike.gamestats.api.validation.ValidationChain;
+import com.tikelespike.gamestats.api.validation.ValidationResult;
+import com.tikelespike.gamestats.api.validation.checks.MatchingIdCheck;
+import com.tikelespike.gamestats.api.validation.checks.RequiredFieldCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -42,4 +46,19 @@ public record ScriptDTO(
                 example = "[2, 3, 7]"
         ) Long[] characterIds
 ) {
+    /**
+     * Validates this DTO in the context of updating a script.
+     *
+     * @param pathId id provided in the resource URI
+     *
+     * @return result of the validation
+     */
+    public ValidationResult validateUpdate(Long pathId) {
+        return new ValidationChain(
+                new RequiredFieldCheck("id", id),
+                new MatchingIdCheck(pathId, id),
+                new RequiredFieldCheck("version", version),
+                new RequiredFieldCheck("name", name)
+        ).validate();
+    }
 }

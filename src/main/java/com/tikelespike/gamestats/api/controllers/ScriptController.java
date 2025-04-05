@@ -10,6 +10,7 @@ import com.tikelespike.gamestats.businesslogic.entities.Script;
 import com.tikelespike.gamestats.businesslogic.entities.ScriptCreationRequest;
 import com.tikelespike.gamestats.businesslogic.exceptions.RelatedResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
+import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import com.tikelespike.gamestats.businesslogic.services.ScriptService;
 import com.tikelespike.gamestats.common.Mapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +23,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +44,8 @@ import java.util.List;
         description = "Operations for managing collections of characters (scripts)"
 )
 public class ScriptController {
+    private static final String API_PATH = "/api/v1/scripts";
+    private static final String API_PATH_WITH_SUBPATH = API_PATH + "/";
     private final ScriptService scriptService;
     private final Mapper<Script, ScriptDTO> scriptMapper;
     private final Mapper<ScriptCreationRequest, ScriptCreationDTO> creationMapper;
@@ -104,7 +109,7 @@ public class ScriptController {
     public ResponseEntity<Object> createScript(@RequestBody ScriptCreationDTO creationRequest) {
         ValidationResult validation = creationRequest.validate();
         if (!validation.isValid()) {
-            return ValidationUtils.requestInvalid(validation.getMessage(), "/api/v1/scripts");
+            return ValidationUtils.requestInvalid(validation.getMessage(), API_PATH);
         }
 
         Script script;
@@ -113,14 +118,14 @@ public class ScriptController {
         } catch (RelatedResourceNotFoundException e) {
             return ValidationUtils.requestInvalid(
                     e.getMessage(),
-                    "/api/v1/scripts"
+                    API_PATH
             );
         } catch (ResourceNotFoundException e) {
-            return ValidationUtils.notFound("/api/v1/scripts");
+            return ValidationUtils.notFound(API_PATH);
         }
 
         ScriptDTO transferObject = scriptMapper.toTransferObject(script);
-        URI scriptURI = URI.create("/api/v1/scripts/" + script.getId());
+        URI scriptURI = URI.create(API_PATH_WITH_SUBPATH + script.getId());
         return ResponseEntity.created(scriptURI).body(transferObject);
     }
 
@@ -162,5 +167,80 @@ public class ScriptController {
 
         List<ScriptDTO> transferObjects = scripts.stream().map(scriptMapper::toTransferObject).toList();
         return ResponseEntity.ok(transferObjects);
+    }
+
+    /**
+     * Updates a script.
+     *
+     * @param id script id (must be the same as in the body, if given there)
+     * @param scriptDTO script to update
+     *
+     * @return a REST response entity containing the updated script
+     */
+    @Operation(
+            summary = "Updates a script",
+            description =
+                    "Updates the details about an existing script, like the characters available in it, its name, or "
+                            + "its description. The script has to be created before it"
+                            + " can be changed by this endpoint."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Updated the script successfully. The response body contains the updated "
+                            + "script.",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CharacterDTO.class)))}
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "404",
+                    description = "Not found. There exists no resource under the given URI.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict. The resource was deleted concurrently during the processing of this "
+                            + "request, or there already exists a newer version of this resource that would be "
+                            + "overwritten.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
+    @PreAuthorize("hasAuthority('STORYTELLER')")
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateCharacter(@PathVariable("id") long id, @RequestBody ScriptDTO scriptDTO) {
+        ValidationResult validation = scriptDTO.validateUpdate(id);
+        if (!validation.isValid()) {
+            return ValidationUtils.requestInvalid(validation.getMessage(), API_PATH_WITH_SUBPATH + id);
+        }
+
+        Script scriptUpdate = scriptMapper.toBusinessObject(scriptDTO);
+        Script newScript;
+        try {
+            newScript = scriptService.updateScript(scriptUpdate);
+        } catch (ResourceNotFoundException e) {
+            return ValidationUtils.notFound(API_PATH_WITH_SUBPATH + id);
+        } catch (RelatedResourceNotFoundException e) {
+            return ValidationUtils.requestInvalid(
+                    e.getMessage(),
+                    API_PATH_WITH_SUBPATH + id
+            );
+        } catch (StaleDataException e) {
+            return ValidationUtils.conflict(API_PATH_WITH_SUBPATH + id);
+        }
+
+        ScriptDTO transferObject = scriptMapper.toTransferObject(newScript);
+        return ResponseEntity.ok(transferObject);
     }
 }
