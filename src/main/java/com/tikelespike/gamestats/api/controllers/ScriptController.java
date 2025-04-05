@@ -1,6 +1,5 @@
 package com.tikelespike.gamestats.api.controllers;
 
-import com.tikelespike.gamestats.api.entities.CharacterDTO;
 import com.tikelespike.gamestats.api.entities.ErrorEntity;
 import com.tikelespike.gamestats.api.entities.ScriptCreationDTO;
 import com.tikelespike.gamestats.api.entities.ScriptDTO;
@@ -118,7 +117,7 @@ public class ScriptController {
             script = scriptService.createScript(creationMapper.toBusinessObject(creationRequest));
         } catch (RelatedResourceNotFoundException e) {
             return ValidationUtils.requestInvalid(
-                    e.getMessage(),
+                    "At least one of the characters of the script does not exist",
                     API_PATH
             );
         } catch (ResourceNotFoundException e) {
@@ -144,7 +143,7 @@ public class ScriptController {
             value = {@ApiResponse(
                     responseCode = "200",
                     description = "Retrieval successful. The response body contains the list of scripts",
-                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CharacterDTO.class)))}
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = ScriptDTO.class)))}
             ), @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
@@ -190,7 +189,7 @@ public class ScriptController {
                     responseCode = "200",
                     description = "Updated the script successfully. The response body contains the updated "
                             + "script.",
-                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CharacterDTO.class)))}
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = ScriptDTO.class)))}
             ), @ApiResponse(
                     responseCode = "401",
                     description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
@@ -226,17 +225,20 @@ public class ScriptController {
             return ValidationUtils.requestInvalid(validation.getMessage(), API_PATH_WITH_SUBPATH + id);
         }
 
-        Script scriptUpdate = scriptMapper.toBusinessObject(scriptDTO);
+        Script scriptUpdate;
+        try {
+            scriptUpdate = scriptMapper.toBusinessObject(scriptDTO);
+        } catch (RelatedResourceNotFoundException e) {
+            return ValidationUtils.requestInvalid(
+                    "At least one of the characters of the script does not exist",
+                    API_PATH_WITH_SUBPATH + id
+            );
+        }
         Script newScript;
         try {
             newScript = scriptService.updateScript(scriptUpdate);
         } catch (ResourceNotFoundException e) {
             return ValidationUtils.notFound(API_PATH_WITH_SUBPATH + id);
-        } catch (RelatedResourceNotFoundException e) {
-            return ValidationUtils.requestInvalid(
-                    e.getMessage(),
-                    API_PATH_WITH_SUBPATH + id
-            );
         } catch (StaleDataException e) {
             return ValidationUtils.conflict(API_PATH_WITH_SUBPATH + id);
         }

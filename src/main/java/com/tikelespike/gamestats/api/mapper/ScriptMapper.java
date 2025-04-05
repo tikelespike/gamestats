@@ -3,12 +3,15 @@ package com.tikelespike.gamestats.api.mapper;
 import com.tikelespike.gamestats.api.entities.ScriptDTO;
 import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.Script;
+import com.tikelespike.gamestats.businesslogic.exceptions.RelatedResourceNotFoundException;
+import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.services.CharacterService;
 import com.tikelespike.gamestats.common.Mapper;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Maps between script business objects and their REST transfer representation. Does not check if character ids used in
@@ -31,14 +34,19 @@ public class ScriptMapper extends Mapper<Script, ScriptDTO> {
 
     @Override
     protected Script toBusinessObjectNoCheck(ScriptDTO transferObject) {
+        List<Character> characters;
+        try {
+            characters = characterService.getCharactersByIds(Arrays.stream(transferObject.characterIds()).toList());
+        } catch (ResourceNotFoundException e) {
+            throw new RelatedResourceNotFoundException(e);
+        }
         return new Script(
                 transferObject.id(),
                 transferObject.version(),
                 transferObject.wikiPageLink(),
                 transferObject.name(),
                 transferObject.description(),
-                new HashSet<>(
-                        characterService.getCharactersByIds(Arrays.stream(transferObject.characterIds()).toList()))
+                new HashSet<>(characters)
         );
     }
 
