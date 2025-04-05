@@ -8,6 +8,7 @@ import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.ValidationUtils;
 import com.tikelespike.gamestats.businesslogic.entities.Script;
 import com.tikelespike.gamestats.businesslogic.entities.ScriptCreationRequest;
+import com.tikelespike.gamestats.businesslogic.exceptions.RelatedResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.services.ScriptService;
 import com.tikelespike.gamestats.common.Mapper;
@@ -109,11 +110,13 @@ public class ScriptController {
         Script script;
         try {
             script = scriptService.createScript(creationMapper.toBusinessObject(creationRequest));
-        } catch (ResourceNotFoundException e) {
+        } catch (RelatedResourceNotFoundException e) {
             return ValidationUtils.requestInvalid(
                     e.getMessage(),
                     "/api/v1/scripts"
             );
+        } catch (ResourceNotFoundException e) {
+            return ValidationUtils.notFound("/api/v1/scripts");
         }
 
         ScriptDTO transferObject = scriptMapper.toTransferObject(script);

@@ -48,7 +48,7 @@ class CharacterServiceTest {
 
 
     @Test
-    void testUpdateCharacter() throws ResourceNotFoundException, StaleDataException {
+    void testUpdateCharacter() throws StaleDataException {
         Character character = addTestCharacter("testUpdateCharacter");
 
         character.setScriptToolIdentifier("testUpdateCharacter_id_updated");
@@ -78,7 +78,7 @@ class CharacterServiceTest {
     }
 
     @Test
-    void testUpdateCharacterOutdated() throws StaleDataException, ResourceNotFoundException {
+    void testUpdateCharacterOutdated() throws StaleDataException {
         Character character = addTestCharacter("testUpdateCharacterOutdated");
         character.setName("testUpdateCharacterOutdated_updated");
         characterService.updateCharacter(character);

@@ -6,6 +6,7 @@ import com.tikelespike.gamestats.businesslogic.entities.CharacterCreationRequest
 import com.tikelespike.gamestats.businesslogic.entities.CharacterType;
 import com.tikelespike.gamestats.businesslogic.entities.Script;
 import com.tikelespike.gamestats.businesslogic.entities.ScriptCreationRequest;
+import com.tikelespike.gamestats.businesslogic.exceptions.RelatedResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import org.junit.jupiter.api.BeforeAll;
@@ -48,7 +49,7 @@ class ScriptServiceTest {
     }
 
     @Test
-    void testCreateScript() throws ResourceNotFoundException {
+    void testCreateScript() {
         ScriptCreationRequest request = new ScriptCreationRequest("testCreateScript_name",
                 "testCreateScript_description", "testCreateScript_wikiPage", testCharacters);
 
@@ -76,12 +77,12 @@ class ScriptServiceTest {
                 "testCreateScriptNonExistingCharacter_description", "testCreateScriptNonExistingCharacter_wikiPage",
                 characters);
 
-        assertThrows(ResourceNotFoundException.class, () -> scriptService.createScript(request));
+        assertThrows(RelatedResourceNotFoundException.class, () -> scriptService.createScript(request));
     }
 
 
     @Test
-    void testGetScript() throws ResourceNotFoundException {
+    void testGetScript() {
         Script newScript = addTestScript("testGetScript");
 
         Script retrievedScript = scriptService.getScript(newScript.getId());
@@ -95,7 +96,7 @@ class ScriptServiceTest {
     }
 
     @Test
-    void testGetAllScripts() throws ResourceNotFoundException {
+    void testGetAllScripts() {
         Script script = addTestScript("testGetAllScripts");
 
         assertTrue(scriptService.getAllScripts().contains(script));
@@ -103,7 +104,7 @@ class ScriptServiceTest {
 
 
     @Test
-    void testUpdateScript() throws ResourceNotFoundException, StaleDataException {
+    void testUpdateScript() throws StaleDataException {
         Script script = addTestScript("testUpdateScript");
 
         script.setName("updatedName");
@@ -131,7 +132,7 @@ class ScriptServiceTest {
     }
 
     @Test
-    void testUpdateScriptOutdated() throws ResourceNotFoundException, StaleDataException {
+    void testUpdateScriptOutdated() throws StaleDataException {
         Script script = addTestScript("testUpdateScriptOutdated");
         script.setName("updatedName");
         scriptService.updateScript(script);
@@ -141,7 +142,7 @@ class ScriptServiceTest {
     }
 
     @Test
-    void testUpdateScriptWithNonExistingCharacter() throws ResourceNotFoundException {
+    void testUpdateScriptWithNonExistingCharacter() {
         Script script = addTestScript("testUpdateScriptWithNonExistingCharacter");
 
         Set<Character> characters = new HashSet<>(script.getCharacters());
@@ -149,11 +150,11 @@ class ScriptServiceTest {
                 CharacterType.TOWNSFOLK, "http://non.existing.character/wiki", "http://non.existing.character/image"));
         script.setCharacters(characters);
 
-        assertThrows(ResourceNotFoundException.class, () -> scriptService.updateScript(script));
+        assertThrows(RelatedResourceNotFoundException.class, () -> scriptService.updateScript(script));
     }
 
     @Test
-    void testDeleteScript() throws ResourceNotFoundException {
+    void testDeleteScript() {
         Script script = addTestScript("testDeleteScript");
 
         scriptService.deleteScript(script.getId());
@@ -161,7 +162,7 @@ class ScriptServiceTest {
         assertNull(scriptService.getScript(script.getId()));
     }
 
-    private Script addTestScript(String identifier) throws ResourceNotFoundException {
+    private Script addTestScript(String identifier) {
         ScriptCreationRequest request = new ScriptCreationRequest(identifier + "_name",
                 identifier + "testUpdateScript_description", identifier + "testUpdateScript_wikiPage", testCharacters);
 

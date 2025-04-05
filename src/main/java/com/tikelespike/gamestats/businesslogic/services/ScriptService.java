@@ -3,6 +3,7 @@ package com.tikelespike.gamestats.businesslogic.services;
 import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.Script;
 import com.tikelespike.gamestats.businesslogic.entities.ScriptCreationRequest;
+import com.tikelespike.gamestats.businesslogic.exceptions.RelatedResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import com.tikelespike.gamestats.common.Mapper;
@@ -53,10 +54,11 @@ public class ScriptService {
      * @param scriptCreationRequest the request containing the data for the script to create. May not be null.
      *
      * @return the new script as created in the system (now including automatically populated fields)
-     * @throws ResourceNotFoundException if any of the characters in the script do not exist in the database
+     * @throws RelatedResourceNotFoundException if any of the characters in the script do not exist in the
+     *         database
      */
-    @Transactional(rollbackFor = {ResourceNotFoundException.class})
-    public Script createScript(ScriptCreationRequest scriptCreationRequest) throws ResourceNotFoundException {
+    @Transactional
+    public Script createScript(ScriptCreationRequest scriptCreationRequest) throws RelatedResourceNotFoundException {
         ScriptEntity scriptEntity = new ScriptEntity(
                 null,
                 null,
@@ -70,7 +72,7 @@ public class ScriptService {
         List<CharacterEntity> existingCharacters = characterRepository.findAllByIdWithLock(
                 scriptCreationRequest.characters().stream().map(Character::getId).toList());
         if (existingCharacters.size() != scriptCreationRequest.characters().size()) {
-            throw new ResourceNotFoundException("At least one of the characters of the script does not exist");
+            throw new RelatedResourceNotFoundException("At least one of the characters of the script does not exist");
         }
 
         ScriptEntity savedScriptEntity = scriptRepository.save(scriptEntity);
@@ -109,10 +111,12 @@ public class ScriptService {
      *
      * @return the updated script
      * @throws ResourceNotFoundException if the script with the given id does not exist
+     * @throws RelatedResourceNotFoundException if any of the referenced characters in the modified script do
+     *         not exist in the system
      * @throws StaleDataException if the script has been modified or deleted in the meantime (concurrently)
      */
-    @Transactional(rollbackFor = {ResourceNotFoundException.class, StaleDataException.class})
-    public Script updateScript(Script script) throws ResourceNotFoundException, StaleDataException {
+    @Transactional(rollbackFor = {StaleDataException.class})
+    public Script updateScript(Script script) throws StaleDataException {
         if (scriptRepository.findById(script.getId()) == null) {
             throw new ResourceNotFoundException("Script with id " + script.getId() + " does not exist");
         }
@@ -121,7 +125,7 @@ public class ScriptService {
         List<CharacterEntity> existingCharacters = characterRepository.findAllByIdWithLock(
                 script.getCharacters().stream().map(Character::getId).toList());
         if (existingCharacters.size() != script.getCharacters().size()) {
-            throw new ResourceNotFoundException("At least one of the characters of the script does not exist");
+            throw new RelatedResourceNotFoundException("At least one of the characters of the script does not exist");
         }
 
         ScriptEntity entityToSave = scriptMapper.toTransferObject(script);
