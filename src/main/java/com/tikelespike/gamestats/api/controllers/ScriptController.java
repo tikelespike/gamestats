@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -242,5 +243,44 @@ public class ScriptController {
 
         ScriptDTO transferObject = scriptMapper.toTransferObject(newScript);
         return ResponseEntity.ok(transferObject);
+    }
+
+    /**
+     * Deletes a script from the system.
+     *
+     * @param id the ID of the script to delete
+     *
+     * @return a REST response entity indicating the result of the operation
+     */
+    @Operation(
+            summary = "Deletes a script",
+            description = "Removes a script from the system. If the script does not exist, the operation has no effect."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "204",
+                    description = "Script deleted successfully. No content is returned."
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
+    @PreAuthorize("hasAuthority('STORYTELLER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteScript(@PathVariable("id") long id) {
+        scriptService.deleteScript(id);
+        return ResponseEntity.noContent().build();
     }
 }
