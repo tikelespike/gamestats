@@ -183,4 +183,35 @@ public class CharacterService {
         // deleting the character (due to referential integrity violation). We accept this for now instead of adding
         // more pessimistic locking and risking creating deadlocks accidentally.
     }
+
+    /**
+     * Deletes multiple characters in a single atomic transaction. If any character deletion fails, none of the
+     * characters will be deleted.
+     *
+     * @param ids list of character IDs to delete. May not be null.
+     */
+    @Transactional
+    public void deleteCharacters(List<Long> ids) {
+        Objects.requireNonNull(ids, "Character IDs may not be null");
+
+        List<CharacterEntity> charactersToDelete = ids.stream()
+                .map(characterRepository::findById)
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (charactersToDelete.isEmpty()) {
+            return;
+        }
+
+        for (CharacterEntity character : charactersToDelete) {
+            List<ScriptEntity> scriptsWithCharacter = scriptRepository.findAllByCharactersContains(List.of(character));
+
+            for (ScriptEntity script : scriptsWithCharacter) {
+                script.removeCharacter(character);
+                scriptRepository.save(script);
+            }
+
+            characterRepository.deleteById(character.getId());
+        }
+    }
 }

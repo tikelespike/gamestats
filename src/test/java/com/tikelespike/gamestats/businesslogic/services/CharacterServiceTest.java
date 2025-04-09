@@ -4,11 +4,18 @@ import com.tikelespike.gamestats.GamestatsApplication;
 import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterCreationRequest;
 import com.tikelespike.gamestats.businesslogic.entities.CharacterType;
+import com.tikelespike.gamestats.businesslogic.entities.Script;
+import com.tikelespike.gamestats.businesslogic.entities.ScriptCreationRequest;
 import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -17,8 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
-
 @SpringBootTest(classes = GamestatsApplication.class)
 class CharacterServiceTest {
 
@@ -26,6 +31,9 @@ class CharacterServiceTest {
     // CUT
     @Autowired
     private CharacterService characterService;
+
+    @Autowired
+    private ScriptService scriptService;
 
     @Test
     void testCreateCharacter() {
@@ -157,10 +165,97 @@ class CharacterServiceTest {
         assertTrue(characters.isEmpty());
     }
 
+    @Test
+    void testDeleteCharacters() {
+        Character character1 = addTestCharacter("testDeleteCharacters1");
+        Character character2 = addTestCharacter("testDeleteCharacters2");
+
+        characterService.deleteCharacters(List.of(character1.getId(), character2.getId()));
+
+        assertNull(characterService.getCharacter(character1.getId()));
+        assertNull(characterService.getCharacter(character2.getId()));
+    }
+
+    @Test
+    void testDeleteCharactersNullRequest() {
+        assertThrows(NullPointerException.class, () -> characterService.deleteCharacters(null));
+    }
+
+    @Test
+    void testDeleteCharactersEmptyList() {
+        // Should not throw an exception
+        characterService.deleteCharacters(List.of());
+    }
+
+    @Test
+    void testDeleteCharactersNonExistentIds() {
+        // Should not throw an exception
+        characterService.deleteCharacters(List.of(NON_EXISTENT_ID));
+    }
+
+    @Test
+    void testDeleteCharacterRemovesFromScripts() {
+        Character character1 = addTestCharacter("testDeleteCharacterRemovesFromScripts_1");
+        Character character2 = addTestCharacter("testDeleteCharacterRemovesFromScripts_2");
+
+        Script script = addTestScript("testDeleteCharacterRemovesFromScripts", character1, character2);
+
+        characterService.deleteCharacter(character1.getId());
+
+        Script updatedScript = scriptService.getScript(script.getId());
+        assertFalse(updatedScript.getCharacters().contains(character1));
+        assertTrue(updatedScript.getCharacters().contains(character2));
+    }
+
+    @Test
+    void testDeleteCharactersRemovesFromScripts() {
+        Character character1 = addTestCharacter("testDeleteCharactersRemovesFromScripts_1");
+        Character character2 = addTestCharacter("testDeleteCharactersRemovesFromScripts_2");
+        Character character3 = addTestCharacter("testDeleteCharactersRemovesFromScripts_3");
+
+        Script script = addTestScript("testDeleteCharactersRemovesFromScripts", character1, character2, character3);
+
+        characterService.deleteCharacters(List.of(character1.getId(), character2.getId()));
+
+        Script updatedScript = scriptService.getScript(script.getId());
+        assertFalse(updatedScript.getCharacters().contains(character1));
+        assertFalse(updatedScript.getCharacters().contains(character2));
+        assertTrue(updatedScript.getCharacters().contains(character3));
+    }
+
+    @Test
+    void testDeleteCharacterRemovesFromMultipleScripts() {
+        Character character1 = addTestCharacter("testDeleteCharacterRemovesFromMultipleScripts_1");
+        Character character2 = addTestCharacter("testDeleteCharacterRemovesFromMultipleScripts_2");
+
+        Script script1 = addTestScript("testDeleteCharacterRemovesFromMultipleScripts_1", character1, character2);
+        Script script2 = addTestScript("testDeleteCharacterRemovesFromMultipleScripts_2", character1);
+
+        characterService.deleteCharacter(character1.getId());
+
+        Script updatedScript1 = scriptService.getScript(script1.getId());
+        Script updatedScript2 = scriptService.getScript(script2.getId());
+
+        assertFalse(updatedScript1.getCharacters().contains(character1));
+        assertTrue(updatedScript1.getCharacters().contains(character2));
+        assertFalse(updatedScript2.getCharacters().contains(character1));
+    }
+
     private Character addTestCharacter(String testName) {
         CharacterCreationRequest request = new CharacterCreationRequest(testName + "_id",
                 testName + "_name",
                 CharacterType.TOWNSFOLK, "http://" + testName, "http://" + testName + "/image");
         return characterService.createCharacter(request);
+    }
+
+    private Script addTestScript(String testName, Character... characters) {
+        Set<Character> characterSet = new HashSet<>(Arrays.asList(characters));
+        ScriptCreationRequest request = new ScriptCreationRequest(
+                testName + "_name",
+                testName + "_description",
+                "http://" + testName,
+                characterSet
+        );
+        return scriptService.createScript(request);
     }
 }

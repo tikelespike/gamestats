@@ -272,6 +272,58 @@ public class CharacterController {
     }
 
     /**
+     * Deletes multiple characters in a single request. The deletion is atomic - either all characters are deleted, or
+     * none are. This is useful for bulk removing characters from the system.
+     *
+     * @param ids list of character IDs to delete
+     *
+     * @return an HTTP response code indicating the success of the request
+     */
+    @Operation(
+            summary = "Deletes multiple characters",
+            description = "Deletes multiple characters by their IDs in a single atomic operation. If any character "
+                    + "deletion fails, none of the characters will be deleted. This is useful for bulk removing "
+                    + "characters from the system."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "204",
+                    description = "Deleted the characters successfully, or there were no characters with those IDs to "
+                            + "begin with."
+            ), @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request. The response body contains an error message.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
+    @PreAuthorize("hasAuthority('STORYTELLER')")
+    @DeleteMapping("/batch")
+    public ResponseEntity<Object> deleteCharacters(@RequestBody List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return ValidationUtils.requestInvalid("No character IDs provided", "/api/v1/characters/batch");
+        }
+
+        characterService.deleteCharacters(ids);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * Creates multiple characters in a single request. The creation is atomic - either all characters are created, or
      * none are. This is useful for bulk importing characters or creating multiple related characters at once.
      *
