@@ -318,7 +318,8 @@ public class CharacterController {
         for (CharacterCreationDTO request : creationRequests) {
             ValidationResult validation = request.validate();
             if (!validation.isValid()) {
-                return ValidationUtils.requestInvalid(validation.getMessage(), "/api/v1/characters/batch");
+                return ValidationUtils.requestInvalid("At least one character is invalid: " + validation.getMessage(),
+                        "/api/v1/characters/batch");
             }
         }
 

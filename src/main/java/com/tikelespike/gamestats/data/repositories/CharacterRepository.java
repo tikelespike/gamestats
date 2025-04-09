@@ -29,7 +29,7 @@ public interface CharacterRepository extends Repository<CharacterEntity, Long> {
      *
      * @return the list of saved character entities
      */
-    List<CharacterEntity> saveAll(List<CharacterEntity> characters);
+    Iterable<CharacterEntity> saveAll(Iterable<CharacterEntity> characters);
 
     /**
      * Retrieves all character entities from the database.

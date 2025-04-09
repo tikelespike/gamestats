@@ -17,6 +17,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -78,7 +79,9 @@ public class CharacterService {
                 .map(this::createEntityFromCreationRequest)
                 .toList();
 
-        List<CharacterEntity> savedCharacters = characterRepository.saveAll(characters);
+        Iterable<CharacterEntity> savedEntities = characterRepository.saveAll(characters);
+        List<CharacterEntity> savedCharacters = new ArrayList<>();
+        savedEntities.forEach(savedCharacters::add);
 
         return savedCharacters.stream()
                 .map(characterMapper::toBusinessObject)
