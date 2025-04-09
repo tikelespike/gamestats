@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Service class for managing characters registered within the application.
@@ -57,7 +58,35 @@ public class CharacterService {
      * @return the character as created in the system (now including automatically populated fields)
      */
     public Character createCharacter(CharacterCreationRequest creationRequest) {
-        CharacterEntity character = new CharacterEntity(
+        CharacterEntity character = createEntityFromCreationRequest(creationRequest);
+        return characterMapper.toBusinessObject(characterRepository.save(character));
+    }
+
+    /**
+     * Creates multiple characters in a single atomic transaction. If any character creation fails, none of the
+     * characters will be created.
+     *
+     * @param creationRequests list of character creation requests. May not be null.
+     *
+     * @return list of all created characters
+     */
+    @Transactional
+    public List<Character> createCharacters(List<CharacterCreationRequest> creationRequests) {
+        Objects.requireNonNull(creationRequests, "Creation requests may not be null");
+
+        List<CharacterEntity> characters = creationRequests.stream()
+                .map(this::createEntityFromCreationRequest)
+                .toList();
+
+        List<CharacterEntity> savedCharacters = characterRepository.saveAll(characters);
+
+        return savedCharacters.stream()
+                .map(characterMapper::toBusinessObject)
+                .toList();
+    }
+
+    private CharacterEntity createEntityFromCreationRequest(CharacterCreationRequest creationRequest) {
+        return new CharacterEntity(
                 null,
                 null,
                 creationRequest.scriptToolIdentifier(),
@@ -66,7 +95,6 @@ public class CharacterService {
                 creationRequest.wikiPageLink(),
                 creationRequest.imageUrl()
         );
-        return characterMapper.toBusinessObject(characterRepository.save(character));
     }
 
     /**

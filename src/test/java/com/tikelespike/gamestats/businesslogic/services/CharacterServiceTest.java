@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+
 @SpringBootTest(classes = GamestatsApplication.class)
 class CharacterServiceTest {
 
@@ -120,6 +122,39 @@ class CharacterServiceTest {
         characterService.deleteCharacter(character.getId());
 
         assertFalse(characterService.getAllCharacters().contains(character));
+    }
+
+    @Test
+    void testCreateCharacters() {
+        List<CharacterCreationRequest> requests = List.of(
+                new CharacterCreationRequest("test1_id", "test1_name", CharacterType.TOWNSFOLK, "http://test1",
+                        "http://test1/image"),
+                new CharacterCreationRequest("test2_id", "test2_name", CharacterType.MINION, "http://test2",
+                        "http://test2/image")
+        );
+
+        List<Character> characters = characterService.createCharacters(requests);
+
+        assertEquals(2, characters.size());
+        assertTrue(characters.stream()
+                .anyMatch(c -> c.getName().equals("test1_name")));
+        assertTrue(characters.stream()
+                .anyMatch(c -> c.getName().equals("test2_name")));
+        assertTrue(characters.stream()
+                .anyMatch(c -> c.getCharacterType() == CharacterType.TOWNSFOLK));
+        assertTrue(characters.stream()
+                .anyMatch(c -> c.getCharacterType() == CharacterType.MINION));
+    }
+
+    @Test
+    void testCreateCharactersNullRequest() {
+        assertThrows(NullPointerException.class, () -> characterService.createCharacters(null));
+    }
+
+    @Test
+    void testCreateCharactersEmptyList() {
+        List<Character> characters = characterService.createCharacters(List.of());
+        assertTrue(characters.isEmpty());
     }
 
     private Character addTestCharacter(String testName) {

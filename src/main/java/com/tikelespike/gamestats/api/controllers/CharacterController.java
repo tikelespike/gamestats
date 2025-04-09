@@ -270,4 +270,68 @@ public class CharacterController {
 
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Creates multiple characters in a single request. The creation is atomic - either all characters are created, or
+     * none are. This is useful for bulk importing characters or creating multiple related characters at once.
+     *
+     * @param creationRequests list of character creation requests
+     *
+     * @return a REST response entity containing all newly created characters
+     */
+    @Operation(
+            summary = "Creates multiple characters",
+            description = "Creates multiple in-game characters in a single atomic operation. If any character creation "
+                    + "fails, none of the characters will be created. This is useful for bulk importing characters or "
+                    + "creating multiple related characters at once."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "201",
+                    description = "Created characters successfully. The response body contains the newly created "
+                            + "characters.",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CharacterDTO.class)))}
+            ), @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request. The response body contains an error message.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
+    @PreAuthorize("hasAuthority('STORYTELLER')")
+    @PostMapping("/batch")
+    public ResponseEntity<Object> createCharacters(@RequestBody List<CharacterCreationDTO> creationRequests) {
+        for (CharacterCreationDTO request : creationRequests) {
+            ValidationResult validation = request.validate();
+            if (!validation.isValid()) {
+                return ValidationUtils.requestInvalid(validation.getMessage(), "/api/v1/characters/batch");
+            }
+        }
+
+        List<CharacterCreationRequest> businessRequests = creationRequests.stream()
+                .map(creationMapper::toBusinessObject)
+                .toList();
+
+        List<Character> characters = characterService.createCharacters(businessRequests);
+
+        List<CharacterDTO> transferObjects = characters.stream()
+                .map(characterMapper::toTransferObject)
+                .toList();
+
+        return ResponseEntity.created(URI.create("/api/v1/characters/batch")).body(transferObjects);
+    }
 }

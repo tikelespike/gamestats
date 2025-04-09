@@ -23,6 +23,15 @@ public interface CharacterRepository extends Repository<CharacterEntity, Long> {
     CharacterEntity save(CharacterEntity character);
 
     /**
+     * Saves multiple character entities to the database in a single operation.
+     *
+     * @param characters the character entities to save
+     *
+     * @return the list of saved character entities
+     */
+    List<CharacterEntity> saveAll(List<CharacterEntity> characters);
+
+    /**
      * Retrieves all character entities from the database.
      *
      * @return the list of character entities present in the database
