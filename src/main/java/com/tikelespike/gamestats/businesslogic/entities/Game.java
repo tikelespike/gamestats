@@ -1,19 +1,11 @@
 package com.tikelespike.gamestats.businesslogic.entities;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * A single game of Blood on the Clocktower.
  */
-public interface Game {
-
-    /**
-     * Unique identifier of this game.
-     *
-     * @return the unique identifier of this game
-     */
-    Long getId();
+public interface Game extends HasId, HasVersion {
 
     /**
      * Returns a map of all players that participated in this game and the data about their participation in this game.
@@ -21,7 +13,7 @@ public interface Game {
      *
      * @return a map mapping from players to data about the player's participation in this game
      */
-    Map<Player, PlayerParticipation> getParticipants();
+    List<PlayerParticipation> getParticipants();
 
     /**
      * Returns the script (that is, the list of characters that may appear in this game) that was used in this game.
@@ -53,9 +45,9 @@ public interface Game {
      * @return the players that won this game
      */
     default List<Player> getWinningPlayers() {
-        return getParticipants().entrySet().stream()
-                .filter(entry -> entry.getValue().endAlignment() == getWinningAlignment())
-                .map(Map.Entry::getKey)
+        return getParticipants().stream()
+                .filter(entry -> entry.endAlignment() == getWinningAlignment())
+                .map(PlayerParticipation::player)
                 .toList();
     }
 }
