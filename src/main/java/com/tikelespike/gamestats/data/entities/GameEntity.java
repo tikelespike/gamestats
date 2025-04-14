@@ -18,6 +18,7 @@ import static jakarta.persistence.FetchType.EAGER;
  */
 @Entity(name = "games")
 public class GameEntity extends AbstractEntity {
+
     @NotNull
     @ManyToOne(fetch = EAGER)
     private ScriptEntity script;
@@ -36,6 +37,9 @@ public class GameEntity extends AbstractEntity {
     )
     private List<PlayerParticipationEntity> participants;
 
+    @OneToMany(fetch = EAGER)
+    private List<PlayerEntity> winningPlayers;
+
     /**
      * Creates a new game entity with uninitialized fields. This constructor is used by the JPA provider to create a new
      * instance of this entity from the database.
@@ -52,14 +56,16 @@ public class GameEntity extends AbstractEntity {
      * @param winningAlignment the alignment that won the game
      * @param description a free-form optional description of this game
      * @param participants the list of player participations in this game
+     * @param winningPlayers the list of players that won the game, if not defined by their alignment
      */
     public GameEntity(Long id, Long version, ScriptEntity script, AlignmentEntity winningAlignment, String description,
-                      List<PlayerParticipationEntity> participants) {
+                      List<PlayerParticipationEntity> participants, List<PlayerEntity> winningPlayers) {
         super(id, version);
         this.script = script;
         this.winningAlignment = winningAlignment;
         this.description = description;
-        this.participants = new ArrayList<>(participants);
+        this.participants = participants;
+        this.winningPlayers = winningPlayers;
     }
 
     /**
@@ -136,5 +142,23 @@ public class GameEntity extends AbstractEntity {
      */
     protected void setParticipants(List<PlayerParticipationEntity> participants) {
         this.participants = new ArrayList<>(participants);
+    }
+
+    /**
+     * Returns the list of winning players.
+     *
+     * @return the list of winning players
+     */
+    public List<PlayerEntity> getWinningPlayers() {
+        return winningPlayers;
+    }
+
+    /**
+     * Sets the list of winning players.
+     *
+     * @param winningPlayers the list of winning players
+     */
+    public void setWinningPlayers(List<PlayerEntity> winningPlayers) {
+        this.winningPlayers = winningPlayers;
     }
 }

@@ -4,7 +4,6 @@ import com.tikelespike.gamestats.businesslogic.entities.Alignment;
 import com.tikelespike.gamestats.businesslogic.entities.Game;
 import com.tikelespike.gamestats.businesslogic.entities.PlayerParticipation;
 import com.tikelespike.gamestats.businesslogic.entities.Script;
-import com.tikelespike.gamestats.businesslogic.entities.SimpleGame;
 import com.tikelespike.gamestats.common.Mapper;
 import com.tikelespike.gamestats.data.entities.AlignmentEntity;
 import com.tikelespike.gamestats.data.entities.GameEntity;
@@ -24,6 +23,7 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
     private final Mapper<Script, ScriptEntity> scriptMapper;
     private final Mapper<Alignment, AlignmentEntity> alignmentMapper;
     private final Mapper<PlayerParticipation, PlayerParticipationEntity> playerParticipationMapper;
+    private final UserPlayerEntityMapper playerMapper;
 
     /**
      * Creates a new mapper. This is usually done by the Spring framework, which manages the mapper's lifecycle and
@@ -32,13 +32,16 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
      * @param scriptMapper mapper for script entities
      * @param alignmentMapper mapper for alignment entities
      * @param playerParticipationMapper mapper for player participation entities
+     * @param playerMapper mapper for players
      */
     public GameEntityMapper(Mapper<Script, ScriptEntity> scriptMapper,
                             Mapper<Alignment, AlignmentEntity> alignmentMapper,
-                            Mapper<PlayerParticipation, PlayerParticipationEntity> playerParticipationMapper) {
+                            Mapper<PlayerParticipation, PlayerParticipationEntity> playerParticipationMapper,
+                            UserPlayerEntityMapper playerMapper) {
         this.scriptMapper = scriptMapper;
         this.playerParticipationMapper = playerParticipationMapper;
         this.alignmentMapper = alignmentMapper;
+        this.playerMapper = playerMapper;
     }
 
     @Override
@@ -47,14 +50,25 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
                 .map(playerParticipationMapper::toBusinessObject)
                 .collect(Collectors.toList());
 
-        return new SimpleGame(
+        if (transferObject.getWinningAlignment() != null) {
+            return new Game(
+                    transferObject.getId(),
+                    transferObject.getVersion(),
+                    participations,
+                    scriptMapper.toBusinessObject(transferObject.getScript()),
+                    alignmentMapper.toBusinessObject(transferObject.getWinningAlignment()),
+                    transferObject.getDescription()
+            );
+        }
+        return new Game(
                 transferObject.getId(),
                 transferObject.getVersion(),
                 participations,
                 scriptMapper.toBusinessObject(transferObject.getScript()),
-                alignmentMapper.toBusinessObject(transferObject.getWinningAlignment()),
-                transferObject.getDescription()
+                transferObject.getDescription(),
+                transferObject.getWinningPlayers().stream().map(playerMapper::toBusinessObject).toList()
         );
+
     }
 
     @Override
@@ -63,13 +77,25 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
                 .map(playerParticipationMapper::toTransferObject)
                 .collect(Collectors.toList());
 
+        if (businessObject.getWinningAlignment() != null) {
+            return new GameEntity(
+                    businessObject.getId(),
+                    businessObject.getVersion(),
+                    scriptMapper.toTransferObject(businessObject.getScript()),
+                    alignmentMapper.toTransferObject(businessObject.getWinningAlignment()),
+                    businessObject.getDescription(),
+                    participations,
+                    null
+            );
+        }
         return new GameEntity(
                 businessObject.getId(),
                 businessObject.getVersion(),
                 scriptMapper.toTransferObject(businessObject.getScript()),
-                alignmentMapper.toTransferObject(businessObject.getWinningAlignment()),
+                null,
                 businessObject.getDescription(),
-                participations
+                participations,
+                businessObject.getWinningPlayers().stream().map(playerMapper::toTransferObject).toList()
         );
     }
 }

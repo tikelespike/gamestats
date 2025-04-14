@@ -1,26 +1,136 @@
 package com.tikelespike.gamestats.businesslogic.entities;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * A single game of Blood on the Clocktower.
+ * Default implementation of the {@link Game} interface. Has data about the players participating in the game, like the
+ * characters they played, the team they were in and if they won the game, as well as meta information like a
+ * description and the script which was played.
  */
-public interface Game extends HasId, HasVersion {
+public class Game implements HasId, HasVersion {
+
+    private final Long id;
+    private final Long version;
+    private List<PlayerParticipation> participants;
+    private Script script;
+    private Alignment winningAlignment;
+    private String description;
+    private List<Player> winningPlayers;
 
     /**
-     * Returns a map of all players that participated in this game and the data about their participation in this game.
+     * Creates a new game with the given data, assuming that the game was won by either all good-aligned or all
+     * evil-aligned players.
+     *
+     * @param id unique identifier of this game
+     * @param version version counter for optimistic locking
+     * @param participants list containing players and their game-specific data (may not contain the same player
+     *         twice or be null)
+     * @param script the script (list of available characters) used in the game (may not be null)
+     * @param winningAlignment the alignment that won the game (may not be null)
+     * @param description a free-form optional description of this game
+     */
+    public Game(Long id, Long version, List<PlayerParticipation> participants, Script script,
+                Alignment winningAlignment,
+                String description) {
+        this.id = id;
+        this.version = version;
+        setParticipants(participants);
+        setScript(script);
+        setWinningAlignment(winningAlignment);
+        setDescription(description);
+    }
+
+    private <T> boolean containsDuplicates(Collection<T> collection) {
+        return new HashSet<>(collection).size() != collection.size();
+    }
+
+    /**
+     * Creates a new game with the given data, assuming that the winning team is not defined by its alignment, but by a
+     * more complex situation (for example due to characters like the politician which potentially wins the game alone).
+     * If the winning players are simply all players of one of the two alignments in the game, use
+     * {@link #Game(Long, Long, List, Script, Alignment, String)} instead.
+     *
+     * @param id unique identifier of this game
+     * @param version version counter for optimistic locking
+     * @param participants list containing players and their game-specific data (may not contain the same player
+     *         twice)
+     * @param script the script (list of available characters) used in the game (may not be null)
+     * @param description a free-form optional description of this game
+     * @param winningPlayers a list of all players that won this game (may not be null and may not contain
+     *         non-participating players)
+     */
+    public Game(Long id, Long version, List<PlayerParticipation> participants, Script script, String description,
+                List<Player> winningPlayers) {
+        this.id = id;
+        this.version = version;
+
+        setParticipants(participants);
+        setScript(script);
+        setDescription(description);
+        setWinningPlayers(winningPlayers);
+    }
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public Long getVersion() {
+        return version;
+    }
+
+    /**
+     * Returns a list of all players that participated in this game and the data about their participation in this game.
      * This includes the character they played, their alignment, and other statistical data.
      *
-     * @return a map mapping from players to data about the player's participation in this game
+     * @return a list of all players and their game-related data
      */
-    List<PlayerParticipation> getParticipants();
+    public List<PlayerParticipation> getParticipants() {
+        return new ArrayList<>(participants);
+    }
+
+    /**
+     * Sets the list of all players that participated in this game, along with the game-specific data about them (e.g .
+     * which character they played).
+     *
+     * @param participants the list of all players and their game-related data. May not be null or contain the
+     *         same player multiple times.
+     */
+    public void setParticipants(List<PlayerParticipation> participants) {
+        List<Long> playerIds = participants.stream().map(participation -> participation.player().getId()).toList();
+        if (containsDuplicates(playerIds)) {
+            throw new IllegalArgumentException("The same player cannot participate multiple times in the same game.");
+        }
+
+        if (winningPlayers != null) {
+            winningPlayers = winningPlayers.stream().filter(p -> playerIds.contains(p.getId())).toList();
+        }
+
+        this.participants = new ArrayList<>(participants);
+    }
 
     /**
      * Returns the script (that is, the list of characters that may appear in this game) that was used in this game.
      *
      * @return the script used in this game
      */
-    Script getScript();
+    public Script getScript() {
+        return script;
+    }
+
+    /**
+     * Sets the script (that is, the list of characters that may appear in this game) that was used in this game.
+     *
+     * @param script the script used in this game. May not be null.
+     */
+    public void setScript(Script script) {
+        this.script = Objects.requireNonNull(script);
+    }
 
     /**
      * Returns the alignment that won this game. If null, use {@link #getWinningPlayers()} to determine the winning
@@ -28,7 +138,19 @@ public interface Game extends HasId, HasVersion {
      *
      * @return the alignment that won this game
      */
-    Alignment getWinningAlignment();
+    public Alignment getWinningAlignment() {
+        return winningAlignment;
+    }
+
+    /**
+     * Sets the alignment that won this game. If the winning team is not defined by their shared alignment but by a more
+     * complex scenario, use {@link #setWinningPlayers(List)} to set the winning players manually.
+     *
+     * @param winningAlignment the alignment that won the game. May not be null.
+     */
+    public void setWinningAlignment(Alignment winningAlignment) {
+        this.winningAlignment = Objects.requireNonNull(winningAlignment);
+    }
 
     /**
      * Returns a free-form optional description of this game, which may include some notes about how the game went,
@@ -36,7 +158,19 @@ public interface Game extends HasId, HasVersion {
      *
      * @return a free-form optional description of this game
      */
-    String getDescription();
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the free-form optional description of this game, which may include some notes about how the game went,
+     * strategies of players, etc.
+     *
+     * @param description a free-form optional description of this game
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     /**
      * Returns the players that won this game. By default, these are the players whose alignment matches the winning
@@ -44,10 +178,33 @@ public interface Game extends HasId, HasVersion {
      *
      * @return the players that won this game
      */
-    default List<Player> getWinningPlayers() {
-        return getParticipants().stream()
-                .filter(entry -> entry.endAlignment() == getWinningAlignment())
-                .map(PlayerParticipation::player)
-                .toList();
+    public List<Player> getWinningPlayers() {
+        if (winningAlignment != null) {
+            return getParticipants().stream()
+                    .filter(entry -> entry.endAlignment() == getWinningAlignment())
+                    .map(PlayerParticipation::player)
+                    .toList();
+        }
+        return winningPlayers;
+    }
+
+    /**
+     * Manually sets the list of players that won this game. Only use this if the winning players are not defined by
+     * their alignment (use {@link #setWinningAlignment(Alignment)} if one of the two alignments won). Calling this
+     * method with a valid list of players will set the winning alignment to null.
+     *
+     * @param winningPlayers the list of players that won the game. May not be null or contain the same player
+     *         multiple times.
+     */
+    public void setWinningPlayers(List<Player> winningPlayers) {
+        List<Long> playerIds = participants.stream().map(participation -> participation.player().getId()).toList();
+
+        if (winningPlayers.stream()
+                .anyMatch(p -> !playerIds.contains(p.getId()))) {
+            throw new IllegalArgumentException("A player that did not participate cannot win the game");
+        }
+
+        this.winningPlayers = new ArrayList<>(winningPlayers);
+        this.winningAlignment = null;
     }
 }

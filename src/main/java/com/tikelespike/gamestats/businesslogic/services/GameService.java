@@ -7,6 +7,7 @@ import com.tikelespike.gamestats.businesslogic.entities.PlayerParticipation;
 import com.tikelespike.gamestats.businesslogic.exceptions.RelatedResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
+import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
 import com.tikelespike.gamestats.common.Mapper;
 import com.tikelespike.gamestats.data.entities.AlignmentEntity;
 import com.tikelespike.gamestats.data.entities.GameEntity;
@@ -36,6 +37,7 @@ public class GameService {
     private final Mapper<Game, GameEntity> gameMapper;
     private final Mapper<PlayerParticipation, PlayerParticipationEntity> playerParticipationMapper;
     private final Mapper<Alignment, AlignmentEntity> alignmentMapper;
+    private final UserPlayerEntityMapper playerMapper;
     private final CharacterRepository characterRepository;
     private final PlayerRepository playerRepository;
 
@@ -50,19 +52,23 @@ public class GameService {
      *         their database representation
      * @param alignmentMapper mapper for converting between alignment business objects and their database
      *         representation
+     * @param playerMapper mapper for converting between player business objects and their database
+     *         representation
      * @param characterRepository repository managing character entities in the database
      * @param playerRepository repository managing player entities in the database
      */
     public GameService(GameRepository gameRepository, ScriptRepository scriptRepository,
                        Mapper<Game, GameEntity> gameMapper,
                        Mapper<PlayerParticipation, PlayerParticipationEntity> playerParticipationMapper,
-                       Mapper<Alignment, AlignmentEntity> alignmentMapper, CharacterRepository characterRepository,
+                       Mapper<Alignment, AlignmentEntity> alignmentMapper, UserPlayerEntityMapper playerMapper,
+                       CharacterRepository characterRepository,
                        PlayerRepository playerRepository) {
         this.gameRepository = gameRepository;
         this.scriptRepository = scriptRepository;
         this.gameMapper = gameMapper;
         this.playerParticipationMapper = playerParticipationMapper;
         this.alignmentMapper = alignmentMapper;
+        this.playerMapper = playerMapper;
         this.characterRepository = characterRepository;
         this.playerRepository = playerRepository;
     }
@@ -96,7 +102,9 @@ public class GameService {
                 scriptEntity,
                 alignmentMapper.toTransferObject(request.winningAlignment()),
                 request.description(),
-                request.participants().stream().map(playerParticipationMapper::toTransferObject).toList()
+                request.participants().stream().map(playerParticipationMapper::toTransferObject).toList(),
+                request.winningAlignment() != null ? null
+                        : request.winningPlayers().stream().map(playerMapper::toTransferObject).toList()
         ));
         return gameMapper.toBusinessObject(savedEntity);
     }
