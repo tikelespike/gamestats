@@ -46,7 +46,7 @@ public record GameCreationRequest(
         this.winningAlignment = winningAlignment;
         this.description = description;
         this.winningPlayers = winningAlignment == null ? Objects.requireNonNull(winningPlayers) : null;
-        if (winningPlayers.stream()
+        if (this.winningPlayers != null && winningPlayers.stream()
                 .anyMatch(p -> !playerIds.contains(p.getId()))) {
             throw new IllegalArgumentException("A player that did not participate cannot win the game");
         }

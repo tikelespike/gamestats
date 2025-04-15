@@ -12,7 +12,6 @@ import com.tikelespike.gamestats.data.entities.ScriptEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Maps between the game business object and the game entity database representation.
@@ -48,7 +47,7 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
     protected Game toBusinessObjectNoCheck(GameEntity transferObject) {
         List<PlayerParticipation> participations = transferObject.getParticipants().stream()
                 .map(playerParticipationMapper::toBusinessObject)
-                .collect(Collectors.toList());
+                .toList();
 
         if (transferObject.getWinningAlignment() != null) {
             return new Game(
@@ -75,7 +74,7 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
     protected GameEntity toTransferObjectNoCheck(Game businessObject) {
         List<PlayerParticipationEntity> participations = businessObject.getParticipants().stream()
                 .map(playerParticipationMapper::toTransferObject)
-                .collect(Collectors.toList());
+                .toList();
 
         if (businessObject.getWinningAlignment() != null) {
             return new GameEntity(

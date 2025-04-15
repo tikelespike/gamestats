@@ -5,34 +5,27 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotNull;
 
 /**
  * Database representation of the data associated with a single player's participation in a single game.
  */
 @Entity(name = "player_participations")
 public class PlayerParticipationEntity extends AbstractEntity {
-    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     private GameEntity game;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     private PlayerEntity player;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     private CharacterEntity initialCharacter;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     private AlignmentEntity initialAlignment;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     private CharacterEntity endCharacter;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     private AlignmentEntity endAlignment;
 

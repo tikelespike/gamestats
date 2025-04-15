@@ -207,4 +207,21 @@ public class Game implements HasId, HasVersion {
         this.winningPlayers = new ArrayList<>(winningPlayers);
         this.winningAlignment = null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Game game = (Game) o;
+        return Objects.equals(id, game.id) && Objects.equals(version, game.version)
+                && Objects.equals(participants, game.participants) && Objects.equals(script,
+                game.script) && winningAlignment == game.winningAlignment && Objects.equals(description,
+                game.description) && Objects.equals(winningPlayers, game.winningPlayers);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, version, participants, script, winningAlignment, description, winningPlayers);
+    }
 }
