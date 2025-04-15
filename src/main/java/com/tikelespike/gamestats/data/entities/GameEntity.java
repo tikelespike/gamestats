@@ -64,7 +64,7 @@ public class GameEntity extends AbstractEntity {
         this.script = script;
         this.winningAlignment = winningAlignment;
         this.description = description;
-        this.participants = participants;
+        setParticipants(participants);
         this.winningPlayers = winningPlayers;
     }
 
@@ -142,6 +142,7 @@ public class GameEntity extends AbstractEntity {
      */
     protected void setParticipants(List<PlayerParticipationEntity> participants) {
         this.participants = new ArrayList<>(participants);
+        this.participants.forEach(p -> p.setGame(this));
     }
 
     /**

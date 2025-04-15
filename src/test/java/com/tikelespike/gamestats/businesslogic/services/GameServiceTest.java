@@ -259,7 +259,9 @@ class GameServiceTest {
 
     @Test
     void testUpdateGameNonExistent() {
-        Game nonExistentGame = new Game(NON_EXISTENT_ID, 1L, List.of(), null, Alignment.GOOD, "Test");
+        Game nonExistentGame =
+                new Game(NON_EXISTENT_ID, 1L, List.of(), addTestScript("testUpdateGameNonExistent"), Alignment.GOOD,
+                        "Test");
         assertThrows(ResourceNotFoundException.class, () -> gameService.updateGame(nonExistentGame));
     }
 

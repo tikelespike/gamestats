@@ -75,12 +75,11 @@ public class PlayerParticipationEntity extends AbstractEntity {
     }
 
     /**
-     * Sets the game this participation belongs to. This method is used by the JPA provider to set the game when loading
-     * this participation from the database.
+     * Sets the game this participation belongs to.
      *
      * @param game the game this participation belongs to
      */
-    protected void setGame(GameEntity game) {
+    public void setGame(GameEntity game) {
         this.game = game;
     }
 

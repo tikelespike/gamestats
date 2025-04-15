@@ -53,7 +53,7 @@ public class PlayerParticipationMapper extends Mapper<PlayerParticipation, Playe
                 null, // JPA will create completely new participation entries on every save, and remove the old ones
                 // using orphanRemoval
                 null,
-                null, // game will be set by JPA
+                null, // needs to be set externally, for example by the game entity when the participation is added
                 playerMapper.toTransferObject(businessObject.player()),
                 characterMapper.toTransferObject(businessObject.initialCharacter()),
                 alignmentMapper.toTransferObject(businessObject.initialAlignment()),
