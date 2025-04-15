@@ -127,7 +127,7 @@ public class Player implements HasId, HasVersion {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, owner.getId());
+        return Objects.hash(id, name, owner == null ? null : owner.getId());
     }
 
     @Override
