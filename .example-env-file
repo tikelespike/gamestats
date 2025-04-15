@@ -10,7 +10,7 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=gamestatsdb
 
- # Use this to add an artifical delay before processing each request (for frontend testing purposes). Delay is in ms.
+# Use this to add an artificial delay before processing each request (for frontend testing purposes). Delay is in ms.
 DELAY_BEFORE=0
-# Use this to add an artifical delay after processing each request (for frontend testing purposes). Delay is in ms.
+# Use this to add an artificial delay after processing each request (for frontend testing purposes). Delay is in ms.
 DELAY_AFTER=0
