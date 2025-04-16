@@ -7,7 +7,6 @@ import com.tikelespike.gamestats.businesslogic.entities.Character;
 import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.PlayerParticipation;
 import com.tikelespike.gamestats.businesslogic.exceptions.RelatedResourceNotFoundException;
-import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.services.CharacterService;
 import com.tikelespike.gamestats.businesslogic.services.PlayerService;
 import com.tikelespike.gamestats.common.Mapper;
@@ -40,26 +39,22 @@ public class PlayerParticipationMapper extends Mapper<PlayerParticipation, Playe
 
     @Override
     protected PlayerParticipation toBusinessObjectNoCheck(PlayerParticipationDTO transferObject) {
-        Player player;
-        try {
-            player = playerService.getPlayerById(transferObject.playerId());
-        } catch (ResourceNotFoundException e) {
-            throw new RelatedResourceNotFoundException(e);
+        Player player = playerService.getPlayerById(transferObject.playerId());
+        if (player == null) {
+            throw new RelatedResourceNotFoundException("Player with id " + transferObject.playerId() + " not found");
         }
 
-        Character initialCharacter;
-        try {
-            initialCharacter = characterService.getCharacter(transferObject.initialCharacterId());
-        } catch (ResourceNotFoundException e) {
-            throw new RelatedResourceNotFoundException(e);
+        Character initialCharacter = characterService.getCharacter(transferObject.initialCharacterId());
+        if (initialCharacter == null) {
+            throw new RelatedResourceNotFoundException(
+                    "Character with id " + transferObject.initialCharacterId() + " not found");
         }
 
-        Character endCharacter;
-        try {
-            endCharacter = transferObject.endCharacterId() == null ? null
-                    : characterService.getCharacter(transferObject.endCharacterId());
-        } catch (ResourceNotFoundException e) {
-            throw new RelatedResourceNotFoundException(e);
+        Character endCharacter = transferObject.endCharacterId() == null ? null
+                : characterService.getCharacter(transferObject.endCharacterId());
+        if (endCharacter == null && transferObject.endCharacterId() != null) {
+            throw new RelatedResourceNotFoundException(
+                    "Character with id " + transferObject.endCharacterId() + " not found");
         }
 
         return new PlayerParticipation(

@@ -9,7 +9,6 @@ import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.PlayerParticipation;
 import com.tikelespike.gamestats.businesslogic.entities.Script;
 import com.tikelespike.gamestats.businesslogic.exceptions.RelatedResourceNotFoundException;
-import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.services.PlayerService;
 import com.tikelespike.gamestats.businesslogic.services.ScriptService;
 import com.tikelespike.gamestats.common.Mapper;
@@ -50,11 +49,12 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
 
     @Override
     protected GameCreationRequest toBusinessObjectNoCheck(GameCreationRequestDTO transferObject) {
-        Script script;
-        try {
-            script = scriptService.getScript(transferObject.scriptId());
-        } catch (ResourceNotFoundException e) {
-            throw new RelatedResourceNotFoundException(e);
+        Script script = scriptService.getScript(transferObject.scriptId());
+
+        if (script == null) {
+            throw new RelatedResourceNotFoundException(
+                    "Script with id " + transferObject.scriptId() + " not found"
+            );
         }
 
         List<PlayerParticipation> participations =
@@ -72,11 +72,11 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
 
         List<Player> winningPlayers = new ArrayList<>();
         for (Long playerId : transferObject.winningPlayerIds()) {
-            try {
-                winningPlayers.add(playerService.getPlayerById(playerId));
-            } catch (ResourceNotFoundException e) {
-                throw new RelatedResourceNotFoundException(e);
+            Player player = playerService.getPlayerById(playerId);
+            if (player == null) {
+                throw new RelatedResourceNotFoundException("Player with id " + playerId + " not found");
             }
+            winningPlayers.add(player);
         }
         return new GameCreationRequest(
                 script,
