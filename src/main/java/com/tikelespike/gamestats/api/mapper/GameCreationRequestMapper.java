@@ -98,12 +98,12 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
                 : businessObject.winningPlayers().stream().map(Player::getId).toArray(Long[]::new);
 
         return new GameCreationRequestDTO(
-                businessObject.script().getId(),
+                businessObject.name(),
                 businessObject.description(),
+                businessObject.script().getId(),
                 alignmentMapper.toTransferObject(businessObject.winningAlignment()),
                 winningPlayerIds,
-                participationDTOs,
-                businessObject.name()
+                participationDTOs
         );
     }
 }

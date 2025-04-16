@@ -100,12 +100,12 @@ public class GameMapper extends Mapper<Game, GameDTO> {
         return new GameDTO(
                 businessObject.getId(),
                 businessObject.getVersion(),
-                businessObject.getScript().getId(),
+                businessObject.getName(),
                 businessObject.getDescription(),
+                businessObject.getScript().getId(),
                 alignmentMapper.toTransferObject(businessObject.getWinningAlignment()),
                 winningPlayerIds,
-                participationDTOs,
-                businessObject.getName()
+                participationDTOs
         );
     }
 }

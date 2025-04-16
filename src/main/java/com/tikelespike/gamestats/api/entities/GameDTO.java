@@ -17,13 +17,13 @@ import java.util.Objects;
  *
  * @param id unique numerical identifier
  * @param version version counter for optimistic locking
- * @param scriptId id of the script used in this game
+ * @param name human-readable name of this game
  * @param description free-form description of the game (optional)
+ * @param scriptId id of the script used in this game
  * @param winningAlignment the alignment that won the game (optional, use winningPlayerIds if not applicable)
  * @param winningPlayerIds list of player ids that won the game (optional, use winningAlignment if not
  *         applicable)
  * @param participants list of player participations in this game
- * @param name human-readable name of this game
  */
 @Schema(
         name = "Game",
@@ -41,14 +41,18 @@ public record GameDTO(
                 example = "1"
         ) Long version,
         @Schema(
-                description = "Unique numerical identifier of the script (collection of characters) used in this game.",
-                example = "5"
-        ) Long scriptId,
+                description = "Human-readable name of this game.",
+                example = "Tom's birthday first game"
+        ) String name,
         @Schema(
                 description = "Free-form description of the game.",
                 example = "A very intense game with lots of bluffing! The good team won due to the great play of the "
                         + "Fortune Teller."
         ) String description,
+        @Schema(
+                description = "Unique numerical identifier of the script (collection of characters) used in this game.",
+                example = "5"
+        ) Long scriptId,
         @Schema(
                 description = "The alignment that won the game. Either this or winningPlayerIds must be set.",
                 example = "good"
@@ -60,11 +64,7 @@ public record GameDTO(
         ) Long[] winningPlayerIds,
         @Schema(
                 description = "List of players and their game-specific data for this game."
-        ) PlayerParticipationDTO[] participants,
-        @Schema(
-                description = "Human-readable name of this game.",
-                example = "Tom's birthday first game"
-        ) String name
+        ) PlayerParticipationDTO[] participants
 ) {
     /**
      * Validates this DTO in the context of updating a game.
