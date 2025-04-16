@@ -65,7 +65,8 @@ public class GameMapper extends Mapper<Game, GameDTO> {
                     participations,
                     script,
                     alignmentMapper.toBusinessObject(transferObject.winningAlignment()),
-                    transferObject.description()
+                    transferObject.description(),
+                    transferObject.name()
             );
         }
 
@@ -83,7 +84,8 @@ public class GameMapper extends Mapper<Game, GameDTO> {
                 participations,
                 script,
                 transferObject.description(),
-                winningPlayers
+                winningPlayers,
+                transferObject.name()
         );
     }
 
@@ -102,7 +104,8 @@ public class GameMapper extends Mapper<Game, GameDTO> {
                 businessObject.getDescription(),
                 alignmentMapper.toTransferObject(businessObject.getWinningAlignment()),
                 winningPlayerIds,
-                participationDTOs
+                participationDTOs,
+                businessObject.getName()
         );
     }
 }

@@ -50,7 +50,7 @@ class GameTest {
 
     @Test
     void testConstructorWithAlignment() {
-        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game");
+        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name");
         assertNotNull(game);
         assertEquals(1L, game.getId());
         assertEquals(1L, game.getVersion());
@@ -58,13 +58,14 @@ class GameTest {
         assertEquals(script, game.getScript());
         assertEquals(Alignment.GOOD, game.getWinningAlignment());
         assertEquals("Test game", game.getDescription());
+        assertEquals("Test game name", game.getName());
         assertEquals(2, game.getWinningPlayers().size());
     }
 
     @Test
     void testConstructorWithWinningPlayers() {
         List<Player> winners = Arrays.asList(player1, player3);
-        Game game = new Game(1L, 1L, participants, script, "Test game", winners);
+        Game game = new Game(1L, 1L, participants, script, "Test game", winners, "Test game name");
         assertNotNull(game);
         assertEquals(winners, game.getWinningPlayers());
         assertNull(game.getWinningAlignment());
@@ -76,21 +77,21 @@ class GameTest {
         duplicateParticipants.add(new PlayerParticipation(player1, character2, true));
 
         assertThrows(IllegalArgumentException.class, () ->
-                new Game(1L, 1L, duplicateParticipants, script, Alignment.GOOD, "Test game")
+                new Game(1L, 1L, duplicateParticipants, script, Alignment.GOOD, "Test game", "Test game name")
         );
     }
 
     @Test
     void testNullScript() {
         assertThrows(NullPointerException.class, () ->
-                new Game(1L, 1L, participants, null, Alignment.GOOD, "Test game")
+                new Game(1L, 1L, participants, null, Alignment.GOOD, "Test game", "Test game name")
         );
     }
 
     @Test
     void testNullWinningAlignment() {
         assertThrows(NullPointerException.class, () ->
-                new Game(1L, 1L, participants, script, null, "Test game")
+                new Game(1L, 1L, participants, script, null, "Test game", "Test game name")
         );
     }
 
@@ -100,13 +101,13 @@ class GameTest {
         List<Player> invalidWinners = Arrays.asList(player1, outsidePlayer);
 
         assertThrows(IllegalArgumentException.class, () ->
-                new Game(1L, 1L, participants, script, "Test game", invalidWinners)
+                new Game(1L, 1L, participants, script, "Test game", invalidWinners, "Test game name")
         );
     }
 
     @Test
     void testGetWinningPlayersWithAlignment() {
-        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game");
+        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name");
         List<Player> winners = game.getWinningPlayers();
 
         assertEquals(2, winners.size());
@@ -117,7 +118,7 @@ class GameTest {
 
     @Test
     void testSetWinningPlayersResetsAlignment() {
-        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game");
+        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name");
         List<Player> winners = Arrays.asList(player1, player2);
 
         game.setWinningPlayers(winners);
@@ -128,7 +129,7 @@ class GameTest {
     @Test
     void testSetParticipantsUpdatesWinningPlayers() {
         List<Player> winners = Arrays.asList(player1, player2);
-        Game game = new Game(1L, 1L, participants, script, "Test game", winners);
+        Game game = new Game(1L, 1L, participants, script, "Test game", winners, "Test game name");
 
         List<PlayerParticipation> newParticipants = Arrays.asList(
                 new PlayerParticipation(player1, character1, true),
@@ -143,9 +144,9 @@ class GameTest {
 
     @Test
     void testEqualsAndHashCode() {
-        Game game1 = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game");
-        Game game2 = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game");
-        Game game3 = new Game(2L, 1L, participants, script, Alignment.GOOD, "Test game");
+        Game game1 = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name");
+        Game game2 = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name");
+        Game game3 = new Game(2L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name");
 
         assertEquals(game1, game2);
         assertEquals(game1.hashCode(), game2.hashCode());

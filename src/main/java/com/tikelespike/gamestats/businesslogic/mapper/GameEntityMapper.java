@@ -46,8 +46,7 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
     @Override
     protected Game toBusinessObjectNoCheck(GameEntity transferObject) {
         List<PlayerParticipation> participations = transferObject.getParticipants().stream()
-                .map(playerParticipationMapper::toBusinessObject)
-                .toList();
+                .map(playerParticipationMapper::toBusinessObject).toList();
 
         if (transferObject.getWinningAlignment() != null) {
             return new Game(
@@ -56,7 +55,8 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
                     participations,
                     scriptMapper.toBusinessObject(transferObject.getScript()),
                     alignmentMapper.toBusinessObject(transferObject.getWinningAlignment()),
-                    transferObject.getDescription()
+                    transferObject.getDescription(),
+                    transferObject.getName()
             );
         }
         return new Game(
@@ -65,16 +65,15 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
                 participations,
                 scriptMapper.toBusinessObject(transferObject.getScript()),
                 transferObject.getDescription(),
-                transferObject.getWinningPlayers().stream().map(playerMapper::toBusinessObject).toList()
+                transferObject.getWinningPlayers().stream().map(playerMapper::toBusinessObject).toList(),
+                transferObject.getName()
         );
-
     }
 
     @Override
     protected GameEntity toTransferObjectNoCheck(Game businessObject) {
         List<PlayerParticipationEntity> participations = businessObject.getParticipants().stream()
-                .map(playerParticipationMapper::toTransferObject)
-                .toList();
+                .map(playerParticipationMapper::toTransferObject).toList();
 
         if (businessObject.getWinningAlignment() != null) {
             return new GameEntity(
@@ -84,7 +83,8 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
                     alignmentMapper.toTransferObject(businessObject.getWinningAlignment()),
                     businessObject.getDescription(),
                     participations,
-                    null
+                    null,
+                    businessObject.getName()
             );
         }
         return new GameEntity(
@@ -94,7 +94,8 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
                 null,
                 businessObject.getDescription(),
                 participations,
-                businessObject.getWinningPlayers().stream().map(playerMapper::toTransferObject).toList()
+                businessObject.getWinningPlayers().stream().map(playerMapper::toTransferObject).toList(),
+                businessObject.getName()
         );
     }
 }

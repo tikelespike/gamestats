@@ -23,6 +23,7 @@ import java.util.Objects;
  * @param winningPlayerIds list of player ids that won the game (optional, use winningAlignment if not
  *         applicable)
  * @param participants list of player participations in this game
+ * @param name human-readable name of this game
  */
 @Schema(
         name = "Game",
@@ -59,12 +60,16 @@ public record GameDTO(
         ) Long[] winningPlayerIds,
         @Schema(
                 description = "List of players and their game-specific data for this game."
-        ) PlayerParticipationDTO[] participants
+        ) PlayerParticipationDTO[] participants,
+        @Schema(
+                description = "Human-readable name of this game.",
+                example = "Tom's birthday first game"
+        ) String name
 ) {
     /**
      * Validates this DTO in the context of updating a game.
      *
-     * @param pathId id provided in the resource URI
+     * @param pathId the id from the path parameter
      *
      * @return result of the validation
      */
@@ -75,6 +80,7 @@ public record GameDTO(
                 new RequiredFieldCheck("version", version),
                 new RequiredFieldCheck("scriptId", scriptId),
                 new RequiredFieldCheck("participants", participants),
+                new RequiredFieldCheck("name", name),
                 this::checkAllParticipationsValid,
                 this::checkNoDuplicatePlayersInParticipations,
                 new EitherFieldRequiredCheck(
@@ -141,13 +147,13 @@ public record GameDTO(
                 && Objects.equals(scriptId, gameDTO.scriptId) && Objects.equals(description,
                 gameDTO.description) && Objects.deepEquals(winningPlayerIds, gameDTO.winningPlayerIds)
                 && winningAlignment == gameDTO.winningAlignment && Objects.deepEquals(participants,
-                gameDTO.participants);
+                gameDTO.participants) && Objects.equals(name, gameDTO.name);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, version, scriptId, description, winningAlignment, Arrays.hashCode(winningPlayerIds),
-                Arrays.hashCode(participants));
+                Arrays.hashCode(participants), name);
     }
 
     @Override
@@ -160,6 +166,7 @@ public record GameDTO(
                 + ", winningAlignment=" + winningAlignment
                 + ", winningPlayerIds=" + Arrays.toString(winningPlayerIds)
                 + ", participants=" + Arrays.toString(participants)
+                + ", name='" + name + '\''
                 + '}';
     }
 }

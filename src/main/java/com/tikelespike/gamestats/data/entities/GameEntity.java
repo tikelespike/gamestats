@@ -29,6 +29,9 @@ public class GameEntity extends AbstractEntity {
     private String description;
 
     @NotNull
+    private String name;
+
+    @NotNull
     @OneToMany(
             mappedBy = "game",
             fetch = EAGER,
@@ -57,15 +60,17 @@ public class GameEntity extends AbstractEntity {
      * @param description a free-form optional description of this game
      * @param participants the list of player participations in this game
      * @param winningPlayers the list of players that won the game, if not defined by their alignment
+     * @param name human-readable name of this game (may not be null)
      */
     public GameEntity(Long id, Long version, ScriptEntity script, AlignmentEntity winningAlignment, String description,
-                      List<PlayerParticipationEntity> participants, List<PlayerEntity> winningPlayers) {
+                      List<PlayerParticipationEntity> participants, List<PlayerEntity> winningPlayers, String name) {
         super(id, version);
         this.script = script;
         this.winningAlignment = winningAlignment;
         this.description = description;
         setParticipants(participants);
         this.winningPlayers = winningPlayers;
+        this.name = name;
     }
 
     /**
@@ -161,5 +166,24 @@ public class GameEntity extends AbstractEntity {
      */
     public void setWinningPlayers(List<PlayerEntity> winningPlayers) {
         this.winningPlayers = winningPlayers;
+    }
+
+    /**
+     * Returns the human-readable name of this game.
+     *
+     * @return the human-readable name of this game
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the human-readable name of this game. This method is used by the JPA provider to set the name when loading
+     * this game from the database.
+     *
+     * @param name the human-readable name of this game (may not be null)
+     */
+    protected void setName(String name) {
+        this.name = name;
     }
 }

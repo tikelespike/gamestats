@@ -20,6 +20,7 @@ public class Game implements HasId, HasVersion {
     private Alignment winningAlignment;
     private String description;
     private List<Player> winningPlayers;
+    private String name;
 
     /**
      * Creates a new game with the given data, assuming that the game was won by either all good-aligned or all
@@ -32,16 +33,17 @@ public class Game implements HasId, HasVersion {
      * @param script the script (list of available characters) used in the game (may not be null)
      * @param winningAlignment the alignment that won the game (may not be null)
      * @param description a free-form optional description of this game
+     * @param name human-readable name of this game (may not be null)
      */
     public Game(Long id, Long version, List<PlayerParticipation> participants, Script script,
-                Alignment winningAlignment,
-                String description) {
+                Alignment winningAlignment, String description, String name) {
         this.id = id;
         this.version = version;
         setParticipants(participants);
         setScript(script);
         setWinningAlignment(winningAlignment);
         setDescription(description);
+        setName(name);
     }
 
     private <T> boolean containsDuplicates(Collection<T> collection) {
@@ -52,7 +54,7 @@ public class Game implements HasId, HasVersion {
      * Creates a new game with the given data, assuming that the winning team is not defined by its alignment, but by a
      * more complex situation (for example due to characters like the politician which potentially wins the game alone).
      * If the winning players are simply all players of one of the two alignments in the game, use
-     * {@link #Game(Long, Long, List, Script, Alignment, String)} instead.
+     * {@link #Game(Long, Long, List, Script, Alignment, String, String)} instead.
      *
      * @param id unique identifier of this game
      * @param version version counter for optimistic locking
@@ -62,16 +64,17 @@ public class Game implements HasId, HasVersion {
      * @param description a free-form optional description of this game
      * @param winningPlayers a list of all players that won this game (may not be null and may not contain
      *         non-participating players)
+     * @param name human-readable name of this game (may not be null)
      */
     public Game(Long id, Long version, List<PlayerParticipation> participants, Script script, String description,
-                List<Player> winningPlayers) {
+                List<Player> winningPlayers, String name) {
         this.id = id;
         this.version = version;
-
         setParticipants(participants);
         setScript(script);
         setDescription(description);
         setWinningPlayers(winningPlayers);
+        setName(name);
     }
 
     @Override
@@ -208,6 +211,24 @@ public class Game implements HasId, HasVersion {
         this.winningAlignment = null;
     }
 
+    /**
+     * Returns the human-readable name of this game.
+     *
+     * @return the human-readable name of this game
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the human-readable name of this game.
+     *
+     * @param name the human-readable name of this game (may not be null)
+     */
+    public void setName(String name) {
+        this.name = Objects.requireNonNull(name, "Game name may not be null");
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -217,11 +238,12 @@ public class Game implements HasId, HasVersion {
         return Objects.equals(id, game.id) && Objects.equals(version, game.version)
                 && Objects.equals(participants, game.participants) && Objects.equals(script,
                 game.script) && winningAlignment == game.winningAlignment && Objects.equals(description,
-                game.description) && Objects.equals(winningPlayers, game.winningPlayers);
+                game.description) && Objects.equals(winningPlayers, game.winningPlayers)
+                && Objects.equals(name, game.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, version, participants, script, winningAlignment, description, winningPlayers);
+        return Objects.hash(id, version, participants, script, winningAlignment, description, winningPlayers, name);
     }
 }

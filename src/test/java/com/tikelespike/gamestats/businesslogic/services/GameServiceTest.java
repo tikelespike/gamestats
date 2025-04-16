@@ -62,7 +62,8 @@ class GameServiceTest {
                 List.of(participation),
                 Alignment.GOOD,
                 "Test game description",
-                null
+                null,
+                "Test game name"
         );
 
         // Execute
@@ -107,7 +108,8 @@ class GameServiceTest {
                 List.of(participation1, participation2),
                 null,
                 "Test game description",
-                List.of(player1)
+                List.of(player1),
+                "Test game name"
         );
 
         // Execute
@@ -147,7 +149,8 @@ class GameServiceTest {
                 List.of(participation),
                 Alignment.GOOD,
                 "Test game description",
-                null
+                null,
+                "Test game name"
         );
 
         // Execute & Verify
@@ -173,7 +176,8 @@ class GameServiceTest {
                 List.of(participation),
                 Alignment.GOOD,
                 "Test game description",
-                null
+                null,
+                "Test game name"
         );
 
         // Execute & Verify
@@ -198,7 +202,8 @@ class GameServiceTest {
                 List.of(participation),
                 Alignment.GOOD,
                 "Test game description",
-                null
+                null,
+                "Test game name"
         );
 
         // Execute & Verify
@@ -261,7 +266,7 @@ class GameServiceTest {
     void testUpdateGameNonExistent() {
         Game nonExistentGame =
                 new Game(NON_EXISTENT_ID, 1L, List.of(), addTestScript("testUpdateGameNonExistent"), Alignment.GOOD,
-                        "Test");
+                        "Test", "Test");
         assertThrows(ResourceNotFoundException.class, () -> gameService.updateGame(nonExistentGame));
     }
 
@@ -311,7 +316,8 @@ class GameServiceTest {
                 List.of(participation),
                 Alignment.GOOD,
                 "Test game description for " + testName,
-                null
+                null,
+                "Test game name for " + testName
         );
 
         return gameService.createGame(request);

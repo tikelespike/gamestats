@@ -15,17 +15,18 @@ import java.util.Objects;
  * @param winningAlignment the alignment that won the game
  * @param description a free-form optional description of this game
  * @param winningPlayers a list of all players that won this game (may not contain non-participating players)
+ * @param name human-readable name of this game (may not be null)
  */
 public record GameCreationRequest(
         Script script,
         List<PlayerParticipation> participants,
         Alignment winningAlignment,
         String description,
-        List<Player> winningPlayers
+        List<Player> winningPlayers,
+        String name
 ) {
     /**
-     * Creates a new creation request for a game. The winning players must either be specified explicitly, or by setting
-     * the winning alignment (which will override any winning players set explicitly).
+     * Creates a new game creation request.
      *
      * @param script the script (list of available characters) used in the game (may not be null)
      * @param participants list containing players and their game-specific data (may not contain the same player
@@ -34,9 +35,10 @@ public record GameCreationRequest(
      * @param description a free-form optional description of this game
      * @param winningPlayers a list of all players that won this game (may not contain non-participating
      *         players, may not be null if winningAlignment is null, is ignored otherwise)
+     * @param name human-readable name of this game (may not be null)
      */
     public GameCreationRequest(Script script, List<PlayerParticipation> participants, Alignment winningAlignment,
-                               String description, List<Player> winningPlayers) {
+                               String description, List<Player> winningPlayers, String name) {
         this.script = Objects.requireNonNull(script);
         this.participants = participants;
         List<Long> playerIds = participants.stream().map(participation -> participation.player().getId()).toList();
@@ -50,6 +52,7 @@ public record GameCreationRequest(
                 .anyMatch(p -> !playerIds.contains(p.getId()))) {
             throw new IllegalArgumentException("A player that did not participate cannot win the game");
         }
+        this.name = Objects.requireNonNull(name, "Game name may not be null");
     }
 
     private <T> boolean containsDuplicates(Collection<T> collection) {

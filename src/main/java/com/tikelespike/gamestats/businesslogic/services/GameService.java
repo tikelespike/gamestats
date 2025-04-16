@@ -104,7 +104,8 @@ public class GameService {
                 request.description(),
                 request.participants().stream().map(playerParticipationMapper::toTransferObject).toList(),
                 request.winningAlignment() != null ? null
-                        : request.winningPlayers().stream().map(playerMapper::toTransferObject).toList()
+                        : request.winningPlayers().stream().map(playerMapper::toTransferObject).toList(),
+                request.name()
         ));
         return gameMapper.toBusinessObject(savedEntity);
     }

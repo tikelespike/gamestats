@@ -66,7 +66,8 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
                     participations,
                     alignmentMapper.toBusinessObject(transferObject.winningAlignment()),
                     transferObject.description(),
-                    null
+                    null,
+                    transferObject.name()
             );
         }
 
@@ -83,7 +84,8 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
                 participations,
                 null,
                 transferObject.description(),
-                winningPlayers
+                winningPlayers,
+                transferObject.name()
         );
     }
 
@@ -100,7 +102,8 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
                 businessObject.description(),
                 alignmentMapper.toTransferObject(businessObject.winningAlignment()),
                 winningPlayerIds,
-                participationDTOs
+                participationDTOs,
+                businessObject.name()
         );
     }
 }

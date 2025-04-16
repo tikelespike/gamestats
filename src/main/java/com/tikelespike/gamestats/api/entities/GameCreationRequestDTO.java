@@ -21,6 +21,7 @@ import java.util.Objects;
  * @param winningPlayerIds list of player ids that won the game (optional, use winningAlignment if not
  *         applicable)
  * @param participants list of player participations in this game
+ * @param name human-readable name of this game
  */
 @Schema(
         name = "GameCreationRequest",
@@ -47,7 +48,11 @@ public record GameCreationRequestDTO(
         ) Long[] winningPlayerIds,
         @Schema(
                 description = "List of players and their game-specific data for this game."
-        ) PlayerParticipationDTO[] participants
+        ) PlayerParticipationDTO[] participants,
+        @Schema(
+                description = "Human-readable name of this game.",
+                example = "Tom's birthday first game"
+        ) String name
 ) implements Validateable {
 
     @Override
@@ -55,6 +60,7 @@ public record GameCreationRequestDTO(
         return new ValidationChain(
                 new RequiredFieldCheck("scriptId", scriptId),
                 new RequiredFieldCheck("participants", participants),
+                new RequiredFieldCheck("name", name),
                 this::checkAllParticipationsValid,
                 this::checkNoDuplicatePlayersInParticipations,
                 new EitherFieldRequiredCheck(
@@ -120,13 +126,13 @@ public record GameCreationRequestDTO(
         return Objects.equals(scriptId, that.scriptId) && Objects.equals(description, that.description)
                 && winningAlignment == that.winningAlignment && Objects.deepEquals(winningPlayerIds,
                 that.winningPlayerIds)
-                && Objects.deepEquals(participants, that.participants);
+                && Objects.deepEquals(participants, that.participants) && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(scriptId, description, winningAlignment, Arrays.hashCode(winningPlayerIds),
-                Arrays.hashCode(participants));
+                Arrays.hashCode(participants), name);
     }
 
     @Override
@@ -137,6 +143,7 @@ public record GameCreationRequestDTO(
                 + ", winningAlignment=" + winningAlignment
                 + ", winningPlayerIds=" + Arrays.toString(winningPlayerIds)
                 + ", participants=" + Arrays.toString(participants)
+                + ", name='" + name + '\''
                 + '}';
     }
 }
