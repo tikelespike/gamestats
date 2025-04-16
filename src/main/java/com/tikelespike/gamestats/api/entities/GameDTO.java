@@ -5,9 +5,12 @@ import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.checks.EitherFieldRequiredCheck;
 import com.tikelespike.gamestats.api.validation.checks.MatchingIdCheck;
 import com.tikelespike.gamestats.api.validation.checks.RequiredFieldCheck;
+import com.tikelespike.gamestats.api.validation.checks.ValidationCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -73,11 +76,58 @@ public record GameDTO(
                 new RequiredFieldCheck("version", version),
                 new RequiredFieldCheck("scriptId", scriptId),
                 new RequiredFieldCheck("participants", participants),
+                getAllParticipationsValidCheck(),
+                getNoDuplicatePlayersInParticipationsCheck(),
                 new EitherFieldRequiredCheck(
                         new EitherFieldRequiredCheck.Field("winningAlignment", winningAlignment),
                         new EitherFieldRequiredCheck.Field("winningPlayerIds", winningPlayerIds)
-                )
+                ),
+                getWinningPlayerIdsValidCheck()
         ).validate();
+    }
+
+    private ValidationCheck getWinningPlayerIdsValidCheck() {
+        return () -> {
+            if (winningAlignment == null) {
+                if (Arrays.stream(winningPlayerIds)
+                        .anyMatch(Objects::isNull)) {
+                    return ValidationResult.invalid("Winning player ids must not contain null values.");
+                }
+                Collection<Long> participatingPlayers = Arrays.stream(participants)
+                        .map(PlayerParticipationDTO::playerId)
+                        .toList();
+                List<Long> invalidIds =
+                        Arrays.stream(winningPlayerIds).filter(playerId -> !participatingPlayers.contains(playerId))
+                                .toList();
+                if (!invalidIds.isEmpty()) {
+                    return ValidationResult.invalid("Winning player ids " + invalidIds
+                            + " are not participating in the game.");
+                }
+            }
+            return ValidationResult.valid();
+        };
+    }
+
+    private ValidationCheck getNoDuplicatePlayersInParticipationsCheck() {
+        return () -> {
+            if (containsDuplicates(Arrays.stream(participants).map(PlayerParticipationDTO::playerId).toArray())) {
+                return ValidationResult.invalid("Duplicate player ids found in participants. Each player can "
+                        + "only participate once in a game.");
+            }
+            return ValidationResult.valid();
+        };
+    }
+
+    private ValidationCheck getAllParticipationsValidCheck() {
+        return () -> Arrays.stream(participants)
+                .map(PlayerParticipationDTO::validate)
+                .filter(r -> !r.isValid())
+                .findFirst()
+                .orElse(ValidationResult.valid());
+    }
+
+    private boolean containsDuplicates(Object[] array) {
+        return array.length != Arrays.stream(array).distinct().count();
     }
 
     @Override

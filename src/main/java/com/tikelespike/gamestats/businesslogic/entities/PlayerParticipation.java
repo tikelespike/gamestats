@@ -24,8 +24,10 @@ public record PlayerParticipation(
     /**
      * Creates a new {@link PlayerParticipation} object with the given data.
      *
-     * @param player the player that participated in this game and whose data is represented by this object
-     * @param initialCharacter the initial character the player was assigned at the start of the game
+     * @param player the player that participated in this game and whose data is represented by this object. May
+     *         not be null.
+     * @param initialCharacter the initial character the player was assigned at the start of the game. May not
+     *         be null.
      * @param initialAlignment the alignment the player was assigned at the start of the game (defaults to the
      *         standard alignment of the initial character if null)
      * @param endCharacter the character the player ended the game with (defaults to the initial character if

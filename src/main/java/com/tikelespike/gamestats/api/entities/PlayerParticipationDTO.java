@@ -1,5 +1,9 @@
 package com.tikelespike.gamestats.api.entities;
 
+import com.tikelespike.gamestats.api.validation.Validateable;
+import com.tikelespike.gamestats.api.validation.ValidationChain;
+import com.tikelespike.gamestats.api.validation.ValidationResult;
+import com.tikelespike.gamestats.api.validation.checks.RequiredFieldCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -49,5 +53,12 @@ public record PlayerParticipationDTO(
                 description = "Whether the player was (still) alive when the game ended.",
                 example = "true"
         ) boolean isAliveAtEnd
-) {
+) implements Validateable {
+    @Override
+    public ValidationResult validate() {
+        return new ValidationChain(
+                new RequiredFieldCheck("playerId", playerId),
+                new RequiredFieldCheck("initialCharacterId", initialCharacterId)
+        ).validate();
+    }
 }
