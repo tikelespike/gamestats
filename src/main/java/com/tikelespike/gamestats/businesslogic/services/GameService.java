@@ -172,7 +172,8 @@ public class GameService {
 
         ScriptEntity scriptEntity = scriptRepository.findById(game.getScript().getId());
         if (scriptEntity == null) {
-            throw new ResourceNotFoundException("Script with id " + game.getScript().getId() + " does not exist");
+            throw new RelatedResourceNotFoundException(
+                    "Script with id " + game.getScript().getId() + " does not exist");
         }
 
         for (PlayerParticipation participation : game.getParticipants()) {
