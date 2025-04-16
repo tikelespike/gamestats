@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * Maps between the player participation business object and the player participation entity database representation.
  */
 @Component
-public class PlayerParticipationMapper extends Mapper<PlayerParticipation, PlayerParticipationEntity> {
+public class PlayerParticipationEntityMapper extends Mapper<PlayerParticipation, PlayerParticipationEntity> {
     private final UserPlayerEntityMapper playerMapper;
     private final Mapper<Character, CharacterEntity> characterMapper;
     private final Mapper<Alignment, AlignmentEntity> alignmentMapper;
@@ -26,9 +26,9 @@ public class PlayerParticipationMapper extends Mapper<PlayerParticipation, Playe
      * @param characterMapper mapper for character entities
      * @param alignmentMapper mapper for alignment entities
      */
-    public PlayerParticipationMapper(UserPlayerEntityMapper playerMapper,
-                                     Mapper<Character, CharacterEntity> characterMapper,
-                                     Mapper<Alignment, AlignmentEntity> alignmentMapper) {
+    public PlayerParticipationEntityMapper(UserPlayerEntityMapper playerMapper,
+                                           Mapper<Character, CharacterEntity> characterMapper,
+                                           Mapper<Alignment, AlignmentEntity> alignmentMapper) {
         this.playerMapper = playerMapper;
         this.characterMapper = characterMapper;
         this.alignmentMapper = alignmentMapper;
