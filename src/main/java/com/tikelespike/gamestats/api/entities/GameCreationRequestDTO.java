@@ -5,7 +5,6 @@ import com.tikelespike.gamestats.api.validation.ValidationChain;
 import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.checks.EitherFieldRequiredCheck;
 import com.tikelespike.gamestats.api.validation.checks.RequiredFieldCheck;
-import com.tikelespike.gamestats.api.validation.checks.ValidationCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Arrays;
@@ -56,50 +55,52 @@ public record GameCreationRequestDTO(
         return new ValidationChain(
                 new RequiredFieldCheck("scriptId", scriptId),
                 new RequiredFieldCheck("participants", participants),
-                getAllParticipationsValidCheck(),
-                getNoDuplicatePlayersInParticipationsCheck(),
+                this::checkAllParticipationsValid,
+                this::checkNoDuplicatePlayersInParticipations,
                 new EitherFieldRequiredCheck(
                         new EitherFieldRequiredCheck.Field("winningAlignment", winningAlignment),
                         new EitherFieldRequiredCheck.Field("winningPlayerIds", winningPlayerIds)
                 ),
-                getWinningPlayerIdsValidCheck()
+                this::checkWinningPlayerIdsValid
         ).validate();
     }
 
-    private ValidationCheck getWinningPlayerIdsValidCheck() {
-        return () -> {
-            if (winningAlignment == null) {
-                if (Arrays.stream(winningPlayerIds)
-                        .anyMatch(Objects::isNull)) {
-                    return ValidationResult.invalid("Winning player ids must not contain null values.");
-                }
-                Collection<Long> participatingPlayers = Arrays.stream(participants)
-                        .map(PlayerParticipationDTO::playerId)
-                        .toList();
-                List<Long> invalidIds =
-                        Arrays.stream(winningPlayerIds).filter(playerId -> !participatingPlayers.contains(playerId))
-                                .toList();
-                if (!invalidIds.isEmpty()) {
-                    return ValidationResult.invalid("Winning player ids " + invalidIds
-                            + " are not participating in the game.");
-                }
-            }
+    private ValidationResult checkWinningPlayerIdsValid() {
+        if (winningAlignment != null) {
             return ValidationResult.valid();
-        };
+        }
+
+        if (Arrays.stream(winningPlayerIds)
+                .anyMatch(Objects::isNull)) {
+            return ValidationResult.invalid("Winning player ids must not contain null values.");
+        }
+        Collection<Long> participatingPlayers = Arrays.stream(participants)
+                .map(PlayerParticipationDTO::playerId)
+                .toList();
+        List<Long> invalidIds =
+                Arrays.stream(winningPlayerIds).filter(playerId -> !participatingPlayers.contains(playerId)).toList();
+        if (!invalidIds.isEmpty()) {
+            return ValidationResult.invalid("Winning player ids " + invalidIds
+                    + " are not participating in the game.");
+        }
+        return ValidationResult.valid();
     }
 
-    private ValidationCheck getNoDuplicatePlayersInParticipationsCheck() {
-        return () -> {
-            if (containsDuplicates(Arrays.stream(participants).map(PlayerParticipationDTO::playerId).toArray())) {
-                return ValidationResult.invalid("Duplicate player ids found in participants. Each player can "
-                        + "only participate once in a game.");
-            }
-            return ValidationResult.valid();
-        };
+    private ValidationResult checkNoDuplicatePlayersInParticipations() {
+        if (containsDuplicates(Arrays.stream(participants).map(PlayerParticipationDTO::playerId).toArray())) {
+            return ValidationResult.invalid("Duplicate player ids found in participants. Each player can "
+                    + "only participate once in a game.");
+        }
+        return ValidationResult.valid();
     }
 
-    private ValidationCheck getAllParticipationsValidCheck() {
-        return () -> Arrays.stream(participants)
+    private ValidationResult checkAllParticipationsValid() {
+        if (Arrays.stream(participants)
+                .anyMatch(Objects::isNull)) {
+            return ValidationResult.invalid("Participants must not contain null values.");
+        }
+
+        return Arrays.stream(participants)
                 .map(PlayerParticipationDTO::validate)
                 .filter(r -> !r.isValid())
                 .findFirst()

@@ -50,7 +50,7 @@ public record PlayerParticipationDTO(
                 example = "evil"
         ) AlignmentDTO endAlignment,
         @Schema(
-                description = "Whether the player was (still) alive when the game ended.",
+                description = "Whether the player was (still) alive when the game ended. Defaults to false.",
                 example = "true"
         ) boolean isAliveAtEnd
 ) implements Validateable {
