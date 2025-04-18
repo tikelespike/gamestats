@@ -56,6 +56,7 @@ public class AuthConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/*").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/v1/ping").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
