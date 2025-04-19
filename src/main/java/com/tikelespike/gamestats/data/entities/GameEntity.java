@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.OrderColumn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ public class GameEntity extends AbstractEntity {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @OrderColumn(name = "participant_order")
     private List<PlayerParticipationEntity> participants;
 
     @OneToMany(fetch = EAGER)
