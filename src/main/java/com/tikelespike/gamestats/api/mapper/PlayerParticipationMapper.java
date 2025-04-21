@@ -39,13 +39,15 @@ public class PlayerParticipationMapper extends Mapper<PlayerParticipation, Playe
 
     @Override
     protected PlayerParticipation toBusinessObjectNoCheck(PlayerParticipationDTO transferObject) {
-        Player player = playerService.getPlayerById(transferObject.playerId());
-        if (player == null) {
+        Player player =
+                transferObject.playerId() == null ? null : playerService.getPlayerById(transferObject.playerId());
+        if (player == null && transferObject.playerId() != null) {
             throw new RelatedResourceNotFoundException("Player with id " + transferObject.playerId() + " not found");
         }
 
-        Character initialCharacter = characterService.getCharacter(transferObject.initialCharacterId());
-        if (initialCharacter == null) {
+        Character initialCharacter = transferObject.initialCharacterId() == null ? null
+                : characterService.getCharacter(transferObject.initialCharacterId());
+        if (initialCharacter == null && transferObject.initialCharacterId() != null) {
             throw new RelatedResourceNotFoundException(
                     "Character with id " + transferObject.initialCharacterId() + " not found");
         }
@@ -70,10 +72,10 @@ public class PlayerParticipationMapper extends Mapper<PlayerParticipation, Playe
     @Override
     protected PlayerParticipationDTO toTransferObjectNoCheck(PlayerParticipation businessObject) {
         return new PlayerParticipationDTO(
-                businessObject.player().getId(),
-                businessObject.initialCharacter().getId(),
+                businessObject.player() == null ? null : businessObject.player().getId(),
+                businessObject.initialCharacter() == null ? null : businessObject.initialCharacter().getId(),
                 alignmentMapper.toTransferObject(businessObject.initialAlignment()),
-                businessObject.endCharacter().getId(),
+                businessObject.endCharacter() == null ? null : businessObject.endCharacter().getId(),
                 alignmentMapper.toTransferObject(businessObject.endAlignment()),
                 businessObject.isAliveAtEnd()
         );

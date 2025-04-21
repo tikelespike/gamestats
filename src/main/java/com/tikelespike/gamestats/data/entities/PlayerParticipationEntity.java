@@ -14,16 +14,25 @@ public class PlayerParticipationEntity extends AbstractEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     private GameEntity game;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(
+            fetch = FetchType.EAGER,
+            optional = true
+    )
     private PlayerEntity player;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(
+            fetch = FetchType.EAGER,
+            optional = true
+    )
     private CharacterEntity initialCharacter;
 
     @Enumerated(EnumType.STRING)
     private AlignmentEntity initialAlignment;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(
+            fetch = FetchType.EAGER,
+            optional = true
+    )
     private CharacterEntity endCharacter;
 
     @Enumerated(EnumType.STRING)
@@ -44,11 +53,14 @@ public class PlayerParticipationEntity extends AbstractEntity {
      * @param id unique identifier of this participation
      * @param version version counter for optimistic locking
      * @param game the game this participation belongs to
-     * @param player the player that participated
-     * @param initialCharacter the character the player started with
-     * @param initialAlignment the alignment the player started with
-     * @param endCharacter the character the player ended with
-     * @param endAlignment the alignment the player ended with
+     * @param player the player that participated (may be null)
+     * @param initialCharacter the character the player started with (may be null)
+     * @param initialAlignment the alignment the player started with (if null and initialCharacter is non-null,
+     *         defaults to the default alignment of the initial character)
+     * @param endCharacter the character the player ended with (if null and initialCharacter is non-null,
+     *         defaults to the initial character)
+     * @param endAlignment the alignment the player ended with (if null and endCharacter is non-null, defaults
+     *         to the default alignment of the end character)
      * @param isAliveAtEnd whether the player was alive at the end of the game
      */
     public PlayerParticipationEntity(Long id, Long version, GameEntity game, PlayerEntity player,

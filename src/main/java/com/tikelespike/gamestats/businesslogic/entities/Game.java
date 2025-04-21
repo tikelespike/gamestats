@@ -46,10 +46,6 @@ public class Game implements HasId, HasVersion {
         setName(name);
     }
 
-    private <T> boolean containsDuplicates(Collection<T> collection) {
-        return new HashSet<>(collection).size() != collection.size();
-    }
-
     /**
      * Creates a new game with the given data, assuming that the winning team is not defined by its alignment, but by a
      * more complex situation (for example due to characters like the politician which potentially wins the game alone).
@@ -59,7 +55,7 @@ public class Game implements HasId, HasVersion {
      * @param id unique identifier of this game
      * @param version version counter for optimistic locking
      * @param participants list containing players and their game-specific data (may not contain the same player
-     *         twice)
+     *         twice or be null)
      * @param script the script (list of available characters) used in the game (may not be null)
      * @param description a free-form optional description of this game
      * @param winningPlayers a list of all players that won this game (may not be null and may not contain
@@ -105,13 +101,19 @@ public class Game implements HasId, HasVersion {
      *         same player multiple times.
      */
     public void setParticipants(List<PlayerParticipation> participants) {
-        List<Long> playerIds = participants.stream().map(participation -> participation.player().getId()).toList();
+        List<Long> playerIds = participants.stream()
+                .map(participation -> participation.player())
+                .filter(Objects::nonNull)
+                .map(Player::getId)
+                .toList();
         if (containsDuplicates(playerIds)) {
             throw new IllegalArgumentException("The same player cannot participate multiple times in the same game.");
         }
 
         if (winningPlayers != null) {
-            winningPlayers = winningPlayers.stream().filter(p -> playerIds.contains(p.getId())).toList();
+            winningPlayers = winningPlayers.stream()
+                    .filter(p -> playerIds.contains(p.getId()))
+                    .toList();
         }
 
         this.participants = new ArrayList<>(participants);
@@ -153,6 +155,17 @@ public class Game implements HasId, HasVersion {
      */
     public void setWinningAlignment(Alignment winningAlignment) {
         this.winningAlignment = Objects.requireNonNull(winningAlignment);
+        this.winningPlayers = participants.stream()
+                .map(PlayerParticipation::player)
+                .filter(Objects::nonNull)
+                .filter(p -> {
+                    PlayerParticipation participation = participants.stream()
+                            .filter(pp -> pp.player() != null && pp.player().getId().equals(p.getId()))
+                            .findFirst()
+                            .orElseThrow();
+                    return participation.endAlignment() == winningAlignment;
+                })
+                .toList();
     }
 
     /**
@@ -179,13 +192,14 @@ public class Game implements HasId, HasVersion {
      * Returns the players that won this game. By default, these are the players whose alignment matches the winning
      * alignment. In more complex scenarios, this method may be overridden.
      *
-     * @return the players that won this game
+     * @return the list of players that won this game
      */
     public List<Player> getWinningPlayers() {
         if (winningAlignment != null) {
             return getParticipants().stream()
                     .filter(entry -> entry.endAlignment() == getWinningAlignment())
                     .map(PlayerParticipation::player)
+                    .filter(Objects::nonNull)
                     .toList();
         }
         return winningPlayers;
@@ -196,18 +210,18 @@ public class Game implements HasId, HasVersion {
      * their alignment (use {@link #setWinningAlignment(Alignment)} if one of the two alignments won). Calling this
      * method with a valid list of players will set the winning alignment to null.
      *
-     * @param winningPlayers the list of players that won the game. May not be null or contain the same player
+     * @param winningPlayers the list of players that won the game. May not be null, contain the same player
      *         multiple times.
      */
     public void setWinningPlayers(List<Player> winningPlayers) {
-        List<Long> playerIds = participants.stream().map(participation -> participation.player().getId()).toList();
-
-        if (winningPlayers.stream()
-                .anyMatch(p -> !playerIds.contains(p.getId()))) {
-            throw new IllegalArgumentException("A player that did not participate cannot win the game");
+        if (containsDuplicates(winningPlayers.stream().map(Player::getId).toList())) {
+            throw new IllegalArgumentException("The same player cannot win multiple times in the same game.");
         }
-
-        this.winningPlayers = new ArrayList<>(winningPlayers);
+        if (winningPlayers.contains(null)) {
+            throw new IllegalArgumentException("Winning players may not contain null values.");
+        }
+        // we allow players to win that did not participate in the game (e.g. storyteller wins or similar)
+        this.winningPlayers = winningPlayers;
         this.winningAlignment = null;
     }
 
@@ -223,10 +237,14 @@ public class Game implements HasId, HasVersion {
     /**
      * Sets the human-readable name of this game.
      *
-     * @param name the human-readable name of this game (may not be null)
+     * @param name the human-readable name of this game. May not be null.
      */
     public void setName(String name) {
         this.name = Objects.requireNonNull(name, "Game name may not be null");
+    }
+
+    private <T> boolean containsDuplicates(Collection<T> collection) {
+        return new HashSet<>(collection).size() != collection.size();
     }
 
     @Override

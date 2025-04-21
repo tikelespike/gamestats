@@ -101,6 +101,7 @@ public record GameDTO(
         }
         Collection<Long> participatingPlayers = Arrays.stream(participants)
                 .map(PlayerParticipationDTO::playerId)
+                .filter(Objects::nonNull)
                 .toList();
         List<Long> invalidIds =
                 Arrays.stream(winningPlayerIds).filter(playerId -> !participatingPlayers.contains(playerId))
@@ -113,7 +114,11 @@ public record GameDTO(
     }
 
     private ValidationResult checkNoDuplicatePlayersInParticipations() {
-        if (containsDuplicates(Arrays.stream(participants).map(PlayerParticipationDTO::playerId).toArray())) {
+        Object[] playerIds = Arrays.stream(participants)
+                .map(PlayerParticipationDTO::playerId)
+                .filter(Objects::nonNull)
+                .toArray();
+        if (containsDuplicates(playerIds)) {
             return ValidationResult.invalid("Duplicate player ids found in participants. Each player can "
                     + "only participate once in a game.");
         }

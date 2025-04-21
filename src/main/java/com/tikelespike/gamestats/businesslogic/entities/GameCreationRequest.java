@@ -41,7 +41,11 @@ public record GameCreationRequest(
                                String description, List<Player> winningPlayers, String name) {
         this.script = Objects.requireNonNull(script);
         this.participants = participants;
-        List<Long> playerIds = participants.stream().map(participation -> participation.player().getId()).toList();
+        List<Long> playerIds = participants.stream()
+                .map(participation -> participation.player())
+                .filter(Objects::nonNull)
+                .map(Player::getId)
+                .toList();
         if (containsDuplicates(playerIds)) {
             throw new IllegalArgumentException("The same player cannot participate multiple times in the same game.");
         }

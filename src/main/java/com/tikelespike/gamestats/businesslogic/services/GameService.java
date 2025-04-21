@@ -127,7 +127,6 @@ public class GameService {
             throw new RelatedResourceNotFoundException(
                     "Player with id " + participation.player().getId() + " does not exist");
         }
-
     }
 
     /**

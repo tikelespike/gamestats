@@ -1,16 +1,18 @@
 package com.tikelespike.gamestats.businesslogic.entities;
 
 
-import java.util.Objects;
-
 /**
  * Statistical data associated with a single player's participation in a single game.
  *
- * @param player the player that participated in this game and whose data is represented by this object
- * @param initialCharacter the initial character the player was assigned at the start of the game
- * @param initialAlignment the alignment the player was assigned at the start of the game
- * @param endCharacter the character the player ended the game with
- * @param endAlignment the alignment the player ended the game with (relevant for the winning condition)
+ * @param player the player that participated in this game and whose data is represented by this object (may be
+ *         null)
+ * @param initialCharacter the initial character the player was assigned at the start of the game (may be null)
+ * @param initialAlignment the alignment the player was assigned at the start of the game (if null and
+ *         initialCharacter is non-null, defaults to the standard alignment of the initial character)
+ * @param endCharacter the character the player ended the game with (if null and initialCharacter is non-null,
+ *         defaults to the initial character)
+ * @param endAlignment the alignment the player ended the game with (if null and endCharacter is non-null,
+ *         defaults to the standard alignment of the end character)
  * @param isAliveAtEnd whether the player was still alive at the end of the game
  */
 public record PlayerParticipation(
@@ -24,25 +26,27 @@ public record PlayerParticipation(
     /**
      * Creates a new {@link PlayerParticipation} object with the given data.
      *
-     * @param player the player that participated in this game and whose data is represented by this object. May
-     *         not be null.
-     * @param initialCharacter the initial character the player was assigned at the start of the game. May not
-     *         be null.
-     * @param initialAlignment the alignment the player was assigned at the start of the game (defaults to the
-     *         standard alignment of the initial character if null)
-     * @param endCharacter the character the player ended the game with (defaults to the initial character if
+     * @param player the player that participated in this game and whose data is represented by this object (may
+     *         be null)
+     * @param initialCharacter the initial character the player was assigned at the start of the game (may be
      *         null)
-     * @param endAlignment the alignment the player ended the game with (relevant for the winning condition,
-     *         defaults to the standard alignment of the end character if null)
+     * @param initialAlignment the alignment the player was assigned at the start of the game (if null and
+     *         initialCharacter is non-null, defaults to the standard alignment of the initial character)
+     * @param endCharacter the character the player ended the game with (if null and initialCharacter is
+     *         non-null, defaults to the initial character)
+     * @param endAlignment the alignment the player ended the game with (if null and endCharacter is non-null,
+     *         defaults to the standard alignment of the end character)
      * @param isAliveAtEnd whether the player was still alive at the end of the game
      */
     public PlayerParticipation(Player player, Character initialCharacter, Alignment initialAlignment,
                                Character endCharacter, Alignment endAlignment, boolean isAliveAtEnd) {
-        this.player = Objects.requireNonNull(player);
-        this.initialCharacter = Objects.requireNonNull(initialCharacter);
-        this.initialAlignment = or(initialAlignment, initialCharacter.getCharacterType().getDefaultAlignment());
+        this.player = player;
+        this.initialCharacter = initialCharacter;
+        this.initialAlignment = or(initialAlignment,
+                initialCharacter == null ? null : initialCharacter.getCharacterType().getDefaultAlignment());
         this.endCharacter = or(endCharacter, initialCharacter);
-        this.endAlignment = or(endAlignment, this.endCharacter.getCharacterType().getDefaultAlignment());
+        this.endAlignment = or(endAlignment, this.endCharacter == null ? null
+                : this.endCharacter.getCharacterType().getDefaultAlignment());
         this.isAliveAtEnd = isAliveAtEnd;
     }
 
@@ -50,8 +54,9 @@ public record PlayerParticipation(
      * Creates a new {@link PlayerParticipation} object with the given data, assuming that the player's character and
      * alignment did not change during the game.
      *
-     * @param player the player that participated in this game and whose data is represented by this object
-     * @param character the character played by the player
+     * @param player the player that participated in this game and whose data is represented by this object (may
+     *         be null)
+     * @param character the character played by the player (may be null)
      * @param isAliveAtEnd whether the player was still alive at the end of the game
      */
     public PlayerParticipation(Player player, Character character, boolean isAliveAtEnd) {

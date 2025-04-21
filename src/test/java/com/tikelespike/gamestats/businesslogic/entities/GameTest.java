@@ -96,16 +96,6 @@ class GameTest {
     }
 
     @Test
-    void testWinningPlayersNotInGame() {
-        Player outsidePlayer = new Player("OutsidePlayer");
-        List<Player> invalidWinners = Arrays.asList(player1, outsidePlayer);
-
-        assertThrows(IllegalArgumentException.class, () ->
-                new Game(1L, 1L, participants, script, "Test game", invalidWinners, "Test game name")
-        );
-    }
-
-    @Test
     void testGetWinningPlayersWithAlignment() {
         Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name");
         List<Player> winners = game.getWinningPlayers();
@@ -140,6 +130,58 @@ class GameTest {
         assertEquals(1, game.getWinningPlayers().size());
         assertTrue(game.getWinningPlayers().contains(player1));
         assertFalse(game.getWinningPlayers().contains(player2));
+    }
+
+    @Test
+    void testParticipationWithNullPlayer() {
+        List<PlayerParticipation> participationsWithNullPlayer = Arrays.asList(
+                new PlayerParticipation(null, character1, true),
+                new PlayerParticipation(player2, character2, true)
+        );
+
+        Game game =
+                new Game(1L, 1L, participationsWithNullPlayer, script, Alignment.GOOD, "Test game", "Test game name");
+        assertNotNull(game);
+        assertEquals(2, game.getParticipants().size());
+        assertNull(game.getParticipants().getFirst().player());
+        assertEquals(player2, game.getParticipants().get(1).player());
+    }
+
+    @Test
+    void testParticipationWithNullCharacter() {
+        List<PlayerParticipation> participationsWithNullCharacter = Arrays.asList(
+                new PlayerParticipation(player1, null, true),
+                new PlayerParticipation(player2, character2, true)
+        );
+
+        Game game = new Game(1L, 1L, participationsWithNullCharacter, script, Alignment.GOOD, "Test game",
+                "Test game name");
+        assertNotNull(game);
+        assertEquals(2, game.getParticipants().size());
+        assertNull(game.getParticipants().getFirst().initialCharacter());
+        assertNull(game.getParticipants().getFirst().initialAlignment());
+        assertNull(game.getParticipants().getFirst().endCharacter());
+        assertNull(game.getParticipants().getFirst().endAlignment());
+        assertEquals(character2, game.getParticipants().get(1).initialCharacter());
+    }
+
+    @Test
+    void testParticipationWithNullPlayerAndCharacter() {
+        List<PlayerParticipation> participationsWithNulls = Arrays.asList(
+                new PlayerParticipation(null, null, true),
+                new PlayerParticipation(player2, character2, true)
+        );
+
+        Game game = new Game(1L, 1L, participationsWithNulls, script, Alignment.GOOD, "Test game", "Test game name");
+        assertNotNull(game);
+        assertEquals(2, game.getParticipants().size());
+        assertNull(game.getParticipants().getFirst().player());
+        assertNull(game.getParticipants().getFirst().initialCharacter());
+        assertNull(game.getParticipants().getFirst().initialAlignment());
+        assertNull(game.getParticipants().getFirst().endCharacter());
+        assertNull(game.getParticipants().getFirst().endAlignment());
+        assertEquals(player2, game.getParticipants().get(1).player());
+        assertEquals(character2, game.getParticipants().get(1).initialCharacter());
     }
 
     @Test

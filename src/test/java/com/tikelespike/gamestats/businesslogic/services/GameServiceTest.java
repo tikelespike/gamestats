@@ -300,6 +300,114 @@ class GameServiceTest {
         gameService.deleteGame(NON_EXISTENT_ID);
     }
 
+    @Test
+    void testCreateGameWithNullPlayer() {
+        // Setup
+        Script script = addTestScript("testCreateGameWithNullPlayer");
+        Character character = addTestCharacter("testCreateGameWithNullPlayer");
+
+        PlayerParticipation participation = new PlayerParticipation(
+                null,
+                character,
+                true
+        );
+
+        GameCreationRequest request = new GameCreationRequest(
+                script,
+                List.of(participation),
+                Alignment.GOOD,
+                "Test game description",
+                null,
+                "Test game name"
+        );
+
+        // Execute
+        Game createdGame = gameService.createGame(request);
+
+        // Verify
+        assertNotNull(createdGame);
+        assertEquals(script, createdGame.getScript());
+        assertEquals(Alignment.GOOD, createdGame.getWinningAlignment());
+        assertEquals("Test game description", createdGame.getDescription());
+        assertEquals(1, createdGame.getParticipants().size());
+        assertNull(createdGame.getParticipants().getFirst().player());
+        assertEquals(character, createdGame.getParticipants().getFirst().initialCharacter());
+        assertEquals(Alignment.GOOD, createdGame.getParticipants().getFirst().initialAlignment());
+    }
+
+    @Test
+    void testCreateGameWithNullCharacter() {
+        // Setup
+        Script script = addTestScript("testCreateGameWithNullCharacter");
+        Player player = addTestPlayer("testCreateGameWithNullCharacter");
+
+        PlayerParticipation participation = new PlayerParticipation(
+                player,
+                null,
+                true
+        );
+
+        GameCreationRequest request = new GameCreationRequest(
+                script,
+                List.of(participation),
+                Alignment.GOOD,
+                "Test game description",
+                null,
+                "Test game name"
+        );
+
+        // Execute
+        Game createdGame = gameService.createGame(request);
+
+        // Verify
+        assertNotNull(createdGame);
+        assertEquals(script, createdGame.getScript());
+        assertEquals(Alignment.GOOD, createdGame.getWinningAlignment());
+        assertEquals("Test game description", createdGame.getDescription());
+        assertEquals(1, createdGame.getParticipants().size());
+        assertEquals(player, createdGame.getParticipants().getFirst().player());
+        assertNull(createdGame.getParticipants().getFirst().initialCharacter());
+        assertNull(createdGame.getParticipants().getFirst().initialAlignment());
+        assertNull(createdGame.getParticipants().getFirst().endCharacter());
+        assertNull(createdGame.getParticipants().getFirst().endAlignment());
+    }
+
+    @Test
+    void testCreateGameWithNullPlayerAndCharacter() {
+        // Setup
+        Script script = addTestScript("testCreateGameWithNullPlayerAndCharacter");
+
+        PlayerParticipation participation = new PlayerParticipation(
+                null,
+                null,
+                true
+        );
+
+        GameCreationRequest request = new GameCreationRequest(
+                script,
+                List.of(participation),
+                Alignment.GOOD,
+                "Test game description",
+                null,
+                "Test game name"
+        );
+
+        // Execute
+        Game createdGame = gameService.createGame(request);
+
+        // Verify
+        assertNotNull(createdGame);
+        assertEquals(script, createdGame.getScript());
+        assertEquals(Alignment.GOOD, createdGame.getWinningAlignment());
+        assertEquals("Test game description", createdGame.getDescription());
+        assertEquals(1, createdGame.getParticipants().size());
+        assertNull(createdGame.getParticipants().getFirst().player());
+        assertNull(createdGame.getParticipants().getFirst().initialCharacter());
+        assertNull(createdGame.getParticipants().getFirst().initialAlignment());
+        assertNull(createdGame.getParticipants().getFirst().endCharacter());
+        assertNull(createdGame.getParticipants().getFirst().endAlignment());
+    }
+
     private Game addTestGame(String testName) {
         Script script = addTestScript(testName);
         Player player = addTestPlayer(testName);
