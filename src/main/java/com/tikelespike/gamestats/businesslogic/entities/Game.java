@@ -102,7 +102,7 @@ public class Game implements HasId, HasVersion {
      */
     public void setParticipants(List<PlayerParticipation> participants) {
         List<Long> playerIds = participants.stream()
-                .map(participation -> participation.player())
+                .map(participation -> participation.getPlayer())
                 .filter(Objects::nonNull)
                 .map(Player::getId)
                 .toList();
@@ -156,14 +156,14 @@ public class Game implements HasId, HasVersion {
     public void setWinningAlignment(Alignment winningAlignment) {
         this.winningAlignment = Objects.requireNonNull(winningAlignment);
         this.winningPlayers = participants.stream()
-                .map(PlayerParticipation::player)
+                .map(PlayerParticipation::getPlayer)
                 .filter(Objects::nonNull)
                 .filter(p -> {
                     PlayerParticipation participation = participants.stream()
-                            .filter(pp -> pp.player() != null && pp.player().getId().equals(p.getId()))
+                            .filter(pp -> pp.getPlayer() != null && pp.getPlayer().getId().equals(p.getId()))
                             .findFirst()
                             .orElseThrow();
-                    return participation.endAlignment() == winningAlignment;
+                    return participation.getEndAlignment() == winningAlignment;
                 })
                 .toList();
     }
@@ -197,8 +197,8 @@ public class Game implements HasId, HasVersion {
     public List<Player> getWinningPlayers() {
         if (winningAlignment != null) {
             return getParticipants().stream()
-                    .filter(entry -> entry.endAlignment() == getWinningAlignment())
-                    .map(PlayerParticipation::player)
+                    .filter(entry -> entry.getEndAlignment() == getWinningAlignment())
+                    .map(PlayerParticipation::getPlayer)
                     .filter(Objects::nonNull)
                     .toList();
         }

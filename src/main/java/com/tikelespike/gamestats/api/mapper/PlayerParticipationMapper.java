@@ -72,12 +72,12 @@ public class PlayerParticipationMapper extends Mapper<PlayerParticipation, Playe
     @Override
     protected PlayerParticipationDTO toTransferObjectNoCheck(PlayerParticipation businessObject) {
         return new PlayerParticipationDTO(
-                businessObject.player() == null ? null : businessObject.player().getId(),
-                businessObject.initialCharacter() == null ? null : businessObject.initialCharacter().getId(),
-                alignmentMapper.toTransferObject(businessObject.initialAlignment()),
-                businessObject.endCharacter() == null ? null : businessObject.endCharacter().getId(),
-                alignmentMapper.toTransferObject(businessObject.endAlignment()),
-                businessObject.isAliveAtEnd()
+                businessObject.getPlayer() == null ? null : businessObject.getPlayer().getId(),
+                businessObject.getInitialCharacter() == null ? null : businessObject.getInitialCharacter().getId(),
+                alignmentMapper.toTransferObject(businessObject.getInitialAlignment()),
+                businessObject.getEndCharacter() == null ? null : businessObject.getEndCharacter().getId(),
+                alignmentMapper.toTransferObject(businessObject.getEndAlignment()),
+                businessObject.getIsAliveAtEnd()
         );
     }
 }

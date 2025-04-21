@@ -126,8 +126,8 @@ class GameCreationRequestTest {
                 "Test game", null, "Test game name");
         assertNotNull(request);
         assertEquals(2, request.participants().size());
-        assertNull(request.participants().getFirst().player());
-        assertEquals(player2, request.participants().get(1).player());
+        assertNull(request.participants().getFirst().getPlayer());
+        assertEquals(player2, request.participants().get(1).getPlayer());
     }
 
     @Test
@@ -141,11 +141,11 @@ class GameCreationRequestTest {
                 "Test game", null, "Test game name");
         assertNotNull(request);
         assertEquals(2, request.participants().size());
-        assertNull(request.participants().getFirst().initialCharacter());
-        assertNull(request.participants().getFirst().initialAlignment());
-        assertNull(request.participants().getFirst().endCharacter());
-        assertNull(request.participants().getFirst().endAlignment());
-        assertEquals(character2, request.participants().get(1).initialCharacter());
+        assertNull(request.participants().getFirst().getInitialCharacter());
+        assertNull(request.participants().getFirst().getInitialAlignment());
+        assertNull(request.participants().getFirst().getEndCharacter());
+        assertNull(request.participants().getFirst().getEndAlignment());
+        assertEquals(character2, request.participants().get(1).getInitialCharacter());
     }
 
     @Test
@@ -159,12 +159,12 @@ class GameCreationRequestTest {
                 "Test game", null, "Test game name");
         assertNotNull(request);
         assertEquals(2, request.participants().size());
-        assertNull(request.participants().getFirst().player());
-        assertNull(request.participants().getFirst().initialCharacter());
-        assertNull(request.participants().getFirst().initialAlignment());
-        assertNull(request.participants().getFirst().endCharacter());
-        assertNull(request.participants().getFirst().endAlignment());
-        assertEquals(player2, request.participants().get(1).player());
-        assertEquals(character2, request.participants().get(1).initialCharacter());
+        assertNull(request.participants().getFirst().getPlayer());
+        assertNull(request.participants().getFirst().getInitialCharacter());
+        assertNull(request.participants().getFirst().getInitialAlignment());
+        assertNull(request.participants().getFirst().getEndCharacter());
+        assertNull(request.participants().getFirst().getEndAlignment());
+        assertEquals(player2, request.participants().get(1).getPlayer());
+        assertEquals(character2, request.participants().get(1).getInitialCharacter());
     }
 }

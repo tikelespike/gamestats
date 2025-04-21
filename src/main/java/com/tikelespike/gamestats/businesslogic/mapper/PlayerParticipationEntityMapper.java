@@ -54,12 +54,12 @@ public class PlayerParticipationEntityMapper extends Mapper<PlayerParticipation,
                 // using orphanRemoval
                 null,
                 null, // needs to be set externally, for example by the game entity when the participation is added
-                playerMapper.toTransferObject(businessObject.player()),
-                characterMapper.toTransferObject(businessObject.initialCharacter()),
-                alignmentMapper.toTransferObject(businessObject.initialAlignment()),
-                characterMapper.toTransferObject(businessObject.endCharacter()),
-                alignmentMapper.toTransferObject(businessObject.endAlignment()),
-                businessObject.isAliveAtEnd()
+                playerMapper.toTransferObject(businessObject.getPlayer()),
+                characterMapper.toTransferObject(businessObject.getInitialCharacter()),
+                alignmentMapper.toTransferObject(businessObject.getInitialAlignment()),
+                characterMapper.toTransferObject(businessObject.getEndCharacter()),
+                alignmentMapper.toTransferObject(businessObject.getEndAlignment()),
+                businessObject.getIsAliveAtEnd()
         );
     }
 }

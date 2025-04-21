@@ -75,9 +75,9 @@ class GameServiceTest {
         assertEquals(Alignment.GOOD, createdGame.getWinningAlignment());
         assertEquals("Test game description", createdGame.getDescription());
         assertEquals(1, createdGame.getParticipants().size());
-        assertEquals(player, createdGame.getParticipants().getFirst().player());
-        assertEquals(character, createdGame.getParticipants().getFirst().initialCharacter());
-        assertEquals(Alignment.GOOD, createdGame.getParticipants().getFirst().initialAlignment());
+        assertEquals(player, createdGame.getParticipants().getFirst().getPlayer());
+        assertEquals(character, createdGame.getParticipants().getFirst().getInitialCharacter());
+        assertEquals(Alignment.GOOD, createdGame.getParticipants().getFirst().getInitialAlignment());
         assertEquals(1, createdGame.getWinningPlayers().size());
     }
 
@@ -330,9 +330,9 @@ class GameServiceTest {
         assertEquals(Alignment.GOOD, createdGame.getWinningAlignment());
         assertEquals("Test game description", createdGame.getDescription());
         assertEquals(1, createdGame.getParticipants().size());
-        assertNull(createdGame.getParticipants().getFirst().player());
-        assertEquals(character, createdGame.getParticipants().getFirst().initialCharacter());
-        assertEquals(Alignment.GOOD, createdGame.getParticipants().getFirst().initialAlignment());
+        assertNull(createdGame.getParticipants().getFirst().getPlayer());
+        assertEquals(character, createdGame.getParticipants().getFirst().getInitialCharacter());
+        assertEquals(Alignment.GOOD, createdGame.getParticipants().getFirst().getInitialAlignment());
     }
 
     @Test
@@ -365,11 +365,11 @@ class GameServiceTest {
         assertEquals(Alignment.GOOD, createdGame.getWinningAlignment());
         assertEquals("Test game description", createdGame.getDescription());
         assertEquals(1, createdGame.getParticipants().size());
-        assertEquals(player, createdGame.getParticipants().getFirst().player());
-        assertNull(createdGame.getParticipants().getFirst().initialCharacter());
-        assertNull(createdGame.getParticipants().getFirst().initialAlignment());
-        assertNull(createdGame.getParticipants().getFirst().endCharacter());
-        assertNull(createdGame.getParticipants().getFirst().endAlignment());
+        assertEquals(player, createdGame.getParticipants().getFirst().getPlayer());
+        assertNull(createdGame.getParticipants().getFirst().getInitialCharacter());
+        assertNull(createdGame.getParticipants().getFirst().getInitialAlignment());
+        assertNull(createdGame.getParticipants().getFirst().getEndCharacter());
+        assertNull(createdGame.getParticipants().getFirst().getEndAlignment());
     }
 
     @Test
@@ -401,11 +401,11 @@ class GameServiceTest {
         assertEquals(Alignment.GOOD, createdGame.getWinningAlignment());
         assertEquals("Test game description", createdGame.getDescription());
         assertEquals(1, createdGame.getParticipants().size());
-        assertNull(createdGame.getParticipants().getFirst().player());
-        assertNull(createdGame.getParticipants().getFirst().initialCharacter());
-        assertNull(createdGame.getParticipants().getFirst().initialAlignment());
-        assertNull(createdGame.getParticipants().getFirst().endCharacter());
-        assertNull(createdGame.getParticipants().getFirst().endAlignment());
+        assertNull(createdGame.getParticipants().getFirst().getPlayer());
+        assertNull(createdGame.getParticipants().getFirst().getInitialCharacter());
+        assertNull(createdGame.getParticipants().getFirst().getInitialAlignment());
+        assertNull(createdGame.getParticipants().getFirst().getEndCharacter());
+        assertNull(createdGame.getParticipants().getFirst().getEndAlignment());
     }
 
     private Game addTestGame(String testName) {

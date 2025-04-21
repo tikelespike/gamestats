@@ -111,21 +111,21 @@ public class GameService {
     }
 
     private void verifyParticipationResourcesExist(PlayerParticipation participation) {
-        if (participation.initialCharacter() != null
-                && characterRepository.findById(participation.initialCharacter().getId()) == null) {
+        if (participation.getInitialCharacter() != null
+                && characterRepository.findById(participation.getInitialCharacter().getId()) == null) {
             throw new RelatedResourceNotFoundException(
-                    "Character with id " + participation.initialCharacter().getId() + " does not exist");
+                    "Character with id " + participation.getInitialCharacter().getId() + " does not exist");
         }
 
-        if (participation.endCharacter() != null
-                && characterRepository.findById(participation.endCharacter().getId()) == null) {
+        if (participation.getEndCharacter() != null
+                && characterRepository.findById(participation.getEndCharacter().getId()) == null) {
             throw new RelatedResourceNotFoundException(
-                    "Character with id " + participation.endCharacter().getId() + " does not exist");
+                    "Character with id " + participation.getEndCharacter().getId() + " does not exist");
         }
 
-        if (participation.player() != null && playerRepository.findById(participation.player().getId()) == null) {
+        if (participation.getPlayer() != null && playerRepository.findById(participation.getPlayer().getId()) == null) {
             throw new RelatedResourceNotFoundException(
-                    "Player with id " + participation.player().getId() + " does not exist");
+                    "Player with id " + participation.getPlayer().getId() + " does not exist");
         }
     }
 

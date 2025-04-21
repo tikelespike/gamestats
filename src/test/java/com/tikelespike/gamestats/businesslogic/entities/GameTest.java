@@ -143,8 +143,8 @@ class GameTest {
                 new Game(1L, 1L, participationsWithNullPlayer, script, Alignment.GOOD, "Test game", "Test game name");
         assertNotNull(game);
         assertEquals(2, game.getParticipants().size());
-        assertNull(game.getParticipants().getFirst().player());
-        assertEquals(player2, game.getParticipants().get(1).player());
+        assertNull(game.getParticipants().getFirst().getPlayer());
+        assertEquals(player2, game.getParticipants().get(1).getPlayer());
     }
 
     @Test
@@ -158,11 +158,11 @@ class GameTest {
                 "Test game name");
         assertNotNull(game);
         assertEquals(2, game.getParticipants().size());
-        assertNull(game.getParticipants().getFirst().initialCharacter());
-        assertNull(game.getParticipants().getFirst().initialAlignment());
-        assertNull(game.getParticipants().getFirst().endCharacter());
-        assertNull(game.getParticipants().getFirst().endAlignment());
-        assertEquals(character2, game.getParticipants().get(1).initialCharacter());
+        assertNull(game.getParticipants().getFirst().getInitialCharacter());
+        assertNull(game.getParticipants().getFirst().getInitialAlignment());
+        assertNull(game.getParticipants().getFirst().getEndCharacter());
+        assertNull(game.getParticipants().getFirst().getEndAlignment());
+        assertEquals(character2, game.getParticipants().get(1).getInitialCharacter());
     }
 
     @Test
@@ -175,13 +175,13 @@ class GameTest {
         Game game = new Game(1L, 1L, participationsWithNulls, script, Alignment.GOOD, "Test game", "Test game name");
         assertNotNull(game);
         assertEquals(2, game.getParticipants().size());
-        assertNull(game.getParticipants().getFirst().player());
-        assertNull(game.getParticipants().getFirst().initialCharacter());
-        assertNull(game.getParticipants().getFirst().initialAlignment());
-        assertNull(game.getParticipants().getFirst().endCharacter());
-        assertNull(game.getParticipants().getFirst().endAlignment());
-        assertEquals(player2, game.getParticipants().get(1).player());
-        assertEquals(character2, game.getParticipants().get(1).initialCharacter());
+        assertNull(game.getParticipants().getFirst().getPlayer());
+        assertNull(game.getParticipants().getFirst().getInitialCharacter());
+        assertNull(game.getParticipants().getFirst().getInitialAlignment());
+        assertNull(game.getParticipants().getFirst().getEndCharacter());
+        assertNull(game.getParticipants().getFirst().getEndAlignment());
+        assertEquals(player2, game.getParticipants().get(1).getPlayer());
+        assertEquals(character2, game.getParticipants().get(1).getInitialCharacter());
     }
 
     @Test

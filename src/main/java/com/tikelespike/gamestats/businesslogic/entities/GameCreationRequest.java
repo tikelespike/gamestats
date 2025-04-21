@@ -42,7 +42,7 @@ public record GameCreationRequest(
         this.script = Objects.requireNonNull(script);
         this.participants = participants;
         List<Long> playerIds = participants.stream()
-                .map(participation -> participation.player())
+                .map(participation -> participation.getPlayer())
                 .filter(Objects::nonNull)
                 .map(Player::getId)
                 .toList();
