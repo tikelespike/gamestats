@@ -2,6 +2,9 @@ package com.tikelespike.gamestats.data.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.ManyToMany;
 
 import java.util.ArrayList;
@@ -19,6 +22,17 @@ public class ScriptEntity extends AbstractEntity {
 
     @ManyToMany(
             fetch = FetchType.EAGER
+    )
+    @JoinTable(
+            name = "script_characters",
+            joinColumns = @JoinColumn(name = "script_id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "character_id",
+                    foreignKey = @ForeignKey(
+                            foreignKeyDefinition = "FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE "
+                                    + "CASCADE"
+                    )
+            )
     )
     private List<CharacterEntity> characters;
 
