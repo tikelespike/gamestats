@@ -5,6 +5,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * Database representation of the data associated with a single player's participation in a single game.
@@ -18,6 +20,7 @@ public class PlayerParticipationEntity extends AbstractEntity {
             fetch = FetchType.EAGER,
             optional = true
     )
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private PlayerEntity player;
 
     @ManyToOne(

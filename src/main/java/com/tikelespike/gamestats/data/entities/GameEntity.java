@@ -4,10 +4,13 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.OrderColumn;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +46,17 @@ public class GameEntity extends AbstractEntity {
     private List<PlayerParticipationEntity> participants;
 
     @OneToMany(fetch = EAGER)
+    @JoinTable(
+            name = "game_winning_players",
+            joinColumns = @JoinColumn(name = "game_id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "player_id",
+                    foreignKey = @ForeignKey(
+                            foreignKeyDefinition = "FOREIGN KEY (player_id) REFERENCES players(id) "
+                                    + "ON DELETE CASCADE"
+                    )
+            )
+    )
     private List<PlayerEntity> winningPlayers;
 
     /**
