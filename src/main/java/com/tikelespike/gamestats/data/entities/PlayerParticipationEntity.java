@@ -27,6 +27,7 @@ public class PlayerParticipationEntity extends AbstractEntity {
             fetch = FetchType.EAGER,
             optional = true
     )
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private CharacterEntity initialCharacter;
 
     @Enumerated(EnumType.STRING)
@@ -36,6 +37,7 @@ public class PlayerParticipationEntity extends AbstractEntity {
             fetch = FetchType.EAGER,
             optional = true
     )
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private CharacterEntity endCharacter;
 
     @Enumerated(EnumType.STRING)
