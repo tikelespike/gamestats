@@ -2,15 +2,18 @@ package com.tikelespike.gamestats.businesslogic.mapper;
 
 import com.tikelespike.gamestats.businesslogic.entities.Alignment;
 import com.tikelespike.gamestats.businesslogic.entities.Game;
+import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.PlayerParticipation;
 import com.tikelespike.gamestats.businesslogic.entities.Script;
 import com.tikelespike.gamestats.common.Mapper;
 import com.tikelespike.gamestats.data.entities.AlignmentEntity;
 import com.tikelespike.gamestats.data.entities.GameEntity;
+import com.tikelespike.gamestats.data.entities.PlayerEntity;
 import com.tikelespike.gamestats.data.entities.PlayerParticipationEntity;
 import com.tikelespike.gamestats.data.entities.ScriptEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,57 +48,70 @@ public class GameEntityMapper extends Mapper<Game, GameEntity> {
 
     @Override
     protected Game toBusinessObjectNoCheck(GameEntity transferObject) {
+        Script script = scriptMapper.toBusinessObject(transferObject.getScript());
         List<PlayerParticipation> participations = transferObject.getParticipants().stream()
-                .map(playerParticipationMapper::toBusinessObject).toList();
+                .map(playerParticipationMapper::toBusinessObject)
+                .toList();
+        Alignment winningAlignment = alignmentMapper.toBusinessObject(transferObject.getWinningAlignment());
+        List<Player> winningPlayers = transferObject.getWinningPlayers() == null ? null
+                : transferObject.getWinningPlayers().stream()
+                        .map(playerMapper::toBusinessObject)
+                        .toList();
+        List<Player> storytellers = transferObject.getStorytellers() == null ? new ArrayList<>()
+                : transferObject.getStorytellers().stream()
+                        .map(playerMapper::toBusinessObject)
+                        .toList();
 
-        if (transferObject.getWinningAlignment() != null) {
+        if (winningAlignment != null) {
             return new Game(
                     transferObject.getId(),
                     transferObject.getVersion(),
                     participations,
-                    scriptMapper.toBusinessObject(transferObject.getScript()),
-                    alignmentMapper.toBusinessObject(transferObject.getWinningAlignment()),
+                    script,
+                    winningAlignment,
                     transferObject.getDescription(),
-                    transferObject.getName()
+                    transferObject.getName(),
+                    storytellers
             );
         }
         return new Game(
                 transferObject.getId(),
                 transferObject.getVersion(),
                 participations,
-                scriptMapper.toBusinessObject(transferObject.getScript()),
+                script,
                 transferObject.getDescription(),
-                transferObject.getWinningPlayers().stream().map(playerMapper::toBusinessObject).toList(),
-                transferObject.getName()
+                winningPlayers,
+                transferObject.getName(),
+                storytellers
         );
     }
 
     @Override
     protected GameEntity toTransferObjectNoCheck(Game businessObject) {
+        ScriptEntity script = scriptMapper.toTransferObject(businessObject.getScript());
         List<PlayerParticipationEntity> participations = businessObject.getParticipants().stream()
-                .map(playerParticipationMapper::toTransferObject).toList();
+                .map(playerParticipationMapper::toTransferObject)
+                .toList();
+        AlignmentEntity winningAlignment = alignmentMapper.toTransferObject(businessObject.getWinningAlignment());
+        List<PlayerEntity> winningPlayers = businessObject.getWinningPlayers() == null ? null
+                : businessObject.getWinningPlayers().stream()
+                        .map(playerMapper::toTransferObject)
+                        .toList();
+        List<PlayerEntity> storytellers = businessObject.getStorytellers() == null ? new ArrayList<>()
+                : businessObject.getStorytellers().stream()
+                        .map(playerMapper::toTransferObject)
+                        .toList();
 
-        if (businessObject.getWinningAlignment() != null) {
-            return new GameEntity(
-                    businessObject.getId(),
-                    businessObject.getVersion(),
-                    scriptMapper.toTransferObject(businessObject.getScript()),
-                    alignmentMapper.toTransferObject(businessObject.getWinningAlignment()),
-                    businessObject.getDescription(),
-                    participations,
-                    null,
-                    businessObject.getName()
-            );
-        }
         return new GameEntity(
                 businessObject.getId(),
                 businessObject.getVersion(),
-                scriptMapper.toTransferObject(businessObject.getScript()),
-                null,
+                script,
+                winningAlignment,
                 businessObject.getDescription(),
                 participations,
-                businessObject.getWinningPlayers().stream().map(playerMapper::toTransferObject).toList(),
-                businessObject.getName()
+                winningPlayers,
+                businessObject.getName(),
+                storytellers
         );
     }
 }

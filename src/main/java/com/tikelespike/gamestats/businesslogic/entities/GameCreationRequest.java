@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.ArrayList;
 
 
 /**
@@ -16,6 +17,7 @@ import java.util.Objects;
  * @param description a free-form optional description of this game
  * @param winningPlayers a list of all players that won this game (may not contain non-participating players)
  * @param name human-readable name of this game (may not be null)
+ * @param storytellers list of players that acted as storytellers for this game (may not contain duplicates)
  */
 public record GameCreationRequest(
         Script script,
@@ -23,7 +25,8 @@ public record GameCreationRequest(
         Alignment winningAlignment,
         String description,
         List<Player> winningPlayers,
-        String name
+        String name,
+        List<Player> storytellers
 ) {
     /**
      * Creates a new game creation request.
@@ -36,9 +39,12 @@ public record GameCreationRequest(
      * @param winningPlayers a list of all players that won this game (may not contain non-participating
      *         players, may not be null if winningAlignment is null, is ignored otherwise)
      * @param name human-readable name of this game (may not be null)
+     * @param storytellers list of players that acted as storytellers for this game (may not contain
+     *         duplicates)
      */
     public GameCreationRequest(Script script, List<PlayerParticipation> participants, Alignment winningAlignment,
-                               String description, List<Player> winningPlayers, String name) {
+                               String description, List<Player> winningPlayers, String name,
+                               List<Player> storytellers) {
         this.script = Objects.requireNonNull(script);
         this.participants = participants;
         List<Long> playerIds = participants.stream()
@@ -57,6 +63,11 @@ public record GameCreationRequest(
             throw new IllegalArgumentException("A player that did not participate cannot win the game");
         }
         this.name = Objects.requireNonNull(name, "Game name may not be null");
+        this.storytellers = storytellers != null ? storytellers : new ArrayList<>();
+        if (containsDuplicates(this.storytellers.stream().map(Player::getId).toList())) {
+            throw new IllegalArgumentException(
+                    "The same player cannot be a storyteller multiple times in the same game.");
+        }
     }
 
     private <T> boolean containsDuplicates(Collection<T> collection) {

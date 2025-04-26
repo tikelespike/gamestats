@@ -22,6 +22,7 @@ import java.util.Objects;
  * @param winningPlayerIds list of player ids that won the game (optional, use winningAlignment if not
  *         applicable)
  * @param participants list of player participations in this game
+ * @param storytellerIds list of player ids that acted as storytellers for this game
  */
 @Schema(
         name = "GameCreationRequest",
@@ -52,7 +53,11 @@ public record GameCreationRequestDTO(
         ) Long[] winningPlayerIds,
         @Schema(
                 description = "List of players and their game-specific data for this game."
-        ) PlayerParticipationDTO[] participants
+        ) PlayerParticipationDTO[] participants,
+        @Schema(
+                description = "List of player ids that acted as storytellers for this game.",
+                example = "[4, 5]"
+        ) Long[] storytellerIds
 ) implements Validateable {
 
     @Override
@@ -67,7 +72,8 @@ public record GameCreationRequestDTO(
                         new EitherFieldRequiredCheck.Field("winningAlignment", winningAlignment),
                         new EitherFieldRequiredCheck.Field("winningPlayerIds", winningPlayerIds)
                 ),
-                this::checkWinningPlayerIdsValid
+                this::checkWinningPlayerIdsValid,
+                this::checkStorytellerIdsValid
         ).validate();
     }
 
@@ -122,6 +128,23 @@ public record GameCreationRequestDTO(
         return array.length != Arrays.stream(array).distinct().count();
     }
 
+    private ValidationResult checkStorytellerIdsValid() {
+        if (storytellerIds == null) {
+            return ValidationResult.valid();
+        }
+
+        if (Arrays.stream(storytellerIds)
+                .anyMatch(Objects::isNull)) {
+            return ValidationResult.invalid("Storyteller ids must not contain null values.");
+        }
+
+        if (containsDuplicates(storytellerIds)) {
+            return ValidationResult.invalid("The same player cannot be a storyteller multiple times in the same game.");
+        }
+
+        return ValidationResult.valid();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -131,13 +154,14 @@ public record GameCreationRequestDTO(
         return Objects.equals(scriptId, that.scriptId) && Objects.equals(description, that.description)
                 && winningAlignment == that.winningAlignment && Objects.deepEquals(winningPlayerIds,
                 that.winningPlayerIds)
-                && Objects.deepEquals(participants, that.participants) && Objects.equals(name, that.name);
+                && Objects.deepEquals(participants, that.participants) && Objects.equals(name, that.name)
+                && Objects.deepEquals(storytellerIds, that.storytellerIds);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(scriptId, description, winningAlignment, Arrays.hashCode(winningPlayerIds),
-                Arrays.hashCode(participants), name);
+                Arrays.hashCode(participants), name, Arrays.hashCode(storytellerIds));
     }
 
     @Override
@@ -149,6 +173,7 @@ public record GameCreationRequestDTO(
                 + ", winningPlayerIds=" + Arrays.toString(winningPlayerIds)
                 + ", participants=" + Arrays.toString(participants)
                 + ", name='" + name + '\''
+                + ", storytellerIds=" + Arrays.toString(storytellerIds)
                 + '}';
     }
 }

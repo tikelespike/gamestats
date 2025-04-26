@@ -3,6 +3,7 @@ package com.tikelespike.gamestats.businesslogic.services;
 import com.tikelespike.gamestats.businesslogic.entities.Alignment;
 import com.tikelespike.gamestats.businesslogic.entities.Game;
 import com.tikelespike.gamestats.businesslogic.entities.GameCreationRequest;
+import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.PlayerParticipation;
 import com.tikelespike.gamestats.businesslogic.exceptions.RelatedResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
@@ -96,6 +97,14 @@ public class GameService {
             verifyParticipationResourcesExist(participation);
         }
 
+        // Verify storytellers exist
+        for (Player storyteller : request.storytellers()) {
+            if (storyteller != null && playerRepository.findById(storyteller.getId()) == null) {
+                throw new RelatedResourceNotFoundException(
+                        "Storyteller with id " + storyteller.getId() + " does not exist");
+            }
+        }
+
         GameEntity savedEntity = gameRepository.save(new GameEntity(
                 null,
                 null,
@@ -105,7 +114,8 @@ public class GameService {
                 request.participants().stream().map(playerParticipationMapper::toTransferObject).toList(),
                 request.winningAlignment() != null ? null
                         : request.winningPlayers().stream().map(playerMapper::toTransferObject).toList(),
-                request.name()
+                request.name(),
+                request.storytellers().stream().map(playerMapper::toTransferObject).toList()
         ));
         return gameMapper.toBusinessObject(savedEntity);
     }

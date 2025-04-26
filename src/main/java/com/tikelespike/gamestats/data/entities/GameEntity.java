@@ -59,6 +59,20 @@ public class GameEntity extends AbstractEntity {
     )
     private List<PlayerEntity> winningPlayers;
 
+    @OneToMany(fetch = EAGER)
+    @JoinTable(
+            name = "game_storytellers",
+            joinColumns = @JoinColumn(name = "game_id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "player_id",
+                    foreignKey = @ForeignKey(
+                            foreignKeyDefinition = "FOREIGN KEY (player_id) REFERENCES players(id) "
+                                    + "ON DELETE CASCADE"
+                    )
+            )
+    )
+    private List<PlayerEntity> storytellers;
+
     /**
      * Creates a new game entity with uninitialized fields. This constructor is used by the JPA provider to create a new
      * instance of this entity from the database.
@@ -77,9 +91,11 @@ public class GameEntity extends AbstractEntity {
      * @param participants the list of player participations in this game
      * @param winningPlayers the list of players that won the game, if not defined by their alignment
      * @param name human-readable name of this game (may not be null)
+     * @param storytellers the list of players that acted as storytellers for this game
      */
     public GameEntity(Long id, Long version, ScriptEntity script, AlignmentEntity winningAlignment, String description,
-                      List<PlayerParticipationEntity> participants, List<PlayerEntity> winningPlayers, String name) {
+                      List<PlayerParticipationEntity> participants, List<PlayerEntity> winningPlayers, String name,
+                      List<PlayerEntity> storytellers) {
         super(id, version);
         this.script = script;
         this.winningAlignment = winningAlignment;
@@ -87,6 +103,7 @@ public class GameEntity extends AbstractEntity {
         setParticipants(participants);
         this.winningPlayers = winningPlayers;
         this.name = name;
+        this.storytellers = storytellers;
     }
 
     /**
@@ -182,6 +199,24 @@ public class GameEntity extends AbstractEntity {
      */
     public void setWinningPlayers(List<PlayerEntity> winningPlayers) {
         this.winningPlayers = winningPlayers;
+    }
+
+    /**
+     * Returns the list of players that acted as storytellers for this game.
+     *
+     * @return the list of storytellers for this game
+     */
+    public List<PlayerEntity> getStorytellers() {
+        return storytellers;
+    }
+
+    /**
+     * Sets the list of players that acted as storytellers for this game.
+     *
+     * @param storytellers the list of storytellers for this game
+     */
+    protected void setStorytellers(List<PlayerEntity> storytellers) {
+        this.storytellers = storytellers;
     }
 
     /**

@@ -21,6 +21,7 @@ public class Game implements HasId, HasVersion {
     private String description;
     private List<Player> winningPlayers;
     private String name;
+    private List<Player> storytellers;
 
     /**
      * Creates a new game with the given data, assuming that the game was won by either all good-aligned or all
@@ -34,9 +35,11 @@ public class Game implements HasId, HasVersion {
      * @param winningAlignment the alignment that won the game (may not be null)
      * @param description a free-form optional description of this game
      * @param name human-readable name of this game (may not be null)
+     * @param storytellers list of players that acted as storytellers for this game (may not contain
+     *         duplicates)
      */
     public Game(Long id, Long version, List<PlayerParticipation> participants, Script script,
-                Alignment winningAlignment, String description, String name) {
+                Alignment winningAlignment, String description, String name, List<Player> storytellers) {
         this.id = id;
         this.version = version;
         setParticipants(participants);
@@ -44,13 +47,14 @@ public class Game implements HasId, HasVersion {
         setWinningAlignment(winningAlignment);
         setDescription(description);
         setName(name);
+        setStorytellers(storytellers != null ? storytellers : new ArrayList<>());
     }
 
     /**
      * Creates a new game with the given data, assuming that the winning team is not defined by its alignment, but by a
      * more complex situation (for example due to characters like the politician which potentially wins the game alone).
      * If the winning players are simply all players of one of the two alignments in the game, use
-     * {@link #Game(Long, Long, List, Script, Alignment, String, String)} instead.
+     * {@link #Game(Long, Long, List, Script, Alignment, String, String, List)} instead.
      *
      * @param id unique identifier of this game
      * @param version version counter for optimistic locking
@@ -61,9 +65,11 @@ public class Game implements HasId, HasVersion {
      * @param winningPlayers a list of all players that won this game (may not be null and may not contain
      *         non-participating players)
      * @param name human-readable name of this game (may not be null)
+     * @param storytellers list of players that acted as storytellers for this game (may not contain
+     *         duplicates)
      */
     public Game(Long id, Long version, List<PlayerParticipation> participants, Script script, String description,
-                List<Player> winningPlayers, String name) {
+                List<Player> winningPlayers, String name, List<Player> storytellers) {
         this.id = id;
         this.version = version;
         setParticipants(participants);
@@ -71,6 +77,7 @@ public class Game implements HasId, HasVersion {
         setDescription(description);
         setWinningPlayers(winningPlayers);
         setName(name);
+        setStorytellers(storytellers != null ? storytellers : new ArrayList<>());
     }
 
     @Override
@@ -243,6 +250,28 @@ public class Game implements HasId, HasVersion {
         this.name = Objects.requireNonNull(name, "Game name may not be null");
     }
 
+    /**
+     * Returns the list of players that acted as storytellers for this game.
+     *
+     * @return the list of storytellers for this game
+     */
+    public List<Player> getStorytellers() {
+        return new ArrayList<>(storytellers);
+    }
+
+    /**
+     * Sets the list of players that acted as storytellers for this game.
+     *
+     * @param storytellers the list of storytellers for this game (may not contain duplicates)
+     */
+    public void setStorytellers(List<Player> storytellers) {
+        if (containsDuplicates(storytellers.stream().map(Player::getId).toList())) {
+            throw new IllegalArgumentException(
+                    "The same player cannot be a storyteller multiple times in the same game.");
+        }
+        this.storytellers = new ArrayList<>(storytellers);
+    }
+
     private <T> boolean containsDuplicates(Collection<T> collection) {
         return new HashSet<>(collection).size() != collection.size();
     }
@@ -257,11 +286,12 @@ public class Game implements HasId, HasVersion {
                 && Objects.equals(participants, game.participants) && Objects.equals(script,
                 game.script) && winningAlignment == game.winningAlignment && Objects.equals(description,
                 game.description) && Objects.equals(winningPlayers, game.winningPlayers)
-                && Objects.equals(name, game.name);
+                && Objects.equals(name, game.name) && Objects.equals(storytellers, game.storytellers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, version, participants, script, winningAlignment, description, winningPlayers, name);
+        return Objects.hash(id, version, participants, script, winningAlignment, description, winningPlayers, name,
+                storytellers);
     }
 }

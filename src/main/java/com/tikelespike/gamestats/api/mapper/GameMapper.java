@@ -58,6 +58,17 @@ public class GameMapper extends Mapper<Game, GameDTO> {
         List<PlayerParticipation> participations =
                 Arrays.stream(transferObject.participants()).map(playerParticipationMapper::toBusinessObject).toList();
 
+        List<Player> storytellers = new ArrayList<>();
+        if (transferObject.storytellerIds() != null) {
+            for (Long playerId : transferObject.storytellerIds()) {
+                Player player = playerService.getPlayerById(playerId);
+                if (player == null) {
+                    throw new RelatedResourceNotFoundException("Player with id " + playerId + " not found");
+                }
+                storytellers.add(player);
+            }
+        }
+
         if (transferObject.winningAlignment() != null) {
             return new Game(
                     transferObject.id(),
@@ -66,7 +77,8 @@ public class GameMapper extends Mapper<Game, GameDTO> {
                     script,
                     alignmentMapper.toBusinessObject(transferObject.winningAlignment()),
                     transferObject.description(),
-                    transferObject.name()
+                    transferObject.name(),
+                    storytellers
             );
         }
 
@@ -85,7 +97,8 @@ public class GameMapper extends Mapper<Game, GameDTO> {
                 script,
                 transferObject.description(),
                 winningPlayers,
-                transferObject.name()
+                transferObject.name(),
+                storytellers
         );
     }
 
@@ -97,6 +110,9 @@ public class GameMapper extends Mapper<Game, GameDTO> {
         Long[] winningPlayerIds = businessObject.getWinningPlayers() == null ? null
                 : businessObject.getWinningPlayers().stream().map(Player::getId).toArray(Long[]::new);
 
+        Long[] storytellerIds = businessObject.getStorytellers() == null ? null
+                : businessObject.getStorytellers().stream().map(Player::getId).toArray(Long[]::new);
+
         return new GameDTO(
                 businessObject.getId(),
                 businessObject.getVersion(),
@@ -105,7 +121,8 @@ public class GameMapper extends Mapper<Game, GameDTO> {
                 businessObject.getScript().getId(),
                 alignmentMapper.toTransferObject(businessObject.getWinningAlignment()),
                 winningPlayerIds,
-                participationDTOs
+                participationDTOs,
+                storytellerIds
         );
     }
 }
