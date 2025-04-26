@@ -118,10 +118,10 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
                 businessObject.name(),
                 businessObject.description(),
                 businessObject.script().getId(),
+                storytellerIds,
                 alignmentMapper.toTransferObject(businessObject.winningAlignment()),
                 winningPlayerIds,
-                participationDTOs,
-                storytellerIds
+                participationDTOs
         );
     }
 }

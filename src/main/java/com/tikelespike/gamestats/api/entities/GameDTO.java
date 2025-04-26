@@ -55,6 +55,10 @@ public record GameDTO(
                 example = "5"
         ) Long scriptId,
         @Schema(
+                description = "List of player ids that acted as storytellers for this game.",
+                example = "[4, 5]"
+        ) Long[] storytellerIds,
+        @Schema(
                 description = "The alignment that won the game. Either this or winningPlayerIds must be set.",
                 example = "good"
         ) AlignmentDTO winningAlignment,
@@ -65,11 +69,7 @@ public record GameDTO(
         ) Long[] winningPlayerIds,
         @Schema(
                 description = "List of players and their game-specific data for this game."
-        ) PlayerParticipationDTO[] participants,
-        @Schema(
-                description = "List of player ids that acted as storytellers for this game.",
-                example = "[4, 5]"
-        ) Long[] storytellerIds
+        ) PlayerParticipationDTO[] participants
 ) {
     /**
      * Validates this DTO in the context of updating a game.

@@ -119,10 +119,10 @@ public class GameMapper extends Mapper<Game, GameDTO> {
                 businessObject.getName(),
                 businessObject.getDescription(),
                 businessObject.getScript().getId(),
+                storytellerIds,
                 alignmentMapper.toTransferObject(businessObject.getWinningAlignment()),
                 winningPlayerIds,
-                participationDTOs,
-                storytellerIds
+                participationDTOs
         );
     }
 }
