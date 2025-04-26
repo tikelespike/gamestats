@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameTest {
 
-    private static final long ID_3 = 3L;
+    private static final long NUMBER_3 = 3L; // crude checkstyle magic number bypass
     private Player player1;
     private Player player2;
     private Player player3;
@@ -34,11 +34,11 @@ class GameTest {
         player1 = new Player(0L, 0L, "Player1", null);
         player2 = new Player(1L, 0L, "Player2", null);
         player3 = new Player(2L, 0L, "Player3", null);
-        player4 = new Player(ID_3, 0L, "Player4", null);
+        player4 = new Player(NUMBER_3, 0L, "Player4", null);
 
         character1 = new Character(1L, 1L, "Character1", CharacterType.TOWNSFOLK);
         character2 = new Character(2L, 1L, "Character2", CharacterType.MINION);
-        character3 = new Character(ID_3, 1L, "Character3", CharacterType.TOWNSFOLK);
+        character3 = new Character(NUMBER_3, 1L, "Character3", CharacterType.TOWNSFOLK);
 
         script = new Script(1L, 1L, null, "Test Script", "Test Description",
                 new HashSet<>(Arrays.asList(character1, character2, character3)));
@@ -207,5 +207,64 @@ class GameTest {
         assertEquals(game1.hashCode(), game2.hashCode());
         assertNotEquals(game1, game3);
         assertNotEquals(game1.hashCode(), game3.hashCode());
+    }
+
+    @Test
+    void testDuplicateStorytellers() {
+        List<Player> duplicateStorytellers = Arrays.asList(player4, player4);
+        assertThrows(IllegalArgumentException.class, () ->
+                new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name",
+                        duplicateStorytellers)
+        );
+    }
+
+    @Test
+    void testSetStorytellers() {
+        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name",
+                List.of(player4));
+        List<Player> newStorytellers = Arrays.asList(player1, player2);
+        game.setStorytellers(newStorytellers);
+        assertEquals(newStorytellers, game.getStorytellers());
+    }
+
+    @Test
+    void testSetDuplicateStorytellers() {
+        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name",
+                List.of(player4));
+        List<Player> duplicateStorytellers = Arrays.asList(player1, player1);
+        assertThrows(IllegalArgumentException.class, () -> game.setStorytellers(duplicateStorytellers));
+    }
+
+    @Test
+    void testNullStorytellers() {
+        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name", null);
+        assertNotNull(game.getStorytellers());
+        assertTrue(game.getStorytellers().isEmpty());
+    }
+
+    @Test
+    void testEmptyStorytellers() {
+        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name",
+                new ArrayList<>());
+        assertNotNull(game.getStorytellers());
+        assertTrue(game.getStorytellers().isEmpty());
+    }
+
+    @Test
+    void testMultipleStorytellers() {
+        List<Player> storytellers = Arrays.asList(player1, player2, player4);
+        Game game = new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name",
+                storytellers);
+        assertEquals(NUMBER_3, game.getStorytellers().size());
+        assertTrue(game.getStorytellers().containsAll(storytellers));
+    }
+
+    @Test
+    void testNullStorytellersEntry() {
+        List<Player> storytellersWithNull = Arrays.asList(player1, null, player4);
+        assertThrows(NullPointerException.class, () ->
+                new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name",
+                        storytellersWithNull)
+        );
     }
 }

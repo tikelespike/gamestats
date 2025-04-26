@@ -68,6 +68,10 @@ public record GameCreationRequest(
             throw new IllegalArgumentException(
                     "The same player cannot be a storyteller multiple times in the same game.");
         }
+        if (this.storytellers.stream()
+                .anyMatch(Objects::isNull)) {
+            throw new IllegalArgumentException("Storytellers may not contain null values.");
+        }
     }
 
     private <T> boolean containsDuplicates(Collection<T> collection) {

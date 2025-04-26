@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -416,6 +417,123 @@ class GameServiceTest {
         assertNull(createdGame.getParticipants().getFirst().getInitialAlignment());
         assertNull(createdGame.getParticipants().getFirst().getEndCharacter());
         assertNull(createdGame.getParticipants().getFirst().getEndAlignment());
+    }
+
+    @Test
+    void testCreateGameWithNonExistentStoryteller() {
+        // Setup
+        Script script = addTestScript("testCreateGameWithNonExistentStoryteller");
+        Player player = addTestPlayer("testCreateGameWithNonExistentStoryteller");
+        Character character = addTestCharacter("testCreateGameWithNonExistentStoryteller");
+        Player nonExistentStoryteller = new Player(NON_EXISTENT_ID, 1L, "Non-existent", null);
+
+        PlayerParticipation participation = new PlayerParticipation(
+                player,
+                character,
+                true
+        );
+
+        GameCreationRequest request = new GameCreationRequest(
+                script,
+                List.of(participation),
+                Alignment.GOOD,
+                "Test game description",
+                null,
+                "Test game name",
+                List.of(nonExistentStoryteller)
+        );
+
+        // Execute & Verify
+        assertThrows(RelatedResourceNotFoundException.class, () -> gameService.createGame(request));
+    }
+
+    @Test
+    void testCreateGameWithMultipleStorytellers() {
+        // Setup
+        Script script = addTestScript("testCreateGameWithMultipleStorytellers");
+        Player player1 = addTestPlayer("testCreateGameWithMultipleStorytellers_1");
+        Player player2 = addTestPlayer("testCreateGameWithMultipleStorytellers_2");
+        Player storyteller1 = addTestPlayer("testCreateGameWithMultipleStorytellers_st1");
+        Player storyteller2 = addTestPlayer("testCreateGameWithMultipleStorytellers_st2");
+        Character character = addTestCharacter("testCreateGameWithMultipleStorytellers");
+
+        PlayerParticipation participation1 = new PlayerParticipation(
+                player1,
+                character,
+                true
+        );
+        PlayerParticipation participation2 = new PlayerParticipation(
+                player2,
+                character,
+                true
+        );
+
+        List<Player> storytellers = Arrays.asList(storyteller1, storyteller2);
+        GameCreationRequest request = new GameCreationRequest(
+                script,
+                List.of(participation1, participation2),
+                Alignment.GOOD,
+                "Test game description",
+                null,
+                "Test game name",
+                storytellers
+        );
+
+        // Execute
+        Game createdGame = gameService.createGame(request);
+
+        // Verify
+        assertNotNull(createdGame);
+        assertEquals(2, createdGame.getStorytellers().size());
+        assertTrue(createdGame.getStorytellers().containsAll(storytellers));
+    }
+
+    @Test
+    void testCreateGameWithParticipantAsStoryteller() {
+        // Setup
+        Script script = addTestScript("testCreateGameWithParticipantAsStoryteller");
+        Player player = addTestPlayer("testCreateGameWithParticipantAsStoryteller");
+        Character character = addTestCharacter("testCreateGameWithParticipantAsStoryteller");
+
+        PlayerParticipation participation = new PlayerParticipation(
+                player,
+                character,
+                true
+        );
+
+        GameCreationRequest request = new GameCreationRequest(
+                script,
+                List.of(participation),
+                Alignment.GOOD,
+                "Test game description",
+                null,
+                "Test game name",
+                List.of(player)  // Using the same player as both participant and storyteller
+        );
+
+        // Execute
+        Game createdGame = gameService.createGame(request);
+
+        // Verify
+        assertNotNull(createdGame);
+        assertEquals(1, createdGame.getStorytellers().size());
+        assertEquals(player, createdGame.getStorytellers().getFirst());
+    }
+
+    @Test
+    void testUpdateGameStorytellers() throws StaleDataException {
+        // Setup
+        Game game = addTestGame("testUpdateGameStorytellers");
+        Player newStoryteller = addTestPlayer("testUpdateGameStorytellers_st");
+        game.setStorytellers(List.of(newStoryteller));
+
+        // Execute
+        Game updatedGame = gameService.updateGame(game);
+
+        // Verify
+        assertNotNull(updatedGame);
+        assertEquals(1, updatedGame.getStorytellers().size());
+        assertEquals(newStoryteller, updatedGame.getStorytellers().getFirst());
     }
 
     private Game addTestGame(String testName) {

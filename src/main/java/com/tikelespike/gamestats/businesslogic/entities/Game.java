@@ -269,6 +269,10 @@ public class Game implements HasId, HasVersion {
             throw new IllegalArgumentException(
                     "The same player cannot be a storyteller multiple times in the same game.");
         }
+        if (storytellers.stream()
+                .anyMatch(Objects::isNull)) {
+            throw new NullPointerException("Storytellers may not contain null values.");
+        }
         this.storytellers = new ArrayList<>(storytellers);
     }
 

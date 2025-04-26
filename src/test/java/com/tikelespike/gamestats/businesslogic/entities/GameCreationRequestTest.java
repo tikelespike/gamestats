@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GameCreationRequestTest {
 
-    private static final long ID_3 = 3L;
+    private static final long NUMBER_3 = 3L; // crude checkstyle magic number bypass
     private Player player1;
     private Player player2;
     private Player player3;
@@ -31,11 +31,11 @@ class GameCreationRequestTest {
         player1 = new Player(0L, 0L, "Player1", null);
         player2 = new Player(1L, 0L, "Player2", null);
         player3 = new Player(2L, 0L, "Player3", null);
-        player4 = new Player(ID_3, 0L, "Player4", null);
+        player4 = new Player(NUMBER_3, 0L, "Player4", null);
 
         character1 = new Character(1L, 1L, "Character1", CharacterType.TOWNSFOLK);
         character2 = new Character(2L, 1L, "Character2", CharacterType.MINION);
-        character3 = new Character(ID_3, 1L, "Character3", CharacterType.TOWNSFOLK);
+        character3 = new Character(NUMBER_3, 1L, "Character3", CharacterType.TOWNSFOLK);
 
         script = new Script(1L, 1L, null, "Test Script", "Test Description",
                 new HashSet<>(Arrays.asList(character1, character2, character3)));
@@ -174,5 +174,48 @@ class GameCreationRequestTest {
         assertNull(request.participants().getFirst().getEndAlignment());
         assertEquals(player2, request.participants().get(1).getPlayer());
         assertEquals(character2, request.participants().get(1).getInitialCharacter());
+    }
+
+    @Test
+    void testDuplicateStorytellers() {
+        List<Player> duplicateStorytellers = Arrays.asList(player4, player4);
+        assertThrows(IllegalArgumentException.class, () ->
+                new GameCreationRequest(script, participants, Alignment.GOOD, "Test game", null, "Test game name",
+                        duplicateStorytellers)
+        );
+    }
+
+    @Test
+    void testNullStorytellers() {
+        GameCreationRequest request = new GameCreationRequest(script, participants, Alignment.GOOD, "Test game", null,
+                "Test game name", null);
+        assertNotNull(request.storytellers());
+        assertEquals(0, request.storytellers().size());
+    }
+
+    @Test
+    void testEmptyStorytellers() {
+        GameCreationRequest request = new GameCreationRequest(script, participants, Alignment.GOOD, "Test game", null,
+                "Test game name", new ArrayList<>());
+        assertNotNull(request.storytellers());
+        assertEquals(0, request.storytellers().size());
+    }
+
+    @Test
+    void testMultipleStorytellers() {
+        List<Player> storytellers = Arrays.asList(player1, player2, player4);
+        GameCreationRequest request = new GameCreationRequest(script, participants, Alignment.GOOD, "Test game", null,
+                "Test game name", storytellers);
+        assertEquals(NUMBER_3, request.storytellers().size());
+        assertEquals(storytellers, request.storytellers());
+    }
+
+    @Test
+    void testNullStorytellersEntry() {
+        List<Player> storytellersWithNull = Arrays.asList(player1, null, player4);
+        assertThrows(NullPointerException.class, () ->
+                new GameCreationRequest(script, participants, Alignment.GOOD, "Test game", null, "Test game name",
+                        storytellersWithNull)
+        );
     }
 }
