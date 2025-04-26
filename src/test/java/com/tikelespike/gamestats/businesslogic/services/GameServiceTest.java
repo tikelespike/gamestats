@@ -63,7 +63,8 @@ class GameServiceTest {
                 Alignment.GOOD,
                 "Test game description",
                 null,
-                "Test game name"
+                "Test game name",
+                List.of(player)
         );
 
         // Execute
@@ -79,6 +80,8 @@ class GameServiceTest {
         assertEquals(character, createdGame.getParticipants().getFirst().getInitialCharacter());
         assertEquals(Alignment.GOOD, createdGame.getParticipants().getFirst().getInitialAlignment());
         assertEquals(1, createdGame.getWinningPlayers().size());
+        assertEquals(1, createdGame.getStorytellers().size());
+        assertEquals(player, createdGame.getStorytellers().getFirst());
     }
 
     @Test
@@ -109,7 +112,8 @@ class GameServiceTest {
                 null,
                 "Test game description",
                 List.of(player1),
-                "Test game name"
+                "Test game name",
+                List.of(player1)
         );
 
         // Execute
@@ -150,7 +154,8 @@ class GameServiceTest {
                 Alignment.GOOD,
                 "Test game description",
                 null,
-                "Test game name"
+                "Test game name",
+                List.of()
         );
 
         // Execute & Verify
@@ -177,7 +182,8 @@ class GameServiceTest {
                 Alignment.GOOD,
                 "Test game description",
                 null,
-                "Test game name"
+                "Test game name",
+                List.of()
         );
 
         // Execute & Verify
@@ -203,7 +209,8 @@ class GameServiceTest {
                 Alignment.GOOD,
                 "Test game description",
                 null,
-                "Test game name"
+                "Test game name",
+                List.of()
         );
 
         // Execute & Verify
@@ -266,7 +273,7 @@ class GameServiceTest {
     void testUpdateGameNonExistent() {
         Game nonExistentGame =
                 new Game(NON_EXISTENT_ID, 1L, List.of(), addTestScript("testUpdateGameNonExistent"), Alignment.GOOD,
-                        "Test", "Test");
+                        "Test", "Test", List.of());
         assertThrows(ResourceNotFoundException.class, () -> gameService.updateGame(nonExistentGame));
     }
 
@@ -318,7 +325,8 @@ class GameServiceTest {
                 Alignment.GOOD,
                 "Test game description",
                 null,
-                "Test game name"
+                "Test game name",
+                List.of()
         );
 
         // Execute
@@ -353,7 +361,8 @@ class GameServiceTest {
                 Alignment.GOOD,
                 "Test game description",
                 null,
-                "Test game name"
+                "Test game name",
+                List.of()
         );
 
         // Execute
@@ -389,7 +398,8 @@ class GameServiceTest {
                 Alignment.GOOD,
                 "Test game description",
                 null,
-                "Test game name"
+                "Test game name",
+                List.of()
         );
 
         // Execute
@@ -425,7 +435,8 @@ class GameServiceTest {
                 Alignment.GOOD,
                 "Test game description for " + testName,
                 null,
-                "Test game name for " + testName
+                "Test game name for " + testName,
+                List.of()
         );
 
         return gameService.createGame(request);

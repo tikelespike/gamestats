@@ -19,6 +19,7 @@ class GameCreationRequestTest {
     private Player player1;
     private Player player2;
     private Player player3;
+    private Player player4;
     private Script script;
     private List<PlayerParticipation> participants;
     private Character character1;
@@ -30,6 +31,7 @@ class GameCreationRequestTest {
         player1 = new Player(0L, 0L, "Player1", null);
         player2 = new Player(1L, 0L, "Player2", null);
         player3 = new Player(2L, 0L, "Player3", null);
+        player4 = new Player(ID_3, 0L, "Player4", null);
 
         character1 = new Character(1L, 1L, "Character1", CharacterType.TOWNSFOLK);
         character2 = new Character(2L, 1L, "Character2", CharacterType.MINION);
@@ -48,7 +50,8 @@ class GameCreationRequestTest {
     @Test
     void testCreateWithWinningAlignment() {
         GameCreationRequest request =
-                new GameCreationRequest(script, participants, Alignment.GOOD, "Test game", null, "Test game name");
+                new GameCreationRequest(script, participants, Alignment.GOOD, "Test game", null, "Test game name",
+                        List.of(player4));
         assertNotNull(request);
         assertEquals(script, request.script());
         assertEquals(participants, request.participants());
@@ -61,7 +64,8 @@ class GameCreationRequestTest {
     void testCreateWithWinningPlayers() {
         List<Player> winners = List.of(player1, player3);
         GameCreationRequest request =
-                new GameCreationRequest(script, participants, null, "Test game", winners, "Test game name");
+                new GameCreationRequest(script, participants, null, "Test game", winners, "Test game name",
+                        List.of(player4));
         assertNotNull(request);
         assertEquals(script, request.script());
         assertEquals(participants, request.participants());
@@ -73,7 +77,8 @@ class GameCreationRequestTest {
     @Test
     void testNullScript() {
         assertThrows(NullPointerException.class, () ->
-                new GameCreationRequest(null, participants, Alignment.GOOD, "Test game", null, "Test game name")
+                new GameCreationRequest(null, participants, Alignment.GOOD, "Test game", null, "Test game name",
+                        List.of(player4))
         );
     }
 
@@ -84,7 +89,7 @@ class GameCreationRequestTest {
 
         assertThrows(IllegalArgumentException.class, () ->
                 new GameCreationRequest(script, duplicateParticipants, Alignment.GOOD, "Test game", null,
-                        "Test game name")
+                        "Test game name", List.of(player4))
         );
     }
 
@@ -94,14 +99,16 @@ class GameCreationRequestTest {
         List<Player> invalidWinners = List.of(player1, outsidePlayer);
 
         assertThrows(IllegalArgumentException.class, () ->
-                new GameCreationRequest(script, participants, null, "Test game", invalidWinners, "Test game name")
+                new GameCreationRequest(script, participants, null, "Test game", invalidWinners, "Test game name",
+                        List.of(player4))
         );
     }
 
     @Test
     void testNullWinningPlayersWhenAlignmentIsNull() {
         assertThrows(NullPointerException.class, () ->
-                new GameCreationRequest(script, participants, null, "Test game", null, "Test game name")
+                new GameCreationRequest(script, participants, null, "Test game", null, "Test game name",
+                        List.of(player4))
         );
     }
 
@@ -109,7 +116,8 @@ class GameCreationRequestTest {
     void testWinningPlayersIgnoredWhenAlignmentSet() {
         List<Player> winners = List.of(player1, player2);
         GameCreationRequest request =
-                new GameCreationRequest(script, participants, Alignment.GOOD, "Test game", winners, "Test game name");
+                new GameCreationRequest(script, participants, Alignment.GOOD, "Test game", winners, "Test game name",
+                        List.of(player4));
         assertNotNull(request);
         assertEquals(Alignment.GOOD, request.winningAlignment());
         assertNull(request.winningPlayers());
@@ -123,7 +131,7 @@ class GameCreationRequestTest {
         );
 
         GameCreationRequest request = new GameCreationRequest(script, participationsWithNullPlayer, Alignment.GOOD,
-                "Test game", null, "Test game name");
+                "Test game", null, "Test game name", List.of(player4));
         assertNotNull(request);
         assertEquals(2, request.participants().size());
         assertNull(request.participants().getFirst().getPlayer());
@@ -138,7 +146,7 @@ class GameCreationRequestTest {
         );
 
         GameCreationRequest request = new GameCreationRequest(script, participationsWithNullCharacter, Alignment.GOOD,
-                "Test game", null, "Test game name");
+                "Test game", null, "Test game name", List.of(player4));
         assertNotNull(request);
         assertEquals(2, request.participants().size());
         assertNull(request.participants().getFirst().getInitialCharacter());
@@ -156,7 +164,7 @@ class GameCreationRequestTest {
         );
 
         GameCreationRequest request = new GameCreationRequest(script, participationsWithNulls, Alignment.GOOD,
-                "Test game", null, "Test game name");
+                "Test game", null, "Test game name", List.of(player4));
         assertNotNull(request);
         assertEquals(2, request.participants().size());
         assertNull(request.participants().getFirst().getPlayer());
