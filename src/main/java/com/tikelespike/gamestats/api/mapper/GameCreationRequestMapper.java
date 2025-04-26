@@ -60,6 +60,17 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
         List<PlayerParticipation> participations =
                 Arrays.stream(transferObject.participants()).map(playerParticipationMapper::toBusinessObject).toList();
 
+        List<Player> storytellers = new ArrayList<>();
+        if (transferObject.storytellerIds() != null) {
+            for (Long playerId : transferObject.storytellerIds()) {
+                Player player = playerService.getPlayerById(playerId);
+                if (player == null) {
+                    throw new RelatedResourceNotFoundException("Player with id " + playerId + " not found");
+                }
+                storytellers.add(player);
+            }
+        }
+
         if (transferObject.winningAlignment() != null) {
             return new GameCreationRequest(
                     script,
@@ -67,7 +78,8 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
                     alignmentMapper.toBusinessObject(transferObject.winningAlignment()),
                     transferObject.description(),
                     null,
-                    transferObject.name()
+                    transferObject.name(),
+                    storytellers
             );
         }
 
@@ -85,7 +97,8 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
                 null,
                 transferObject.description(),
                 winningPlayers,
-                transferObject.name()
+                transferObject.name(),
+                storytellers
         );
     }
 
@@ -97,13 +110,18 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
         Long[] winningPlayerIds = businessObject.winningPlayers() == null ? null
                 : businessObject.winningPlayers().stream().map(Player::getId).toArray(Long[]::new);
 
+        Long[] storytellerIds = businessObject.storytellers() == null ? null
+                : businessObject.storytellers().stream().map(Player::getId).toArray(Long[]::new);
+
+
         return new GameCreationRequestDTO(
                 businessObject.name(),
                 businessObject.description(),
                 businessObject.script().getId(),
                 alignmentMapper.toTransferObject(businessObject.winningAlignment()),
                 winningPlayerIds,
-                participationDTOs
+                participationDTOs,
+                storytellerIds
         );
     }
 }
