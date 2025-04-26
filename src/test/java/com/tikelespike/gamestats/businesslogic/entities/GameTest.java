@@ -89,9 +89,9 @@ class GameTest {
 
     @Test
     void testNullScript() {
-        assertThrows(NullPointerException.class, () ->
-                new Game(1L, 1L, participants, null, Alignment.GOOD, "Test game", "Test game name", List.of(player4))
-        );
+        Game game =
+                new Game(1L, 1L, participants, null, Alignment.GOOD, "Test game", "Test game name", List.of(player4));
+        assertNull(game.getScript());
     }
 
     @Test

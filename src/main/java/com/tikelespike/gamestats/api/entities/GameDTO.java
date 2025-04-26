@@ -83,7 +83,6 @@ public record GameDTO(
                 new RequiredFieldCheck("id", id),
                 new MatchingIdCheck(pathId, id),
                 new RequiredFieldCheck("version", version),
-                new RequiredFieldCheck("scriptId", scriptId),
                 new RequiredFieldCheck("participants", participants),
                 new RequiredFieldCheck("name", name),
                 this::checkAllParticipationsValid,

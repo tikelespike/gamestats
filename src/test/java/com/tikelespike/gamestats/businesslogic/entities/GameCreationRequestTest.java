@@ -76,10 +76,10 @@ class GameCreationRequestTest {
 
     @Test
     void testNullScript() {
-        assertThrows(NullPointerException.class, () ->
+        GameCreationRequest gameCreationRequest =
                 new GameCreationRequest(null, participants, Alignment.GOOD, "Test game", null, "Test game name",
-                        List.of(player4))
-        );
+                        List.of(player4));
+        assertNull(gameCreationRequest.script());
     }
 
     @Test

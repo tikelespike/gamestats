@@ -63,7 +63,6 @@ public record GameCreationRequestDTO(
     @Override
     public ValidationResult validate() {
         return new ValidationChain(
-                new RequiredFieldCheck("scriptId", scriptId),
                 new RequiredFieldCheck("participants", participants),
                 new RequiredFieldCheck("name", name),
                 this::checkAllParticipationsValid,

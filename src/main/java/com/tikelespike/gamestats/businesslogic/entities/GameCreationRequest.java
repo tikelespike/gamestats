@@ -31,7 +31,7 @@ public record GameCreationRequest(
     /**
      * Creates a new game creation request.
      *
-     * @param script the script (list of available characters) used in the game (may not be null)
+     * @param script the script (list of available characters) used in the game
      * @param participants list containing players and their game-specific data (may not contain the same player
      *         twice or be null)
      * @param winningAlignment the alignment that won the game
@@ -45,7 +45,7 @@ public record GameCreationRequest(
     public GameCreationRequest(Script script, List<PlayerParticipation> participants, Alignment winningAlignment,
                                String description, List<Player> winningPlayers, String name,
                                List<Player> storytellers) {
-        this.script = Objects.requireNonNull(script);
+        this.script = script;
         this.participants = participants;
         List<Long> playerIds = participants.stream()
                 .map(PlayerParticipation::getPlayer)

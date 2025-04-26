@@ -138,10 +138,10 @@ public class Game implements HasId, HasVersion {
     /**
      * Sets the script (that is, the list of characters that may appear in this game) that was used in this game.
      *
-     * @param script the script used in this game. May not be null.
+     * @param script the script used in this game
      */
     public void setScript(Script script) {
-        this.script = Objects.requireNonNull(script);
+        this.script = script;
     }
 
     /**

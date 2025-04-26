@@ -4,6 +4,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -11,6 +12,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderColumn;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +27,11 @@ import static jakarta.persistence.FetchType.EAGER;
 public class GameEntity extends AbstractEntity {
 
     @NotNull
-    @ManyToOne(fetch = EAGER)
+    @ManyToOne(
+            fetch = FetchType.EAGER,
+            optional = true
+    )
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private ScriptEntity script;
 
     @Enumerated(EnumType.STRING)
