@@ -1,0 +1,26 @@
+# Gradle build outputs
+build/
+.gradle/
+
+# IDE and editor settings
+.idea/
+*.iml
+.vscode/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Logs, temporary files
+*.log
+*.tmp
+*.swp
+
+# Git stuff
+.git
+.gitignore
+
+# Docker-related files
+Dockerfile
+.dockerignore
+
