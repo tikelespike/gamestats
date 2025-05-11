@@ -1,8 +1,8 @@
 package com.tikelespike.gamestats.api.controllers;
 
 import com.tikelespike.gamestats.api.entities.ErrorEntity;
-import com.tikelespike.gamestats.api.entities.SignUpDTO;
-import com.tikelespike.gamestats.api.mapper.SignupMapper;
+import com.tikelespike.gamestats.api.entities.UserCreationDTO;
+import com.tikelespike.gamestats.api.mapper.UserCreationMapper;
 import com.tikelespike.gamestats.businesslogic.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,18 +30,19 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class UserController {
     private final UserService service;
-    private final SignupMapper signupMapper;
+    private final UserCreationMapper userCreationMapper;
 
     /**
      * Creates a new UserController. This is usually done by the Spring framework, which manages the controller's
      * lifecycle and injects the required dependencies.
      *
      * @param service the authentication service handling sign-up and sign-in
-     * @param signupMapper the mapper for converting between sign-up data transfer objects and business objects
+     * @param userCreationMapper the mapper for converting between sign-up data transfer objects and business
+     *         objects
      */
-    public UserController(UserService service, SignupMapper signupMapper) {
+    public UserController(UserService service, UserCreationMapper userCreationMapper) {
         this.service = service;
-        this.signupMapper = signupMapper;
+        this.userCreationMapper = userCreationMapper;
     }
 
     /**
@@ -80,10 +82,11 @@ public class UserController {
                     content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
             )}
     )
-    @PostMapping("/signup")
-    public ResponseEntity<Object> signUp(
-            @RequestBody @Parameter(description = "Sign-up request details") SignUpDTO data) {
-        service.signUp(signupMapper.toBusinessObject(data));
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping()
+    public ResponseEntity<Object> createUser(
+            @RequestBody @Parameter(description = "User creation request details") UserCreationDTO data) {
+        service.signUp(userCreationMapper.toBusinessObject(data));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
