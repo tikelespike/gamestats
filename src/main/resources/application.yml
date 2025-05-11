@@ -34,11 +34,3 @@ dev:
   delay:
     before: ${DELAY_BEFORE:0}
     after: ${DELAY_AFTER:0}
-
-logging:
-  level:
-    org.springframework.jdbc.datasource: DEBUG
-    org.springframework.jdbc.core: DEBUG
-    org.hibernate.engine.jdbc.env.internal: DEBUG
-    org.hibernate.engine.jdbc.connections.internal: DEBUG
-    org.hibernate.SQL: DEBUG
