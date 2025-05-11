@@ -33,14 +33,14 @@ import org.springframework.web.bind.annotation.RestController;
         name = "User Management",
         description = "Operations for managing application users"
 )
-public class AuthController {
+public class UserController {
     private final AuthenticationManager authenticationManager;
     private final UserService service;
     private final TokenProvider tokenService;
     private final SignupMapper signupMapper;
 
     /**
-     * Creates a new AuthController. This is usually done by the Spring framework, which manages the controller's
+     * Creates a new UserController. This is usually done by the Spring framework, which manages the controller's
      * lifecycle and injects the required dependencies.
      *
      * @param authenticationManager the authentication manager validating user credentials
@@ -48,7 +48,7 @@ public class AuthController {
      * @param tokenService the token service generating JWT tokens
      * @param signupMapper the mapper for converting between sign-up data transfer objects and business objects
      */
-    public AuthController(AuthenticationManager authenticationManager, UserService service, TokenProvider tokenService,
+    public UserController(AuthenticationManager authenticationManager, UserService service, TokenProvider tokenService,
                           SignupMapper signupMapper) {
         this.authenticationManager = authenticationManager;
         this.service = service;
