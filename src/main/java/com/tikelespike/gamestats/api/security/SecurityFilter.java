@@ -41,7 +41,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = this.recoverToken(request);
         if (token != null) {
-            String login = null;
+            String login;
             try {
                 login = tokenService.validateToken(token);
             } catch (JWTVerificationException e) {

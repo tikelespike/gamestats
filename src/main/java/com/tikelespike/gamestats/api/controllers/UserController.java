@@ -86,7 +86,7 @@ public class UserController {
     @PostMapping()
     public ResponseEntity<Object> createUser(
             @RequestBody @Parameter(description = "User creation request details") UserCreationDTO data) {
-        service.signUp(userCreationMapper.toBusinessObject(data));
+        service.createUser(userCreationMapper.toBusinessObject(data));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

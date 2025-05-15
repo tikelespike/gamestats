@@ -2,7 +2,7 @@ package com.tikelespike.gamestats.businesslogic.services;
 
 import com.tikelespike.gamestats.GamestatsApplication;
 import com.tikelespike.gamestats.businesslogic.entities.Player;
-import com.tikelespike.gamestats.businesslogic.entities.SignupRequest;
+import com.tikelespike.gamestats.businesslogic.entities.UserCreationRequest;
 import com.tikelespike.gamestats.businesslogic.entities.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,7 +150,7 @@ class PlayerServiceTest {
     }
 
     private User createTestUser(String testId) {
-        return userService.signUp(new SignupRequest("testuser_" + testId, "testuser_" + testId + "@test.de",
+        return userService.createUser(new UserCreationRequest("testuser_" + testId, "testuser_" + testId + "@test.de",
                 "testpassword"));
     }
 }
