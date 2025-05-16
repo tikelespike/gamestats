@@ -1,6 +1,6 @@
 package com.tikelespike.gamestats.businesslogic.services;
 
-import com.tikelespike.gamestats.businesslogic.entities.UserCreationRequest;
+import com.tikelespike.gamestats.businesslogic.entities.SignupRequest;
 import com.tikelespike.gamestats.businesslogic.entities.User;
 import com.tikelespike.gamestats.businesslogic.entities.UserRole;
 import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
@@ -66,16 +66,16 @@ public class UserService implements UserDetailsService {
     /**
      * Creates a new user account.
      *
-     * @param data the user creation request data
+     * @param data the sign-up request data
      *
-     * @return the newly created user
+     * @return the credentials of the newly created user
      */
-    public User createUser(UserCreationRequest data) {
+    public User signUp(SignupRequest data) {
         if (repository.findByEmail(data.email()) != null) {
             throw new IllegalArgumentException("Username already exists");
         }
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        User newUser = new User(data.name(), data.email(), encryptedPassword, data.role());
+        User newUser = new User(data.name(), data.email(), encryptedPassword, Set.of(UserRole.USER));
         UserEntity transferObject = mapper.toTransferObject(newUser);
         UserEntity saved = repository.save(transferObject);
         return mapper.toBusinessObject(saved);

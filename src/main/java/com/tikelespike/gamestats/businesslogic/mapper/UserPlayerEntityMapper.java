@@ -156,7 +156,7 @@ public class UserPlayerEntityMapper {
                 transferObject.getEmail(),
                 transferObject.getPassword(),
                 null,
-                roleMapper.toBusinessObject(transferObject.getRole())
+                transferObject.getRolesCopy().stream().map(roleMapper::toBusinessObject).collect(Collectors.toSet())
         );
     }
 
@@ -168,7 +168,7 @@ public class UserPlayerEntityMapper {
                 businessObject.getEmail(),
                 businessObject.getPassword(),
                 null,
-                roleMapper.toTransferObject(businessObject.getRole())
+                businessObject.getRoles().stream().map(roleMapper::toTransferObject).collect(Collectors.toSet())
         );
     }
 
