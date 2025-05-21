@@ -3,11 +3,16 @@ package com.tikelespike.gamestats.businesslogic.services;
 import com.tikelespike.gamestats.businesslogic.entities.User;
 import com.tikelespike.gamestats.businesslogic.entities.UserCreationRequest;
 import com.tikelespike.gamestats.businesslogic.exceptions.InvalidDataException;
+import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
+import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
 import com.tikelespike.gamestats.businesslogic.mapper.UserRoleEntityMapper;
 import com.tikelespike.gamestats.data.entities.UserEntity;
 import com.tikelespike.gamestats.data.repositories.UserRepository;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
+import org.hibernate.StaleObjectStateException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -86,6 +91,38 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void deleteUser(Long id) {
         repository.deleteById(id);
+    }
+
+    /**
+     * Updates an existing user in the system.
+     *
+     * @param user the user to update. A user with the same id must already exist in the system.
+     *
+     * @return the updated user
+     * @throws ResourceNotFoundException if the user with the given id does not exist
+     * @throws StaleDataException if the user has been modified or deleted in the meantime (concurrently)
+     */
+    @Transactional()
+    public User updateUser(User user) throws StaleDataException {
+        Objects.requireNonNull(user, "User may not be null");
+
+        if (!repository.existsById(user.getId())) {
+            throw new ResourceNotFoundException("User with id " + user.getId() + " does not exist");
+        }
+
+        UserEntity existingUser = repository.findByEmail(user.getEmail());
+        if (existingUser != null && !existingUser.getId().equals(user.getId())) {
+            throw new InvalidDataException("User with that mail address already exists");
+        }
+
+        UserEntity entityToSave = mapper.toTransferObject(user);
+        UserEntity savedEntity;
+        try {
+            savedEntity = repository.save(entityToSave);
+        } catch (StaleObjectStateException | OptimisticLockException | OptimisticLockingFailureException e) {
+            throw new StaleDataException(e);
+        }
+        return mapper.toBusinessObject(savedEntity);
     }
 
     /**

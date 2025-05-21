@@ -3,12 +3,15 @@ package com.tikelespike.gamestats.api.controllers;
 import com.tikelespike.gamestats.api.entities.ErrorEntity;
 import com.tikelespike.gamestats.api.entities.UserCreationDTO;
 import com.tikelespike.gamestats.api.entities.UserDTO;
+import com.tikelespike.gamestats.api.entities.UserUpdateDTO;
 import com.tikelespike.gamestats.api.mapper.UserCreationMapper;
 import com.tikelespike.gamestats.api.mapper.UserMapper;
+import com.tikelespike.gamestats.api.mapper.UserUpdateMapper;
 import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.ValidationUtils;
 import com.tikelespike.gamestats.businesslogic.entities.User;
 import com.tikelespike.gamestats.businesslogic.exceptions.InvalidDataException;
+import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import com.tikelespike.gamestats.businesslogic.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.net.URI;
 import java.util.List;
@@ -47,6 +51,7 @@ public class UserController {
     private final UserService service;
     private final UserCreationMapper userCreationMapper;
     private final UserMapper userMapper;
+    private final UserUpdateMapper userUpdateMapper;
 
     /**
      * Creates a new UserController. This is usually done by the Spring framework, which manages the controller's
@@ -56,11 +61,15 @@ public class UserController {
      * @param userCreationMapper the mapper for converting between sign-up data transfer objects and business
      *         objects
      * @param userMapper the mapper for converting between user business objects and their REST transfer
+     * @param userUpdateMapper the mapper for converting between user update data transfer objects and business
+     *         objects
      */
-    public UserController(UserService service, UserCreationMapper userCreationMapper, UserMapper userMapper) {
+    public UserController(UserService service, UserCreationMapper userCreationMapper, UserMapper userMapper,
+                          UserUpdateMapper userUpdateMapper) {
         this.service = service;
         this.userCreationMapper = userCreationMapper;
         this.userMapper = userMapper;
+        this.userUpdateMapper = userUpdateMapper;
     }
 
     /**
@@ -197,6 +206,77 @@ public class UserController {
     public ResponseEntity<Object> deleteUser(@PathVariable("id") long id) {
         service.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Updates a user.
+     *
+     * @param id user id (must be the same as in the body, if given there)
+     * @param updateRequest user to update
+     *
+     * @return a REST response entity containing the updated user
+     */
+    @Operation(
+            summary = "Updates a user",
+            description = "Updates the details about an existing user, like the name, email, password, or role. The "
+                    + "user has to be created before it can be changed by this endpoint."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Updated the user successfully. The response body contains the updated user.",
+                    content = {@Content(schema = @Schema(implementation = UserDTO.class))}
+            ), @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request. The response body contains an error message.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "404",
+                    description = "Not found. There exists no resource under the given URI.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict. The resource was deleted concurrently during the processing of this "
+                            + "request, or there already exists a newer version of this resource that would be "
+                            + "overwritten.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateUser(@PathVariable("id") long id, @RequestBody UserUpdateDTO updateRequest) {
+        ValidationResult validation = updateRequest.validateUpdate(id);
+        if (!validation.isValid()) {
+            return ValidationUtils.requestInvalid(validation.getMessage(), API_PATH_WITH_SUBPATH + id);
+        }
+
+        User userUpdate = userUpdateMapper.toBusinessObject(updateRequest);
+        User updatedUser;
+        try {
+            updatedUser = service.updateUser(userUpdate);
+        } catch (StaleDataException e) {
+            return ValidationUtils.conflict(API_PATH_WITH_SUBPATH + id);
+        } catch (InvalidDataException e) {
+            return ValidationUtils.requestInvalid(e.getMessage(), API_PATH_WITH_SUBPATH + id);
+        }
+
+        UserDTO transferObject = userMapper.toTransferObject(updatedUser);
+        return ResponseEntity.ok(transferObject);
     }
 
 }
