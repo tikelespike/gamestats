@@ -1,6 +1,5 @@
 package com.tikelespike.gamestats.api.entities;
 
-import com.tikelespike.gamestats.api.validation.Validateable;
 import com.tikelespike.gamestats.api.validation.ValidationChain;
 import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.checks.MatchingIdCheck;
