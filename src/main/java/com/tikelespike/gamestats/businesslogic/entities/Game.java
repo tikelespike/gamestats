@@ -40,8 +40,8 @@ public class Game implements HasId, HasVersion {
      */
     public Game(Long id, Long version, List<PlayerParticipation> participants, Script script,
                 Alignment winningAlignment, String description, String name, List<Player> storytellers) {
-        this.id = id;
-        this.version = version;
+        this.id = Objects.requireNonNull(id);
+        this.version = Objects.requireNonNull(version);
         setParticipants(participants);
         setScript(script);
         setWinningAlignment(winningAlignment);
@@ -70,8 +70,8 @@ public class Game implements HasId, HasVersion {
      */
     public Game(Long id, Long version, List<PlayerParticipation> participants, Script script, String description,
                 List<Player> winningPlayers, String name, List<Player> storytellers) {
-        this.id = id;
-        this.version = version;
+        this.id = Objects.requireNonNull(id);
+        this.version = Objects.requireNonNull(version);
         setParticipants(participants);
         setScript(script);
         setDescription(description);

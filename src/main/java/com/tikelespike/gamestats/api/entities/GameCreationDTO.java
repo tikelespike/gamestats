@@ -28,7 +28,7 @@ import java.util.Objects;
         name = "GameCreationRequest",
         description = "Request object for creating a new game. Contains all information required to create a game."
 )
-public record GameCreationRequestDTO(
+public record GameCreationDTO(
         @Schema(
                 description = "Human-readable name of this game.",
                 example = "Tom's birthday first game"
@@ -149,7 +149,7 @@ public record GameCreationRequestDTO(
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        GameCreationRequestDTO that = (GameCreationRequestDTO) o;
+        GameCreationDTO that = (GameCreationDTO) o;
         return Objects.equals(scriptId, that.scriptId) && Objects.equals(description, that.description)
                 && winningAlignment == that.winningAlignment && Objects.deepEquals(winningPlayerIds,
                 that.winningPlayerIds)
@@ -165,7 +165,7 @@ public record GameCreationRequestDTO(
 
     @Override
     public String toString() {
-        return "GameCreationRequestDTO{"
+        return "GameCreationDTO{"
                 + "scriptId=" + scriptId
                 + ", description='" + description + '\''
                 + ", winningAlignment=" + winningAlignment

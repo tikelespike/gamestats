@@ -2,7 +2,13 @@ package com.tikelespike.gamestats.api.controllers;
 
 import com.tikelespike.gamestats.api.entities.ErrorEntity;
 import com.tikelespike.gamestats.api.entities.UserCreationDTO;
+import com.tikelespike.gamestats.api.entities.UserDTO;
 import com.tikelespike.gamestats.api.mapper.UserCreationMapper;
+import com.tikelespike.gamestats.api.mapper.UserMapper;
+import com.tikelespike.gamestats.api.validation.ValidationResult;
+import com.tikelespike.gamestats.api.validation.ValidationUtils;
+import com.tikelespike.gamestats.businesslogic.entities.User;
+import com.tikelespike.gamestats.businesslogic.exceptions.InvalidDataException;
 import com.tikelespike.gamestats.businesslogic.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,13 +17,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
 
 /**
  * REST controller for handling user authentication.
@@ -29,8 +36,12 @@ import org.springframework.web.bind.annotation.RestController;
         description = "Operations for managing application users"
 )
 public class UserController {
+    private static final String API_PATH = "/api/v1/users";
+    private static final String API_PATH_WITH_SUBPATH = API_PATH + "/";
+
     private final UserService service;
     private final UserCreationMapper userCreationMapper;
+    private final UserMapper userMapper;
 
     /**
      * Creates a new UserController. This is usually done by the Spring framework, which manages the controller's
@@ -39,16 +50,18 @@ public class UserController {
      * @param service the authentication service handling sign-up and sign-in
      * @param userCreationMapper the mapper for converting between sign-up data transfer objects and business
      *         objects
+     * @param userMapper the mapper for converting between user business objects and their REST transfer
      */
-    public UserController(UserService service, UserCreationMapper userCreationMapper) {
+    public UserController(UserService service, UserCreationMapper userCreationMapper, UserMapper userMapper) {
         this.service = service;
         this.userCreationMapper = userCreationMapper;
+        this.userMapper = userMapper;
     }
 
     /**
      * Create a new user.
      *
-     * @param data the sign-up data transfer object containing user credentials
+     * @param creationRequest the sign-up data transfer object containing user credentials
      *
      * @return a REST response entity (201 CREATED if the sign-up was successful)
      */
@@ -85,9 +98,22 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping()
     public ResponseEntity<Object> createUser(
-            @RequestBody @Parameter(description = "User creation request details") UserCreationDTO data) {
-        service.signUp(userCreationMapper.toBusinessObject(data));
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+            @RequestBody @Parameter(description = "User creation request details") UserCreationDTO creationRequest) {
+        ValidationResult validation = creationRequest.validate();
+        if (!validation.isValid()) {
+            return ValidationUtils.requestInvalid(validation.getMessage(), API_PATH);
+        }
+
+        User user;
+        try {
+            user = service.createUser(userCreationMapper.toBusinessObject(creationRequest));
+        } catch (InvalidDataException e) {
+            return ValidationUtils.requestInvalid(e.getMessage(), API_PATH);
+        }
+
+        UserDTO transferObject = userMapper.toTransferObject(user);
+        URI userURI = URI.create(API_PATH_WITH_SUBPATH + user.getId());
+        return ResponseEntity.created(userURI).body(transferObject);
     }
 
 }

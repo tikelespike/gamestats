@@ -1,5 +1,9 @@
 package com.tikelespike.gamestats.api.entities;
 
+import com.tikelespike.gamestats.api.validation.Validateable;
+import com.tikelespike.gamestats.api.validation.ValidationChain;
+import com.tikelespike.gamestats.api.validation.ValidationResult;
+import com.tikelespike.gamestats.api.validation.checks.RequiredFieldCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 
@@ -35,5 +39,14 @@ public record UserCreationDTO(
                         + "like characters and scripts. An administrator can manage other users and their roles.",
                 example = "user"
         ) UserRoleDTO permissionLevel
-) {
+) implements Validateable {
+    @Override
+    public ValidationResult validate() {
+        return new ValidationChain(
+                new RequiredFieldCheck("name", name),
+                new RequiredFieldCheck("email", email),
+                new RequiredFieldCheck("password", password),
+                new RequiredFieldCheck("permissionLevel", permissionLevel)
+        ).validate();
+    }
 }

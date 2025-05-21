@@ -1,7 +1,7 @@
 package com.tikelespike.gamestats.api.controllers;
 
 import com.tikelespike.gamestats.api.entities.ErrorEntity;
-import com.tikelespike.gamestats.api.entities.GameCreationRequestDTO;
+import com.tikelespike.gamestats.api.entities.GameCreationDTO;
 import com.tikelespike.gamestats.api.entities.GameDTO;
 import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.ValidationUtils;
@@ -48,7 +48,7 @@ public class GameController {
     private static final String API_PATH_WITH_SUBPATH = API_PATH + "/";
     private final GameService gameService;
     private final Mapper<Game, GameDTO> gameMapper;
-    private final Mapper<GameCreationRequest, GameCreationRequestDTO> creationMapper;
+    private final Mapper<GameCreationRequest, GameCreationDTO> creationMapper;
 
     /**
      * Creates a new GameController. This is usually done by the Spring framework, which manages the controller's
@@ -59,7 +59,7 @@ public class GameController {
      * @param creationMapper maps between game creation requests and their REST representations
      */
     public GameController(GameService gameService, Mapper<Game, GameDTO> gameMapper,
-                          Mapper<GameCreationRequest, GameCreationRequestDTO> creationMapper) {
+                          Mapper<GameCreationRequest, GameCreationDTO> creationMapper) {
         this.gameService = gameService;
         this.gameMapper = gameMapper;
         this.creationMapper = creationMapper;
@@ -105,7 +105,7 @@ public class GameController {
     )
     @PreAuthorize("hasAuthority('STORYTELLER')")
     @PostMapping()
-    public ResponseEntity<Object> createGame(@RequestBody GameCreationRequestDTO creationRequest) {
+    public ResponseEntity<Object> createGame(@RequestBody GameCreationDTO creationRequest) {
         ValidationResult validation = creationRequest.validate();
         if (!validation.isValid()) {
             return ValidationUtils.requestInvalid(validation.getMessage(), API_PATH);

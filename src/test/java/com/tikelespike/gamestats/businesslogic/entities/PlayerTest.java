@@ -2,8 +2,6 @@ package com.tikelespike.gamestats.businesslogic.entities;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -31,7 +29,8 @@ class PlayerTest {
 
     @Test
     void testCreateAssignedPlayer() {
-        User owner = new User("testuser_testCreateAssignedPlayer", "e@ma.il", "password", new HashSet<>());
+        User owner = new User(0L, 0L, "testuser_testCreateAssignedPlayer", "e@ma.il", "password", null,
+                UserRole.defaultRole());
         Player player = new Player(owner);
         assertNotNull(player);
         assertEquals(owner, player.getOwner());

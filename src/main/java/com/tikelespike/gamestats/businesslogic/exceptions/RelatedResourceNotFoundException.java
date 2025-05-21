@@ -3,7 +3,7 @@ package com.tikelespike.gamestats.businesslogic.exceptions;
 /**
  * Indicates that an object references other objects, but the referenced objects do not exist in the system.
  */
-public class RelatedResourceNotFoundException extends RuntimeException {
+public class RelatedResourceNotFoundException extends InvalidDataException {
 
     /**
      * Creates a new RelatedResourceNotFoundException.

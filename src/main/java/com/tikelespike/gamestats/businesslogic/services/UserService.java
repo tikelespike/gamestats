@@ -1,16 +1,18 @@
 package com.tikelespike.gamestats.businesslogic.services;
 
-import com.tikelespike.gamestats.businesslogic.entities.SignupRequest;
 import com.tikelespike.gamestats.businesslogic.entities.User;
-import com.tikelespike.gamestats.businesslogic.entities.UserRole;
+import com.tikelespike.gamestats.businesslogic.entities.UserCreationRequest;
+import com.tikelespike.gamestats.businesslogic.exceptions.InvalidDataException;
 import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
+import com.tikelespike.gamestats.businesslogic.mapper.UserRoleEntityMapper;
 import com.tikelespike.gamestats.data.entities.UserEntity;
 import com.tikelespike.gamestats.data.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.Objects;
 
 /**
  * Service for managing user registration and querying.
@@ -20,6 +22,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository repository;
     private final UserPlayerEntityMapper mapper;
+    private final UserRoleEntityMapper roleMapper;
 
     /**
      * Creates a new user service. This is usually done by the Spring framework, which manages the service's lifecycle
@@ -27,10 +30,12 @@ public class UserService implements UserDetailsService {
      *
      * @param repository repository managing user entities
      * @param mapper mapper for converting between user business objects and user entities
+     * @param roleMapper mapper for converting between user role business objects and user role entities
      */
-    public UserService(UserRepository repository, UserPlayerEntityMapper mapper) {
+    public UserService(UserRepository repository, UserPlayerEntityMapper mapper, UserRoleEntityMapper roleMapper) {
         this.repository = repository;
         this.mapper = mapper;
+        this.roleMapper = roleMapper;
     }
 
     @Override
@@ -66,17 +71,26 @@ public class UserService implements UserDetailsService {
     /**
      * Creates a new user account.
      *
-     * @param data the sign-up request data
+     * @param data the user creation request data
      *
-     * @return the credentials of the newly created user
+     * @return the newly created user
      */
-    public User signUp(SignupRequest data) {
+    @Transactional
+    public User createUser(UserCreationRequest data) {
+        Objects.requireNonNull(data, "Creation request may not be null");
         if (repository.findByEmail(data.email()) != null) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new InvalidDataException("User with that mail address already exists");
         }
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        User newUser = new User(data.name(), data.email(), encryptedPassword, Set.of(UserRole.USER));
-        UserEntity transferObject = mapper.toTransferObject(newUser);
+        UserEntity transferObject = new UserEntity(
+                null,
+                null,
+                data.name(),
+                data.email(),
+                encryptedPassword,
+                null,
+                roleMapper.toTransferObjectNoCheck(data.role())
+        );
         UserEntity saved = repository.save(transferObject);
         return mapper.toBusinessObject(saved);
     }
