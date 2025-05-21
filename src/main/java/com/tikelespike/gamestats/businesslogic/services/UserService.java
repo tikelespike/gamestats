@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -66,6 +67,15 @@ public class UserService implements UserDetailsService {
      */
     public boolean userExists(Long id) {
         return repository.existsById(id);
+    }
+
+    /**
+     * Returns all users in the system.
+     *
+     * @return a list of all users in the system
+     */
+    public List<User> getAllUsers() {
+        return repository.findAll().stream().map(mapper::toBusinessObject).toList();
     }
 
     /**

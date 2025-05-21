@@ -12,6 +12,7 @@ import com.tikelespike.gamestats.businesslogic.exceptions.InvalidDataException;
 import com.tikelespike.gamestats.businesslogic.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,8 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.net.URI;
+import java.util.List;
 
 /**
  * REST controller for handling user authentication.
@@ -114,6 +117,45 @@ public class UserController {
         UserDTO transferObject = userMapper.toTransferObject(user);
         URI userURI = URI.create(API_PATH_WITH_SUBPATH + user.getId());
         return ResponseEntity.created(userURI).body(transferObject);
+    }
+
+    /**
+     * Retrieves all users.
+     *
+     * @return a REST response entity containing all users currently known to the system
+     */
+    @Operation(
+            summary = "Retrieves all users",
+            description = "Retrieves a list of all users registered in the system."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Retrieval successful. The response body contains the list of users",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = UserDTO.class)))}
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping()
+    public ResponseEntity<Object> getUsers() {
+        List<User> users = service.getAllUsers();
+        List<UserDTO> transferObjects = users.stream().map(userMapper::toTransferObject).toList();
+        return ResponseEntity.ok(transferObjects);
     }
 
 }
