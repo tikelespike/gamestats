@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.net.URI;
 import java.util.List;
@@ -156,6 +158,45 @@ public class UserController {
         List<User> users = service.getAllUsers();
         List<UserDTO> transferObjects = users.stream().map(userMapper::toTransferObject).toList();
         return ResponseEntity.ok(transferObjects);
+    }
+
+    /**
+     * Deletes a user from the system.
+     *
+     * @param id the ID of the user to delete
+     *
+     * @return a REST response entity indicating the result of the operation
+     */
+    @Operation(
+            summary = "Deletes a user",
+            description = "Removes a user from the system. If the user does not exist, the operation has no effect."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "204",
+                    description = "User deleted successfully. No content is returned."
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteUser(@PathVariable("id") long id) {
+        service.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

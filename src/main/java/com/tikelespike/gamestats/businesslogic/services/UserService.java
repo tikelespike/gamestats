@@ -79,6 +79,16 @@ public class UserService implements UserDetailsService {
     }
 
     /**
+     * Deletes a user from the system. No effect if user does not exist.
+     *
+     * @param id the ID of the user to delete
+     */
+    @Transactional
+    public void deleteUser(Long id) {
+        repository.deleteById(id);
+    }
+
+    /**
      * Creates a new user account.
      *
      * @param data the user creation request data
