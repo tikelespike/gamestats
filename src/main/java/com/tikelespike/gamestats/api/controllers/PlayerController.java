@@ -137,7 +137,7 @@ public class PlayerController {
     }
 
     private ResponseEntity<Object> createAssociatedPlayer(PlayerCreationDTO player) {
-        User owner = userService.loadUser(player.ownerId());
+        User owner = userService.getUser(player.ownerId());
         if (owner == null) {
             return ValidationUtils.requestInvalid("Owner ID " + player.ownerId() + " does not exist",
                     "/api/v1/players");

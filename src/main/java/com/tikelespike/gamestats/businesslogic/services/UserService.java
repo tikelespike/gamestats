@@ -51,7 +51,7 @@ public class UserService implements UserDetailsService {
      *
      * @return the user with the given id, or null if no such user exists
      */
-    public User loadUser(Long id) {
+    public User getUser(Long id) {
         var user = repository.findById(id)
                 .orElse(null);
         return mapper.toBusinessObject(user);
