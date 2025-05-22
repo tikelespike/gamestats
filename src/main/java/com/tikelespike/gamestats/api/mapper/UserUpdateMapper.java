@@ -1,8 +1,11 @@
 package com.tikelespike.gamestats.api.mapper;
 
 import com.tikelespike.gamestats.api.entities.UserUpdateDTO;
+import com.tikelespike.gamestats.businesslogic.entities.Player;
 import com.tikelespike.gamestats.businesslogic.entities.User;
+import com.tikelespike.gamestats.businesslogic.exceptions.RelatedResourceNotFoundException;
 import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
+import com.tikelespike.gamestats.businesslogic.services.PlayerService;
 import com.tikelespike.gamestats.businesslogic.services.UserService;
 import com.tikelespike.gamestats.common.Mapper;
 import org.apache.commons.lang3.NotImplementedException;
@@ -17,6 +20,7 @@ public class UserUpdateMapper extends Mapper<User, UserUpdateDTO> {
 
     private final UserRoleMapper userRoleMapper;
     private final UserService userService;
+    private final PlayerService playerService;
 
     /**
      * Creates a new UserUpdateMapper. This is usually done by the Spring framework, which manages the mapper's
@@ -24,10 +28,12 @@ public class UserUpdateMapper extends Mapper<User, UserUpdateDTO> {
      *
      * @param userRoleMapper mapper for user roles
      * @param userService service to load old user state
+     * @param playerService service for managing players
      */
-    public UserUpdateMapper(UserRoleMapper userRoleMapper, UserService userService) {
+    public UserUpdateMapper(UserRoleMapper userRoleMapper, UserService userService, PlayerService playerService) {
         this.userRoleMapper = userRoleMapper;
         this.userService = userService;
+        this.playerService = playerService;
     }
 
     @Override
@@ -42,13 +48,23 @@ public class UserUpdateMapper extends Mapper<User, UserUpdateDTO> {
             }
             newPassword = existingUser.getPassword();
         }
+
+        Player player = null;
+        if (transferObject.playerId() != null) {
+            player = playerService.getPlayerById(transferObject.playerId());
+            if (player == null) {
+                throw new RelatedResourceNotFoundException(
+                        "Player with id " + transferObject.playerId() + " not found");
+            }
+        }
+
         return new User(
                 transferObject.id(),
                 transferObject.version(),
                 transferObject.name(),
                 transferObject.email(),
                 newPassword,
-                null, // TODO
+                player,
                 userRoleMapper.toBusinessObject(transferObject.permissionLevel())
         );
     }

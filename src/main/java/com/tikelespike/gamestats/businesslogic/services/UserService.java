@@ -115,6 +115,13 @@ public class UserService implements UserDetailsService {
             throw new InvalidDataException("User with that mail address already exists");
         }
 
+        if (user.getPlayer() != null) {
+            UserEntity otherOwner = repository.findByPlayerId(user.getPlayer().getId());
+            if (otherOwner != null && !otherOwner.getId().equals(user.getId())) {
+                throw new InvalidDataException("Player is already associated with another user");
+            }
+        }
+
         UserEntity entityToSave = mapper.toTransferObject(user);
         UserEntity savedEntity;
         try {
@@ -138,6 +145,15 @@ public class UserService implements UserDetailsService {
         if (repository.findByEmail(data.email()) != null) {
             throw new InvalidDataException("User with that mail address already exists");
         }
+
+        // Check if the player is already associated with another user
+        if (data.player() != null) {
+            UserEntity otherOwner = repository.findByPlayerId(data.player().getId());
+            if (otherOwner != null) {
+                throw new InvalidDataException("Player is already associated with another user");
+            }
+        }
+
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
         UserEntity transferObject = new UserEntity(
                 null,
@@ -145,7 +161,7 @@ public class UserService implements UserDetailsService {
                 data.name(),
                 data.email(),
                 encryptedPassword,
-                null,
+                data.player() == null ? null : mapper.toTransferObject(data.player()),
                 roleMapper.toTransferObjectNoCheck(data.role())
         );
         UserEntity saved = repository.save(transferObject);

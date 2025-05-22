@@ -14,11 +14,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param email user's email address
  * @param password user's password
  * @param permissionLevel permission level of the user
+ * @param playerId unique numerical identifier of the player to associate with this user (optional)
  */
 @Schema(
         name = "User (creation)",
         description = "Request to create a user. A user is an account that can log into the application and access "
-                + "its features based on its permissions."
+                + "its features based on its permissions. Optionally, a player can be associated with the user."
 )
 public record UserCreationDTO(
         @Schema(
@@ -38,7 +39,12 @@ public record UserCreationDTO(
                         + "information and credentials. A storyteller can create and manage games and game content "
                         + "like characters and scripts. An administrator can manage other users and their roles.",
                 example = "user"
-        ) UserRoleDTO permissionLevel
+        ) UserRoleDTO permissionLevel,
+        @Schema(
+                description = "Unique numerical identifier of the player to associate with this user. If not provided, "
+                        + "no player will be associated with the user.",
+                example = "42"
+        ) Long playerId
 ) implements Validateable {
     @Override
     public ValidationResult validate() {

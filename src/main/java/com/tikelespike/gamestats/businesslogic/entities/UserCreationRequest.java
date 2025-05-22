@@ -7,12 +7,14 @@ package com.tikelespike.gamestats.businesslogic.entities;
  * @param email user email address
  * @param password user chosen password
  * @param role user permission level
+ * @param player player to associate with this user (optional)
  */
 public record UserCreationRequest(
         String name,
         String email,
         String password,
-        UserRole role
+        UserRole role,
+        Player player
 ) {
     /**
      * Creates a new user creation request.
@@ -21,6 +23,7 @@ public record UserCreationRequest(
      * @param email email address of the user
      * @param password password chosen by the user (in plain text)
      * @param role permission level of the user (default is user)
+     * @param player player to associate with this user (optional)
      */
     public UserCreationRequest {
         if (name == null || name.isBlank()) {

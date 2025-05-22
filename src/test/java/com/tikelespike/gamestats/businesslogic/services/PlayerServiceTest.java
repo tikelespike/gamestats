@@ -152,6 +152,6 @@ class PlayerServiceTest {
 
     private User createTestUser(String testId) {
         return userService.createUser(new UserCreationRequest("testuser_" + testId, "testuser_" + testId + "@test.de",
-                "testpassword", UserRole.USER));
+                "testpassword", UserRole.USER, null));
     }
 }
