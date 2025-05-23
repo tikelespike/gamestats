@@ -1,17 +1,13 @@
 package com.tikelespike.gamestats.data.entities;
 
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * The database representation of an application user.
@@ -28,18 +24,11 @@ public class UserEntity extends AbstractEntity {
             fetch = FetchType.EAGER,
             mappedBy = "owner"
     )
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private PlayerEntity player;
 
     @Enumerated(EnumType.STRING)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id")
-    )
-    @ElementCollection(
-            targetClass = UserRoleEntity.class,
-            fetch = FetchType.EAGER
-    )
-    private Set<UserRoleEntity> roles;
+    private UserRoleEntity role;
 
     /**
      * Creates a new user entity with uninitialized fields. This constructor is used by the JPA provider to create a new
@@ -57,16 +46,16 @@ public class UserEntity extends AbstractEntity {
      * @param email email address used for login
      * @param password password used for login
      * @param player the game participant associated with the user (if the user participates in games)
-     * @param roles the roles assigned to the user (for permission management)
+     * @param role the role assigned to the user (for permission management)
      */
     public UserEntity(Long id, Long version, String name, String email, String password,
-                      PlayerEntity player, Set<UserRoleEntity> roles) {
+                      PlayerEntity player, UserRoleEntity role) {
         super(id, version);
         this.name = name;
         this.email = email;
         this.password = password;
         this.player = player;
-        this.roles = roles;
+        this.role = role;
     }
 
     /**
@@ -146,31 +135,20 @@ public class UserEntity extends AbstractEntity {
     }
 
     /**
-     * Returns the roles assigned to the user. The roles are used for permission management.
+     * Returns the role assigned to the user. The role is used for permission management.
      *
-     * @return a copy of the set of roles assigned to the user
+     * @return the role assigned to the user
      */
-    public Set<UserRoleEntity> getRolesCopy() {
-        return new HashSet<>(roles);
+    public UserRoleEntity getRole() {
+        return role;
     }
 
     /**
-     * Returns the roles assigned to the user. The roles are used for permission management. This method is used by the
-     * JPA provider to set the roles when the entity is read from the database. To get a copy of the roles, use
-     * {@link #getRolesCopy()}.
+     * Sets the role assigned to the user.
      *
-     * @return the roles assigned to the user
+     * @param role the role assigned to the user
      */
-    protected Set<UserRoleEntity> getRoles() {
-        return roles;
-    }
-
-    /**
-     * Sets the roles assigned to the user.
-     *
-     * @param roles the roles assigned to the user
-     */
-    public void setRoles(Set<UserRoleEntity> roles) {
-        this.roles = roles;
+    public void setRole(UserRoleEntity role) {
+        this.role = role;
     }
 }

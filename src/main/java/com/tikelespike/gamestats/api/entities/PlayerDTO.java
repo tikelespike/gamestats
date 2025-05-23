@@ -12,6 +12,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
  *
  * @see PlayerCreationDTO
  */
+@Schema(
+        name = "Player",
+        description = "A participant in games. Can be linked to a user account, if that player is registered in the "
+                + "application."
+)
 public record PlayerDTO(
         @Schema(
                 description = "Unique numerical identifier of the player.",

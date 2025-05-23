@@ -30,7 +30,7 @@ public class PlayerMapper extends Mapper<Player, PlayerDTO> {
                 transferObject.id(),
                 transferObject.version(),
                 transferObject.name(),
-                transferObject.ownerId() == null ? null : userService.loadUser(transferObject.ownerId())
+                transferObject.ownerId() == null ? null : userService.getUser(transferObject.ownerId())
         );
     }
 

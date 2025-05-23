@@ -1,7 +1,7 @@
 package com.tikelespike.gamestats.api.mapper;
 
 import com.tikelespike.gamestats.api.entities.AlignmentDTO;
-import com.tikelespike.gamestats.api.entities.GameCreationRequestDTO;
+import com.tikelespike.gamestats.api.entities.GameCreationDTO;
 import com.tikelespike.gamestats.api.entities.PlayerParticipationDTO;
 import com.tikelespike.gamestats.businesslogic.entities.Alignment;
 import com.tikelespike.gamestats.businesslogic.entities.GameCreationRequest;
@@ -22,7 +22,7 @@ import java.util.List;
  * Maps between game creation request business objects and their REST transfer representation.
  */
 @Component
-public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameCreationRequestDTO> {
+public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameCreationDTO> {
 
     private final ScriptService scriptService;
     private final PlayerService playerService;
@@ -48,7 +48,7 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
     }
 
     @Override
-    protected GameCreationRequest toBusinessObjectNoCheck(GameCreationRequestDTO transferObject) {
+    protected GameCreationRequest toBusinessObjectNoCheck(GameCreationDTO transferObject) {
         Script script = scriptService.getScript(transferObject.scriptId());
 
         if (script == null) {
@@ -103,7 +103,7 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
     }
 
     @Override
-    protected GameCreationRequestDTO toTransferObjectNoCheck(GameCreationRequest businessObject) {
+    protected GameCreationDTO toTransferObjectNoCheck(GameCreationRequest businessObject) {
         PlayerParticipationDTO[] participationDTOs = businessObject.participants().stream()
                 .map(playerParticipationMapper::toTransferObject).toArray(PlayerParticipationDTO[]::new);
 
@@ -114,7 +114,7 @@ public class GameCreationRequestMapper extends Mapper<GameCreationRequest, GameC
                 : businessObject.storytellers().stream().map(Player::getId).toArray(Long[]::new);
 
 
-        return new GameCreationRequestDTO(
+        return new GameCreationDTO(
                 businessObject.name(),
                 businessObject.description(),
                 businessObject.script().getId(),

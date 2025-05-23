@@ -18,5 +18,14 @@ public enum UserRole {
     /**
      * A user that can manage other users and their roles.
      */
-    ADMIN
+    ADMIN;
+
+    /**
+     * Returns the default role.
+     *
+     * @return the role a user is assigned when no role is explicitly specified.
+     */
+    public static UserRole defaultRole() {
+        return UserRole.USER;
+    }
 }

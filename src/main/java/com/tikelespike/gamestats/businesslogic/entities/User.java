@@ -5,9 +5,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 
 /**
@@ -18,52 +17,46 @@ public class User implements UserDetails, HasId, HasVersion {
 
     private final Long id;
     private final Long version;
-    private final Set<UserRole> roles;
+    private UserRole role;
     private String name;
     private String email;
     private String password;
     private transient Player player;
 
     /**
-     * Creates a new user object with unassigned id number. This constructor is used when creating a new user, as the id
-     * is assigned by the database. To register a new user in the application, use the
-     * {@link com.tikelespike.gamestats.businesslogic.services.UserService#signUp(SignupRequest)} service.
+     * Creates a new user.
      *
-     * @param name full name of the user
-     * @param email email address used for login
-     * @param password password used for login
-     * @param roles the roles assigned to the user (for permission management)
-     */
-    public User(String name, String email, String password, Set<UserRole> roles) {
-        this(null, null, name, email, password, null, roles);
-    }
-
-    /**
-     * Creates a new user. This constructor is used when loading an existing user from the database. To create a new
-     * user without specifying an id, use {@link #User(String, String, String, Set)}.
-     *
-     * @param id unique identifier of the user
-     * @param version version counter for optimistic locking
-     * @param name full name of the user
-     * @param email email address used for login
-     * @param password password used for login
+     * @param id unique identifier of the user. May not be null.
+     * @param version version counter for optimistic locking. May not be null.
+     * @param name full name of the user. May not be null or blank.
+     * @param email email address used for login. May not be null or blank.
+     * @param password password used for login. May not be null or blank.
      * @param player the player associated with this user (encapsulates the data of the human participating in
      *         the game)
-     * @param roles the roles assigned to the user (for permission management)
+     * @param role the role assigned to the user (for permission management)
      */
-    public User(Long id, Long version, String name, String email, String password, Player player, Set<UserRole> roles) {
-        this.id = id;
-        this.version = version;
-        this.name = name;
-        this.email = email;
-        this.password = password;
+    public User(Long id, Long version, String name, String email, String password, Player player, UserRole role) {
+        this.id = Objects.requireNonNull(id);
+        this.version = Objects.requireNonNull(version);
+        this.name = Objects.requireNonNull(name);
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Name may not be blank");
+        }
+        this.email = Objects.requireNonNull(email);
+        if (email.isBlank()) {
+            throw new IllegalArgumentException("Email may not be blank");
+        }
+        this.password = Objects.requireNonNull(password);
+        if (password.isBlank()) {
+            throw new IllegalArgumentException("Password may not be blank");
+        }
         this.player = player;
-        this.roles = roles;
+        this.role = role != null ? role : UserRole.defaultRole();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(r -> new SimpleGrantedAuthority(r.toString())).toList();
+        return List.of(new SimpleGrantedAuthority(role.toString()));
     }
 
     @Override
@@ -154,12 +147,21 @@ public class User implements UserDetails, HasId, HasVersion {
     }
 
     /**
-     * Returns the roles assigned to the user. The roles are used for permission management.
+     * Returns the role assigned to the user. The role is used for permission management.
      *
-     * @return a copy of the set of roles assigned to the user
+     * @return the role assigned to the user
      */
-    public Set<UserRole> getRoles() {
-        return new HashSet<>(roles);
+    public UserRole getRole() {
+        return role;
+    }
+
+    /**
+     * Assigns a role to the user. The role is used for permission management. A user can only have one role at a time.
+     *
+     * @param role the role assigned to the user
+     */
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
     @Override
@@ -174,13 +176,13 @@ public class User implements UserDetails, HasId, HasVersion {
         } else {
             equalPlayers = Objects.equals(player.getId(), user.player.getId());
         }
-        return Objects.equals(id, user.id) && Objects.equals(roles, user.roles)
+        return Objects.equals(id, user.id) && Objects.equals(role, user.role)
                 && Objects.equals(name, user.name) && Objects.equals(email, user.email)
                 && Objects.equals(password, user.password) && equalPlayers;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, roles, name, email, password, player.getId());
+        return Objects.hash(id, role, name, email, password, player.getId());
     }
 }

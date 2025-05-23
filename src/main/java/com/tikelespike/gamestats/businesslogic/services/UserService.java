@@ -1,16 +1,26 @@
 package com.tikelespike.gamestats.businesslogic.services;
 
-import com.tikelespike.gamestats.businesslogic.entities.SignupRequest;
 import com.tikelespike.gamestats.businesslogic.entities.User;
-import com.tikelespike.gamestats.businesslogic.entities.UserRole;
+import com.tikelespike.gamestats.businesslogic.entities.UserCreationRequest;
+import com.tikelespike.gamestats.businesslogic.exceptions.InvalidDataException;
+import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundException;
+import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
+import com.tikelespike.gamestats.businesslogic.mapper.UserRoleEntityMapper;
+import com.tikelespike.gamestats.data.entities.PlayerEntity;
 import com.tikelespike.gamestats.data.entities.UserEntity;
+import com.tikelespike.gamestats.data.repositories.PlayerRepository;
 import com.tikelespike.gamestats.data.repositories.UserRepository;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.transaction.Transactional;
+import org.hibernate.StaleObjectStateException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Service for managing user registration and querying.
@@ -20,6 +30,8 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository repository;
     private final UserPlayerEntityMapper mapper;
+    private final UserRoleEntityMapper roleMapper;
+    private final PlayerRepository playerRepository;
 
     /**
      * Creates a new user service. This is usually done by the Spring framework, which manages the service's lifecycle
@@ -27,10 +39,16 @@ public class UserService implements UserDetailsService {
      *
      * @param repository repository managing user entities
      * @param mapper mapper for converting between user business objects and user entities
+     * @param roleMapper mapper for converting between user role business objects and user role entities
+     * @param playerRepository repository managing player entities (needed to keep user-player relationship
+     *         intact)
      */
-    public UserService(UserRepository repository, UserPlayerEntityMapper mapper) {
+    public UserService(UserRepository repository, UserPlayerEntityMapper mapper, UserRoleEntityMapper roleMapper,
+                       PlayerRepository playerRepository) {
         this.repository = repository;
         this.mapper = mapper;
+        this.roleMapper = roleMapper;
+        this.playerRepository = playerRepository;
     }
 
     @Override
@@ -46,7 +64,7 @@ public class UserService implements UserDetailsService {
      *
      * @return the user with the given id, or null if no such user exists
      */
-    public User loadUser(Long id) {
+    public User getUser(Long id) {
         var user = repository.findById(id)
                 .orElse(null);
         return mapper.toBusinessObject(user);
@@ -64,20 +82,116 @@ public class UserService implements UserDetailsService {
     }
 
     /**
+     * Returns all users in the system.
+     *
+     * @return a list of all users in the system
+     */
+    public List<User> getAllUsers() {
+        return repository.findAll().stream().map(mapper::toBusinessObject).toList();
+    }
+
+    /**
+     * Deletes a user from the system. No effect if user does not exist.
+     *
+     * @param id the ID of the user to delete
+     */
+    @Transactional
+    public void deleteUser(Long id) {
+        UserEntity user = repository.findById(id)
+                .orElse(null);
+        if (user != null) {
+            // Clear the player relationship before deletion
+            PlayerEntity player = user.getPlayer();
+            if (player != null) {
+                player.setOwner(null);
+                playerRepository.save(player);
+            }
+            repository.deleteById(id);
+        }
+    }
+
+    /**
+     * Updates an existing user in the system.
+     *
+     * @param user the user to update. A user with the same id must already exist in the system.
+     *
+     * @return the updated user
+     * @throws ResourceNotFoundException if the user with the given id does not exist
+     * @throws StaleDataException if the user has been modified or deleted in the meantime (concurrently)
+     */
+    @Transactional()
+    public User updateUser(User user) throws StaleDataException {
+        Objects.requireNonNull(user, "User may not be null");
+
+        if (!repository.existsById(user.getId())) {
+            throw new ResourceNotFoundException("User with id " + user.getId() + " does not exist");
+        }
+
+        UserEntity existingUser = repository.findByEmail(user.getEmail());
+        if (existingUser != null && !existingUser.getId().equals(user.getId())) {
+            throw new InvalidDataException("User with that mail address already exists");
+        }
+
+        if (user.getPlayer() != null) {
+            UserEntity otherOwner = repository.findByPlayerId(user.getPlayer().getId());
+            if (otherOwner != null && !otherOwner.getId().equals(user.getId())) {
+                throw new InvalidDataException("Player is already associated with another user");
+            }
+        }
+
+        UserEntity entityToSave = mapper.toTransferObject(user);
+        UserEntity savedEntity;
+        try {
+            // Because player is the owning side, we have to save the player as well to save the association
+            PlayerEntity savedPlayer = playerRepository.save(entityToSave.getPlayer());
+            savedEntity = repository.save(entityToSave);
+            savedEntity.setPlayer(savedPlayer);
+        } catch (StaleObjectStateException | OptimisticLockException | OptimisticLockingFailureException e) {
+            throw new StaleDataException(e);
+        }
+        return mapper.toBusinessObject(savedEntity);
+    }
+
+    /**
      * Creates a new user account.
      *
-     * @param data the sign-up request data
+     * @param data the user creation request data
      *
-     * @return the credentials of the newly created user
+     * @return the newly created user
      */
-    public User signUp(SignupRequest data) {
+    @Transactional
+    public User createUser(UserCreationRequest data) {
+        Objects.requireNonNull(data, "Creation request may not be null");
         if (repository.findByEmail(data.email()) != null) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new InvalidDataException("User with that mail address already exists");
         }
+
+        // Check if the player is already associated with another user
+        if (data.player() != null) {
+            UserEntity otherOwner = repository.findByPlayerId(data.player().getId());
+            if (otherOwner != null) {
+                throw new InvalidDataException("Player is already associated with another user");
+            }
+        }
+
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        User newUser = new User(data.name(), data.email(), encryptedPassword, Set.of(UserRole.USER));
-        UserEntity transferObject = mapper.toTransferObject(newUser);
-        UserEntity saved = repository.save(transferObject);
-        return mapper.toBusinessObject(saved);
+        UserEntity entityToSave = new UserEntity(
+                null,
+                null,
+                data.name(),
+                data.email(),
+                encryptedPassword,
+                data.player() == null ? null : mapper.toTransferObject(data.player()),
+                roleMapper.toTransferObjectNoCheck(data.role())
+        );
+        // Because player is the owning side, we have to save the player as well to save the association
+        UserEntity savedEntity = repository.save(entityToSave);
+        PlayerEntity player = entityToSave.getPlayer();
+        if (player != null) {
+            player.setOwner(savedEntity);
+            PlayerEntity savedPlayer = playerRepository.save(player);
+            savedEntity.setPlayer(savedPlayer);
+        }
+        return mapper.toBusinessObject(savedEntity);
     }
 }

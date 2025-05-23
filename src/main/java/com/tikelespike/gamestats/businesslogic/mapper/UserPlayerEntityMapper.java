@@ -9,8 +9,6 @@ import com.tikelespike.gamestats.data.entities.UserEntity;
 import com.tikelespike.gamestats.data.entities.UserRoleEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
-
 /**
  * Maps between the user business object and the user entity database representation, as well as between players and
  * their database representation. These two are tightly coupled, so it is necessary to convert them together.
@@ -26,7 +24,7 @@ public class UserPlayerEntityMapper {
      *
      * @param roleMapper mapper for the user roles
      */
-    public UserPlayerEntityMapper(UserRoleMapper roleMapper) {
+    public UserPlayerEntityMapper(UserRoleEntityMapper roleMapper) {
         this.roleMapper = roleMapper;
     }
 
@@ -156,7 +154,7 @@ public class UserPlayerEntityMapper {
                 transferObject.getEmail(),
                 transferObject.getPassword(),
                 null,
-                transferObject.getRolesCopy().stream().map(roleMapper::toBusinessObject).collect(Collectors.toSet())
+                roleMapper.toBusinessObject(transferObject.getRole())
         );
     }
 
@@ -168,7 +166,7 @@ public class UserPlayerEntityMapper {
                 businessObject.getEmail(),
                 businessObject.getPassword(),
                 null,
-                businessObject.getRoles().stream().map(roleMapper::toTransferObject).collect(Collectors.toSet())
+                roleMapper.toTransferObject(businessObject.getRole())
         );
     }
 

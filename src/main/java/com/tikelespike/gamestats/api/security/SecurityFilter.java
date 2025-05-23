@@ -41,7 +41,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = this.recoverToken(request);
         if (token != null) {
-            String login = null;
+            String login;
             try {
                 login = tokenService.validateToken(token);
             } catch (JWTVerificationException e) {
@@ -49,6 +49,10 @@ public class SecurityFilter extends OncePerRequestFilter {
                 return;
             }
             var user = userService.loadUserByUsername(login);
+            if (user == null) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token (user does not exist)");
+                return;
+            }
 
             var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);

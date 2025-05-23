@@ -2,13 +2,13 @@ package com.tikelespike.gamestats.businesslogic.services;
 
 import com.tikelespike.gamestats.GamestatsApplication;
 import com.tikelespike.gamestats.businesslogic.entities.Player;
-import com.tikelespike.gamestats.businesslogic.entities.SignupRequest;
 import com.tikelespike.gamestats.businesslogic.entities.User;
+import com.tikelespike.gamestats.businesslogic.entities.UserCreationRequest;
+import com.tikelespike.gamestats.businesslogic.entities.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -77,7 +77,8 @@ class PlayerServiceTest {
 
     @Test
     void testCreateAssignedInvalidUser() {
-        User user = new User(TEST_ID_1, null, "I dont exist", "invalid@test.com", "", null, new HashSet<>());
+        User user = new User(TEST_ID_1, 0L, "I dont exist", "invalid@test.com", "password", null,
+                UserRole.defaultRole());
 
         assertThrows(IllegalArgumentException.class, () -> playerService.createPlayer(user));
     }
@@ -150,7 +151,7 @@ class PlayerServiceTest {
     }
 
     private User createTestUser(String testId) {
-        return userService.signUp(new SignupRequest("testuser_" + testId, "testuser_" + testId + "@test.de",
-                "testpassword"));
+        return userService.createUser(new UserCreationRequest("testuser_" + testId, "testuser_" + testId + "@test.de",
+                "testpassword", UserRole.USER, null));
     }
 }

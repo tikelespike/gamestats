@@ -1,20 +1,16 @@
 package com.tikelespike.gamestats.api.controllers;
 
+import com.tikelespike.gamestats.api.entities.ErrorEntity;
 import com.tikelespike.gamestats.api.entities.JwtDTO;
 import com.tikelespike.gamestats.api.entities.SignInDTO;
-import com.tikelespike.gamestats.api.entities.SignUpDTO;
-import com.tikelespike.gamestats.api.mapper.SignupMapper;
 import com.tikelespike.gamestats.api.security.TokenProvider;
 import com.tikelespike.gamestats.businesslogic.entities.User;
-import com.tikelespike.gamestats.businesslogic.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,50 +26,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(
-        name = "User Management",
-        description = "Operations for managing application users"
+        name = "User Authentication",
+        description = "Operations for logging in users"
 )
 public class AuthController {
     private final AuthenticationManager authenticationManager;
-    private final UserService service;
     private final TokenProvider tokenService;
-    private final SignupMapper signupMapper;
 
     /**
-     * Creates a new AuthController. This is usually done by the Spring framework, which manages the controller's
+     * Creates a new UserController. This is usually done by the Spring framework, which manages the controller's
      * lifecycle and injects the required dependencies.
      *
      * @param authenticationManager the authentication manager validating user credentials
-     * @param service the authentication service handling sign-up and sign-in
      * @param tokenService the token service generating JWT tokens
-     * @param signupMapper the mapper for converting between sign-up data transfer objects and business objects
      */
-    public AuthController(AuthenticationManager authenticationManager, UserService service, TokenProvider tokenService,
-                          SignupMapper signupMapper) {
+    public AuthController(AuthenticationManager authenticationManager, TokenProvider tokenService) {
         this.authenticationManager = authenticationManager;
-        this.service = service;
         this.tokenService = tokenService;
-        this.signupMapper = signupMapper;
-    }
-
-    /**
-     * Sign up a new user.
-     *
-     * @param data the sign-up data transfer object containing user credentials
-     *
-     * @return a REST response entity (201 CREATED if the sign-up was successful)
-     */
-    @Operation(summary = "Sign up a new user")
-    @ApiResponses(
-            value = {@ApiResponse(
-                    responseCode = "201",
-                    description = "New user created. Use the signin endpoint to retrieve an authentication token."
-            )}
-    )
-    @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody @Parameter(description = "Sign-up request details") SignUpDTO data) {
-        service.signUp(signupMapper.toBusinessObject(data));
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -83,12 +52,26 @@ public class AuthController {
      *
      * @return a response entity containing the JWT token
      */
-    @Operation(summary = "Sign in an existing user")
+    @Operation(
+            summary = "Signs in an existing user",
+            description = "Logs into a user account and returns a JWT token for authentication. Pass that token in "
+                    + "the header of all requests from the logged in user as the bearer token. To create a user "
+                    + "account, use the users endpoint."
+    )
     @ApiResponses(
             value = {@ApiResponse(
                     responseCode = "200",
-                    description = "Signed in successfully. The response body contains the JWT token.",
+                    description = "Logged in successfully. The response body contains the JWT token.",
                     content = {@Content(schema = @Schema(implementation = JwtDTO.class))}
+            ), @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request. The response body contains an error message.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
             )}
     )
     @PostMapping("/signin")

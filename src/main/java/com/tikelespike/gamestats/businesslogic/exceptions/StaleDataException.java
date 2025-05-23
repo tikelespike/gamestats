@@ -3,7 +3,7 @@ package com.tikelespike.gamestats.businesslogic.exceptions;
 /**
  * Indicates that data has been concurrently modified and the current request is based on outdated data.
  */
-public class StaleDataException extends Exception {
+public class StaleDataException extends InvalidDataException {
 
     /**
      * Creates a new StaleDataException.

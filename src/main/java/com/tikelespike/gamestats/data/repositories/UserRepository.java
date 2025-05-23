@@ -25,4 +25,13 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
      * @return the user with the given id, or null if no such user exists
      */
     UserEntity findById(long id);
+
+    /**
+     * Retrieves the user entity that is associated with the given player.
+     *
+     * @param playerId the unique identifier of the player
+     *
+     * @return the user entity associated with the given player, or null if no such user exists
+     */
+    UserEntity findByPlayerId(Long playerId);
 }

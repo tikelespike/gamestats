@@ -5,6 +5,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * The database representation of a game participant.
@@ -20,6 +22,7 @@ public class PlayerEntity extends AbstractEntity {
             name = "owner_id",
             referencedColumnName = "id"
     )
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private UserEntity owner;
 
     /**
