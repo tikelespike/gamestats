@@ -97,7 +97,17 @@ public class UserService implements UserDetailsService {
      */
     @Transactional
     public void deleteUser(Long id) {
-        repository.deleteById(id);
+        UserEntity user = repository.findById(id)
+                .orElse(null);
+        if (user != null) {
+            // Clear the player relationship before deletion
+            PlayerEntity player = user.getPlayer();
+            if (player != null) {
+                player.setOwner(null);
+                playerRepository.save(player);
+            }
+            repository.deleteById(id);
+        }
     }
 
     /**

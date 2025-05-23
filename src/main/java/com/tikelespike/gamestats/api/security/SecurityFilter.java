@@ -49,6 +49,10 @@ public class SecurityFilter extends OncePerRequestFilter {
                 return;
             }
             var user = userService.loadUserByUsername(login);
+            if (user == null) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token (user does not exist)");
+                return;
+            }
 
             var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);

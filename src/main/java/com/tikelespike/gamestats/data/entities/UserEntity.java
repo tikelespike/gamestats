@@ -6,6 +6,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * The database representation of an application user.
@@ -22,6 +24,7 @@ public class UserEntity extends AbstractEntity {
             fetch = FetchType.EAGER,
             mappedBy = "owner"
     )
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private PlayerEntity player;
 
     @Enumerated(EnumType.STRING)
