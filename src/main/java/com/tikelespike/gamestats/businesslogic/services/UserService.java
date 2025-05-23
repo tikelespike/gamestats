@@ -7,7 +7,9 @@ import com.tikelespike.gamestats.businesslogic.exceptions.ResourceNotFoundExcept
 import com.tikelespike.gamestats.businesslogic.exceptions.StaleDataException;
 import com.tikelespike.gamestats.businesslogic.mapper.UserPlayerEntityMapper;
 import com.tikelespike.gamestats.businesslogic.mapper.UserRoleEntityMapper;
+import com.tikelespike.gamestats.data.entities.PlayerEntity;
 import com.tikelespike.gamestats.data.entities.UserEntity;
+import com.tikelespike.gamestats.data.repositories.PlayerRepository;
 import com.tikelespike.gamestats.data.repositories.UserRepository;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
@@ -29,6 +31,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository repository;
     private final UserPlayerEntityMapper mapper;
     private final UserRoleEntityMapper roleMapper;
+    private final PlayerRepository playerRepository;
 
     /**
      * Creates a new user service. This is usually done by the Spring framework, which manages the service's lifecycle
@@ -37,11 +40,15 @@ public class UserService implements UserDetailsService {
      * @param repository repository managing user entities
      * @param mapper mapper for converting between user business objects and user entities
      * @param roleMapper mapper for converting between user role business objects and user role entities
+     * @param playerRepository repository managing player entities (needed to keep user-player relationship
+     *         intact)
      */
-    public UserService(UserRepository repository, UserPlayerEntityMapper mapper, UserRoleEntityMapper roleMapper) {
+    public UserService(UserRepository repository, UserPlayerEntityMapper mapper, UserRoleEntityMapper roleMapper,
+                       PlayerRepository playerRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.roleMapper = roleMapper;
+        this.playerRepository = playerRepository;
     }
 
     @Override
@@ -125,7 +132,10 @@ public class UserService implements UserDetailsService {
         UserEntity entityToSave = mapper.toTransferObject(user);
         UserEntity savedEntity;
         try {
+            // Because player is the owning side, we have to save the player as well to save the association
+            PlayerEntity savedPlayer = playerRepository.save(entityToSave.getPlayer());
             savedEntity = repository.save(entityToSave);
+            savedEntity.setPlayer(savedPlayer);
         } catch (StaleObjectStateException | OptimisticLockException | OptimisticLockingFailureException e) {
             throw new StaleDataException(e);
         }
