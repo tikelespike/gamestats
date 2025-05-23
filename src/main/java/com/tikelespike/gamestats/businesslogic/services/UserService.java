@@ -165,7 +165,7 @@ public class UserService implements UserDetailsService {
         }
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        UserEntity transferObject = new UserEntity(
+        UserEntity entityToSave = new UserEntity(
                 null,
                 null,
                 data.name(),
@@ -174,7 +174,14 @@ public class UserService implements UserDetailsService {
                 data.player() == null ? null : mapper.toTransferObject(data.player()),
                 roleMapper.toTransferObjectNoCheck(data.role())
         );
-        UserEntity saved = repository.save(transferObject);
-        return mapper.toBusinessObject(saved);
+        // Because player is the owning side, we have to save the player as well to save the association
+        UserEntity savedEntity = repository.save(entityToSave);
+        PlayerEntity player = entityToSave.getPlayer();
+        if (player != null) {
+            player.setOwner(savedEntity);
+            PlayerEntity savedPlayer = playerRepository.save(player);
+            savedEntity.setPlayer(savedPlayer);
+        }
+        return mapper.toBusinessObject(savedEntity);
     }
 }
