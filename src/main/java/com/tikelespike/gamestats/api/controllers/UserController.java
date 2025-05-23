@@ -6,6 +6,7 @@ import com.tikelespike.gamestats.api.entities.UserDTO;
 import com.tikelespike.gamestats.api.entities.UserUpdateDTO;
 import com.tikelespike.gamestats.api.mapper.UserCreationMapper;
 import com.tikelespike.gamestats.api.mapper.UserMapper;
+import com.tikelespike.gamestats.api.mapper.UserRoleMapper;
 import com.tikelespike.gamestats.api.mapper.UserUpdateMapper;
 import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.ValidationUtils;
@@ -23,14 +24,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 
 import java.net.URI;
 import java.util.List;
@@ -52,6 +56,7 @@ public class UserController {
     private final UserCreationMapper userCreationMapper;
     private final UserMapper userMapper;
     private final UserUpdateMapper userUpdateMapper;
+    private final UserRoleMapper userRoleMapper;
 
     /**
      * Creates a new UserController. This is usually done by the Spring framework, which manages the controller's
@@ -63,13 +68,15 @@ public class UserController {
      * @param userMapper the mapper for converting between user business objects and their REST transfer
      * @param userUpdateMapper the mapper for converting between user update data transfer objects and business
      *         objects
+     * @param userRoleMapper the mapper for converting between user role dtos and business objects
      */
     public UserController(UserService service, UserCreationMapper userCreationMapper, UserMapper userMapper,
-                          UserUpdateMapper userUpdateMapper) {
+                          UserUpdateMapper userUpdateMapper, UserRoleMapper userRoleMapper) {
         this.service = service;
         this.userCreationMapper = userCreationMapper;
         this.userMapper = userMapper;
         this.userUpdateMapper = userUpdateMapper;
+        this.userRoleMapper = userRoleMapper;
     }
 
     /**
@@ -201,7 +208,7 @@ public class UserController {
                     content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
             )}
     )
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.principal.id == #id")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteUser(@PathVariable("id") long id) {
         service.deleteUser(id);
@@ -257,12 +264,23 @@ public class UserController {
                     content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
             )}
     )
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') or authentication.principal.id == #id")
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable("id") long id, @RequestBody UserUpdateDTO updateRequest) {
         ValidationResult validation = updateRequest.validateUpdate(id);
         if (!validation.isValid()) {
             return ValidationUtils.requestInvalid(validation.getMessage(), API_PATH_WITH_SUBPATH + id);
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ADMIN"));
+        String requestedRole = userRoleMapper.toBusinessObject(updateRequest.permissionLevel()).toString();
+        // User must either only change their own account (ensured by method annotation) and then not change their
+        // permission level or be admin
+        if (!isAdmin && !authentication.getAuthorities().contains(new SimpleGrantedAuthority(requestedRole))) {
+            return ValidationUtils.requestInvalid("Non-admin users cannot change their role",
+                    API_PATH_WITH_SUBPATH + id);
         }
 
         User userUpdate = userUpdateMapper.toBusinessObject(updateRequest);
