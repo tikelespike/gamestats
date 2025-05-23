@@ -89,7 +89,8 @@ public class UserController {
     @Operation(
             summary = "Creates a new user",
             description = "Creates a new user account that can be used to log into this application. Pass the "
-                    + "credentials in the request body. The response body contains the newly created user."
+                    + "credentials in the request body. The response body contains the newly created user. Creating "
+                    + "users requires administrator privileges."
     )
     @ApiResponses(
             value = {@ApiResponse(
@@ -185,7 +186,8 @@ public class UserController {
      */
     @Operation(
             summary = "Deletes a user",
-            description = "Removes a user from the system. If the user does not exist, the operation has no effect."
+            description = "Removes a user from the system. If the user does not exist, the operation has no effect. "
+                    + "Deleting any user other than your own requires administrator privileges."
     )
     @ApiResponses(
             value = {@ApiResponse(
@@ -226,7 +228,8 @@ public class UserController {
     @Operation(
             summary = "Updates a user",
             description = "Updates the details about an existing user, like the name, email, password, or role. The "
-                    + "user has to be created before it can be changed by this endpoint."
+                    + "user has to be created before it can be changed by this endpoint. Updating a user requires "
+                    + "administrator privileges, unless you are updating your own user and are not changing your role."
     )
     @ApiResponses(
             value = {@ApiResponse(
