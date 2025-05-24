@@ -95,11 +95,15 @@ jobs:
         run: |
           echo "IMAGE_TAG=${SHORT_SHA}-${BRANCH_NAME}" >> $GITHUB_ENV
           TAGS="${REGISTRY}/${IMAGE_NAME}:${SHORT_SHA}-${BRANCH_NAME}"
-          TAGS+="\n${REGISTRY}/${IMAGE_NAME}:${BRANCH_NAME}-latest"
+          TAGS="${TAGS}
+          ${REGISTRY}/${IMAGE_NAME}:${BRANCH_NAME}-latest"
           if [ "$IS_MAIN" = "true" ]; then
-          TAGS+="\n${REGISTRY}/${IMAGE_NAME}:latest"
+          TAGS="${TAGS}
+          ${REGISTRY}/${IMAGE_NAME}:latest"
           fi
-          echo "TAGS=${TAGS}" >> $GITHUB_ENV
+          echo "TAGS<<EOF" >> $GITHUB_ENV
+          echo "$TAGS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
