@@ -118,7 +118,7 @@ jobs:
         with:
           token: ${{ secrets.INFRA_ACCESS_TOKEN }}
           repository: tikelespike/gamestats-infra
-          event-type: deploy-dev
+          event-type: deploy
           client-payload: |
             {
               "backendImageTag": "${{ env.IMAGE_TAG }}",
