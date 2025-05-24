@@ -99,7 +99,7 @@ jobs:
           if [ "$IS_MAIN" = "true" ]; then
           TAGS+="\n${REGISTRY}/${IMAGE_NAME}:latest"
           fi
-          echo $TAGS >> $GITHUB_ENV
+          echo "TAGS=${TAGS}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
