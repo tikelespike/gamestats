@@ -118,6 +118,6 @@ jobs:
           event-type: deploy-dev
           client-payload: |
             {
-              "component": "backend",
-              "image_tag": "${{ env.IMAGE_TAG }}"
+              "backendImageTag": "${{ env.IMAGE_TAG }}",
+              "environment": "dev"
             }
