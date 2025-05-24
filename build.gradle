@@ -41,6 +41,8 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'com.h2database:h2'
+    implementation("org.flywaydb:flyway-core:11.8.2")
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql:11.8.2'
 }
 
 tasks.named('test') {
