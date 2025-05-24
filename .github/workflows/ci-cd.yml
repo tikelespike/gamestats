@@ -99,15 +99,14 @@ jobs:
           if [ "$IS_MAIN" = "true" ]; then
           TAGS+="\n${REGISTRY}/${IMAGE_NAME}:latest"
           fi
-          echo -e "$TAGS" > tags.txt
+          echo TAGS >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: |
-            $(cat tags.txt)
+          tags: ${{ env.TAGS }}
 
       - name: Trigger deployment to dev
         if: env.IS_DEV == 'true'
