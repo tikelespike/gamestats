@@ -59,11 +59,16 @@ jobs:
 
   push-image:
     needs: [build, test]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+
+    env:
+      BRANCH_NAME: ${{ github.ref_name }}
+      IS_MAIN: ${{ github.ref == 'refs/heads/main' }}
+      IS_DEV: ${{ github.ref == 'refs/heads/dev' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -81,28 +86,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix=,suffix=,enable=true
-          labels: |
-            org.opencontainers.image.title=${{ github.event.repository.name }}
-            org.opencontainers.image.description=${{ github.event.repository.description }}
-            org.opencontainers.image.url=${{ github.event.repository.html_url }}
-            org.opencontainers.image.source=${{ github.event.repository.clone_url }}
-            org.opencontainers.image.version=${{ github.sha }}
-            org.opencontainers.image.created=${{ steps.meta.outputs.created }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.licenses=${{ github.event.repository.license }}
+      - name: Extract short SHA
+        id: shortsha
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Define image tag
+        run: |
+          echo "IMAGE_TAG=${SHORT_SHA}-${BRANCH_NAME}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }} 
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH_NAME }}-latest
+
+      - name: Trigger deployment to dev
+        if: env.IS_DEV == 'true'
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.INFRA_ACCESS_TOKEN }}
+          repository: tikelespike/gamestats-infra
+          event-type: deploy-dev
+          client-payload: |
+            {
+              "component": "backend",
+              "image_tag": "${{ env.IMAGE_TAG }}"
+            }
