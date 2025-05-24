@@ -8,6 +8,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderColumn;
@@ -52,7 +53,7 @@ public class GameEntity extends AbstractEntity {
     @OrderColumn(name = "participant_order")
     private List<PlayerParticipationEntity> participants;
 
-    @OneToMany(fetch = EAGER)
+    @ManyToMany(fetch = EAGER)
     @JoinTable(
             name = "game_winning_players",
             joinColumns = @JoinColumn(name = "game_id"),
@@ -66,7 +67,7 @@ public class GameEntity extends AbstractEntity {
     )
     private List<PlayerEntity> winningPlayers;
 
-    @OneToMany(fetch = EAGER)
+    @ManyToMany(fetch = EAGER)
     @JoinTable(
             name = "game_storytellers",
             joinColumns = @JoinColumn(name = "game_id"),

@@ -7,11 +7,15 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
-    defer-datasource-initialization: true
+      ddl-auto: validate
+    defer-datasource-initialization: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
   sql:
     init:
-      mode: always
+      mode: never
   jackson:
     deserialization:
       FAIL_ON_UNKNOWN_PROPERTIES: true
@@ -34,3 +38,6 @@ dev:
   delay:
     before: ${DELAY_BEFORE:0}
     after: ${DELAY_AFTER:0}
+logging:
+  level:
+    org.springframework.beans: DEBUG
