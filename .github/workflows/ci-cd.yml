@@ -90,9 +90,16 @@ jobs:
         id: shortsha
         run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
-      - name: Define image tag
+      - name: Define image tags
+        id: tag
         run: |
           echo "IMAGE_TAG=${SHORT_SHA}-${BRANCH_NAME}" >> $GITHUB_ENV
+          TAGS="${REGISTRY}/${IMAGE_NAME}:${SHORT_SHA}-${BRANCH_NAME}"
+          TAGS+="\n${REGISTRY}/${IMAGE_NAME}:${BRANCH_NAME}-latest"
+          if [ "$IS_MAIN" = "true" ]; then
+          TAGS+="\n${REGISTRY}/${IMAGE_NAME}:latest"
+          fi
+          echo -e "$TAGS" > tags.txt
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -100,8 +107,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH_NAME }}-latest
+            $(cat tags.txt)
 
       - name: Trigger deployment to dev
         if: env.IS_DEV == 'true'
