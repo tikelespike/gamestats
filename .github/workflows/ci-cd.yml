@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
 
 env:
   REGISTRY: ghcr.io
@@ -93,7 +93,6 @@ jobs:
       - name: Define image tags
         id: tag
         run: |
-          echo "IMAGE_TAG=${SHORT_SHA}-${BRANCH_NAME}" >> $GITHUB_ENV
           TAGS="${REGISTRY}/${IMAGE_NAME}:${SHORT_SHA}-${BRANCH_NAME}"
           TAGS="${TAGS}
           ${REGISTRY}/${IMAGE_NAME}:${BRANCH_NAME}-latest"
@@ -112,15 +111,32 @@ jobs:
           push: true
           tags: ${{ env.TAGS }}
 
-      - name: Trigger deployment to dev
-        if: env.IS_DEV == 'true'
+  trigger-deployment:
+    needs: [push-image]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+    runs-on: ubuntu-latest
+
+    env:
+      BRANCH_NAME: ${{ github.ref_name }}
+
+    steps:
+      - name: Extract short SHA
+        id: shortsha
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Define target tag
+        id: tag
+        run: |
+          echo "IMAGE_TAG=${SHORT_SHA}-${BRANCH_NAME}" >> $GITHUB_ENV
+
+      - name: Trigger deployment
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.INFRA_ACCESS_TOKEN }}
           repository: tikelespike/gamestats-infra
-          event-type: deploy-dev
+          event-type: deploy
           client-payload: |
             {
               "backendImageTag": "${{ env.IMAGE_TAG }}",
-              "environment": "dev"
+              "environment": "${{ github.ref_name == 'main' && 'prod' || 'dev' }}"
             }
