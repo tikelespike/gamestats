@@ -143,7 +143,11 @@ public class UserService implements UserDetailsService {
         UserEntity savedEntity;
         try {
             // Because player is the owning side, we have to save the player as well to save the association
-            PlayerEntity savedPlayer = playerRepository.save(entityToSave.getPlayer());
+            PlayerEntity playerToSave = entityToSave.getPlayer();
+            PlayerEntity savedPlayer = null;
+            if (playerToSave != null) {
+                savedPlayer = playerRepository.save(playerToSave);
+            }
             savedEntity = repository.save(entityToSave);
             savedEntity.setPlayer(savedPlayer);
         } catch (StaleObjectStateException | OptimisticLockException | OptimisticLockingFailureException e) {
