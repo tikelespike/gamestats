@@ -7,7 +7,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 /**
@@ -34,18 +33,17 @@ public class GamestatsApplication {
      * Upon application startup, check if an admin user exists, and if not, create one with a default password.
      *
      * @param userService the user service to use for checking and creating the admin user
-     * @param encoder the password encoder to use for encoding the admin password
      *
      * @return a CommandLineRunner that will be executed on application startup
      */
     @Bean
-    CommandLineRunner initAdmin(UserService userService, PasswordEncoder encoder) {
+    CommandLineRunner initAdmin(UserService userService) {
         return args -> {
             if (userService.loadUserByUsername("admin") == null) {
                 UserCreationRequest admin = new UserCreationRequest(
                         "System Administrator",
                         "admin",
-                        encoder.encode("admin"),
+                        "admin",
                         UserRole.ADMIN,
                         null
                 );
