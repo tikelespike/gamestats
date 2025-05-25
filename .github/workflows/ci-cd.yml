@@ -112,8 +112,7 @@ jobs:
           push: true
           tags: ${{ env.TAGS }}
 
-      - name: Trigger deployment to dev
-        if: env.IS_DEV == 'true'
+      - name: Trigger deployment
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.INFRA_ACCESS_TOKEN }}
@@ -122,5 +121,5 @@ jobs:
           client-payload: |
             {
               "backendImageTag": "${{ env.IMAGE_TAG }}",
-              "environment": "dev"
+              "environment": "${{ github.ref_name == 'main' && 'prod' || 'dev' }}",
             }
