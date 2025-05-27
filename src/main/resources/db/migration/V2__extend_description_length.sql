@@ -1,0 +1,5 @@
+ALTER TABLE games
+    ALTER COLUMN description TYPE VARCHAR(5000) USING (description::VARCHAR(5000));
+
+ALTER TABLE scripts
+    ALTER COLUMN description TYPE VARCHAR(5000) USING (description::VARCHAR(5000));
