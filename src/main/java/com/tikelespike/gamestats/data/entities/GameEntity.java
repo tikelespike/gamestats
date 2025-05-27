@@ -1,6 +1,7 @@
 package com.tikelespike.gamestats.data.entities;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,6 +28,7 @@ import static jakarta.persistence.FetchType.EAGER;
 @Entity(name = "games")
 public class GameEntity extends AbstractEntity {
 
+    private static final int DESCRIPTION_MAX_LENGTH = 5000;
     @NotNull
     @ManyToOne(
             fetch = FetchType.EAGER,
@@ -38,6 +40,7 @@ public class GameEntity extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private AlignmentEntity winningAlignment;
 
+    @Column(length = DESCRIPTION_MAX_LENGTH)
     private String description;
 
     @NotNull

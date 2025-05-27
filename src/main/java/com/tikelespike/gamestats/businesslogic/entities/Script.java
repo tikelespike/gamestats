@@ -9,6 +9,8 @@ import java.util.Set;
  */
 public class Script implements HasId, HasWikiPage, HasVersion {
 
+    private static final int DESCRIPTION_MAX_LENGTH = 5000;
+
     private final Long id;
     private final Long version;
     private String name;
@@ -92,11 +94,14 @@ public class Script implements HasId, HasWikiPage, HasVersion {
     }
 
     /**
-     * Sets a free-form optional description of this script.
+     * Sets a free-form optional description of this script. The description may not be longer than 5000 characters.
      *
      * @param description a human-readable description of this script. May be empty.
      */
     public void setDescription(String description) {
+        if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
+            throw new IllegalArgumentException("Description may not be longer than 5000 characters.");
+        }
         this.description = description;
     }
 

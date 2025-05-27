@@ -11,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ScriptTest {
 
+    private static final int MAX_DESCRIPTION_LENGTH = 5000;
+
     @Test
     void testCreate() {
         Character testCharacter = new Character(0L, 0L, "name", CharacterType.TOWNSFOLK);
@@ -58,5 +60,15 @@ class ScriptTest {
         Script script = new Script(1L, 0L, "link", "name", "description",
                 Set.of(new Character(0L, 0L, "name", CharacterType.TOWNSFOLK)));
         assertThrows(NullPointerException.class, () -> script.setCharacters(null));
+    }
+
+
+    @Test
+    void testDescriptionTooLong() {
+        String longDescription = "a".repeat(MAX_DESCRIPTION_LENGTH + 1);
+        Set<Character> characters = Set.of(new Character(0L, 0L, "name", CharacterType.TOWNSFOLK));
+        assertThrows(IllegalArgumentException.class, () ->
+                new Script(1L, 0L, "link", "name", longDescription, characters)
+        );
     }
 }

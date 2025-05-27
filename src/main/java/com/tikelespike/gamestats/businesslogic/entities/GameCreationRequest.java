@@ -28,6 +28,8 @@ public record GameCreationRequest(
         String name,
         List<Player> storytellers
 ) {
+    private static final int DESCRIPTION_MAX_LENGTH = 5000;
+
     /**
      * Creates a new game creation request.
      *
@@ -35,7 +37,8 @@ public record GameCreationRequest(
      * @param participants list containing players and their game-specific data (may not contain the same player
      *         twice or be null)
      * @param winningAlignment the alignment that won the game
-     * @param description a free-form optional description of this game
+     * @param description a free-form optional description of this game (may not be longer than 5000
+     *         characters)
      * @param winningPlayers a list of all players that won this game (may not contain non-participating
      *         players, may not be null if winningAlignment is null, is ignored otherwise)
      * @param name human-readable name of this game (may not be null)
@@ -56,6 +59,9 @@ public record GameCreationRequest(
             throw new IllegalArgumentException("The same player cannot participate multiple times in the same game.");
         }
         this.winningAlignment = winningAlignment;
+        if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
+            throw new IllegalArgumentException("Description may not be longer than 5000 characters.");
+        }
         this.description = description;
         this.winningPlayers = winningAlignment == null ? Objects.requireNonNull(winningPlayers) : null;
         if (this.winningPlayers != null && winningPlayers.stream()

@@ -13,6 +13,7 @@ import java.util.Objects;
  */
 public class Game implements HasId, HasVersion {
 
+    private static final int DESCRIPTION_MAX_LENGTH = 5000;
     private final Long id;
     private final Long version;
     private List<PlayerParticipation> participants;
@@ -187,11 +188,14 @@ public class Game implements HasId, HasVersion {
 
     /**
      * Sets the free-form optional description of this game, which may include some notes about how the game went,
-     * strategies of players, etc.
+     * strategies of players, etc. The description may not be longer than 5000 characters.
      *
      * @param description a free-form optional description of this game
      */
     public void setDescription(String description) {
+        if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
+            throw new IllegalArgumentException("Description may not be longer than 5000 characters.");
+        }
         this.description = description;
     }
 
