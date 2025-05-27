@@ -16,11 +16,13 @@ public record ScriptCreationRequest(
         String wikiPageLink,
         Set<Character> characters
 ) {
+    private static final int DESCRIPTION_MAX_LENGTH = 5000;
+
     /**
      * Creates a new request for script creation.
      *
      * @param name name of the new script (e.g. "Trouble Brewing"). May not be null or blank.
-     * @param description description of the new script (optional)
+     * @param description description of the new script (optional, may not be longer than 5000 characters)
      * @param wikiPageLink full URL to the wiki page of that script (optional)
      * @param characters list of characters that may appear in a game when using this script. May not be null.
      */
@@ -35,6 +37,9 @@ public record ScriptCreationRequest(
             if (character == null) {
                 throw new NullPointerException("Characters must be non-null");
             }
+        }
+        if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
+            throw new IllegalArgumentException("Description may not be longer than 5000 characters.");
         }
     }
 }
