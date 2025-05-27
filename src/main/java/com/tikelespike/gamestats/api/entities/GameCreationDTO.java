@@ -4,6 +4,7 @@ import com.tikelespike.gamestats.api.validation.Validateable;
 import com.tikelespike.gamestats.api.validation.ValidationChain;
 import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.checks.EitherFieldRequiredCheck;
+import com.tikelespike.gamestats.api.validation.checks.MaxLengthCheck;
 import com.tikelespike.gamestats.api.validation.checks.RequiredFieldCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -60,11 +61,14 @@ public record GameCreationDTO(
         ) PlayerParticipationDTO[] participants
 ) implements Validateable {
 
+    private static final int MAX_DESCRIPTION_LENGTH = 5000;
+
     @Override
     public ValidationResult validate() {
         return new ValidationChain(
                 new RequiredFieldCheck("participants", participants),
                 new RequiredFieldCheck("name", name),
+                new MaxLengthCheck("description", description, MAX_DESCRIPTION_LENGTH),
                 this::checkAllParticipationsValid,
                 this::checkNoDuplicatePlayersInParticipations,
                 new EitherFieldRequiredCheck(
