@@ -4,6 +4,7 @@ import com.tikelespike.gamestats.api.validation.ValidationChain;
 import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.checks.EitherFieldRequiredCheck;
 import com.tikelespike.gamestats.api.validation.checks.MatchingIdCheck;
+import com.tikelespike.gamestats.api.validation.checks.MaxLengthCheck;
 import com.tikelespike.gamestats.api.validation.checks.RequiredFieldCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -71,6 +72,8 @@ public record GameDTO(
                 description = "List of players and their game-specific data for this game."
         ) PlayerParticipationDTO[] participants
 ) {
+    private static final int MAX_DESCRIPTION_LENGTH = 5000;
+
     /**
      * Validates this DTO in the context of updating a game.
      *
@@ -85,6 +88,7 @@ public record GameDTO(
                 new RequiredFieldCheck("version", version),
                 new RequiredFieldCheck("participants", participants),
                 new RequiredFieldCheck("name", name),
+                new MaxLengthCheck("description", description, MAX_DESCRIPTION_LENGTH),
                 this::checkAllParticipationsValid,
                 this::checkNoDuplicatePlayersInParticipations,
                 new EitherFieldRequiredCheck(

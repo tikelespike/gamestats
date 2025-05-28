@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GameTest {
 
     private static final long NUMBER_3 = 3L; // crude checkstyle magic number bypass
+    private static final int MAX_DESCRIPTION_LENGTH = 5000;
     private Player player1;
     private Player player2;
     private Player player3;
@@ -265,6 +266,15 @@ class GameTest {
         assertThrows(NullPointerException.class, () ->
                 new Game(1L, 1L, participants, script, Alignment.GOOD, "Test game", "Test game name",
                         storytellersWithNull)
+        );
+    }
+
+    @Test
+    void testDescriptionTooLong() {
+        String longDescription = "a".repeat(MAX_DESCRIPTION_LENGTH + 1);
+        assertThrows(IllegalArgumentException.class, () ->
+                new Game(1L, 1L, participants, script, Alignment.GOOD, longDescription, "Test game name",
+                        List.of(player4))
         );
     }
 }

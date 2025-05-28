@@ -1,5 +1,6 @@
 package com.tikelespike.gamestats.data.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
@@ -16,8 +17,13 @@ import java.util.List;
  */
 @Entity(name = "scripts")
 public class ScriptEntity extends AbstractEntity {
+
+    private static final int DESCRIPTION_MAX_LENGTH = 5000;
+
     private String name;
     private String wikiPageLink;
+
+    @Column(length = DESCRIPTION_MAX_LENGTH)
     private String description;
 
     @ManyToMany(

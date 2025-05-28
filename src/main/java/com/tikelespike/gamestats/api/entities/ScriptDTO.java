@@ -3,6 +3,7 @@ package com.tikelespike.gamestats.api.entities;
 import com.tikelespike.gamestats.api.validation.ValidationChain;
 import com.tikelespike.gamestats.api.validation.ValidationResult;
 import com.tikelespike.gamestats.api.validation.checks.MatchingIdCheck;
+import com.tikelespike.gamestats.api.validation.checks.MaxLengthCheck;
 import com.tikelespike.gamestats.api.validation.checks.RequiredFieldCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -46,6 +47,8 @@ public record ScriptDTO(
                 example = "[2, 3, 7]"
         ) Long[] characterIds
 ) {
+    private static final int MAX_DESCRIPTION_LENGTH = 5000;
+
     /**
      * Validates this DTO in the context of updating a script.
      *
@@ -58,7 +61,8 @@ public record ScriptDTO(
                 new RequiredFieldCheck("id", id),
                 new MatchingIdCheck(pathId, id),
                 new RequiredFieldCheck("version", version),
-                new RequiredFieldCheck("name", name)
+                new RequiredFieldCheck("name", name),
+                new MaxLengthCheck("description", description, MAX_DESCRIPTION_LENGTH)
         ).validate();
     }
 }
