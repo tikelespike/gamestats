@@ -1,8 +1,8 @@
 package com.tikelespike.gamestats.api.controllers;
 
 import com.tikelespike.gamestats.api.entities.ErrorEntity;
-import com.tikelespike.gamestats.api.entities.JwtDTO;
 import com.tikelespike.gamestats.api.entities.SignInDTO;
+import com.tikelespike.gamestats.api.entities.SignInInfoDTO;
 import com.tikelespike.gamestats.api.security.TokenProvider;
 import com.tikelespike.gamestats.businesslogic.entities.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,7 +62,7 @@ public class AuthController {
             value = {@ApiResponse(
                     responseCode = "200",
                     description = "Logged in successfully. The response body contains the JWT token.",
-                    content = {@Content(schema = @Schema(implementation = JwtDTO.class))}
+                    content = {@Content(schema = @Schema(implementation = SignInInfoDTO.class))}
             ), @ApiResponse(
                     responseCode = "400",
                     description = "Invalid request. The response body contains an error message.",
@@ -75,10 +75,12 @@ public class AuthController {
             )}
     )
     @PostMapping("/signin")
-    public ResponseEntity<JwtDTO> signIn(@RequestBody @Schema(description = "Sign-in request details") SignInDTO data) {
+    public ResponseEntity<SignInInfoDTO> signIn(
+            @RequestBody @Schema(description = "Sign-in request details") SignInDTO data) {
         Authentication usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
         Authentication authentication = authenticationManager.authenticate(usernamePassword);
-        String accessToken = tokenService.generateAccessToken((User) authentication.getPrincipal());
-        return ResponseEntity.ok(new JwtDTO(accessToken));
+        User user = (User) authentication.getPrincipal();
+        String accessToken = tokenService.generateAccessToken(user);
+        return ResponseEntity.ok(new SignInInfoDTO(accessToken, user.getId()));
     }
 }
