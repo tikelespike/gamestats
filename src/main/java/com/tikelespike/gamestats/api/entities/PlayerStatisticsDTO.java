@@ -12,14 +12,8 @@ import java.util.Map;
  *         storyteller
  * @param totalWins total number of games this player has won
  * @param timesStoryteller number of games this player has acted as storyteller for
- * @param timesTownsfolk number of games this player has played as a townsfolk character, either as initial or
- *         final character
- * @param timesOutsider number of games this player has played as an outsider character, either as initial or
- *         final character
- * @param timesMinion number of games this player has played as a minion character, either as initial or final
- *         character
- * @param timesDemon number of games this player has played as a demon character, either as initial or final
- *         character
+ * @param characterTypeCounts number of times this player has played a character of each type (either at the
+ *         beginning or end)
  * @param timesDeadAtEnd number of games where the player was dead at the end of the game
  * @param timesGood number of games where the player was on the good team at the end
  * @param timesEvil number of games where the player was on the evil team at the end
@@ -46,26 +40,6 @@ public record PlayerStatisticsDTO(
                 example = "10"
         ) int timesStoryteller,
         @Schema(
-                description = "Number of games this player has played as a townsfolk character, either as initial or "
-                        + "final character.",
-                example = "30"
-        ) int timesTownsfolk,
-        @Schema(
-                description = "Number of games this player has played as an outsider character, either as initial or "
-                        + "final character.",
-                example = "20"
-        ) int timesOutsider,
-        @Schema(
-                description = "Number of games this player has played as a minion character, either as initial or "
-                        + "final character.",
-                example = "15"
-        ) int timesMinion,
-        @Schema(
-                description = "Number of games this player has played as a demon character, either as initial or "
-                        + "final character.",
-                example = "5"
-        ) int timesDemon,
-        @Schema(
                 description = "Number of games where the player was dead at the end of the game.",
                 example = "25"
         ) int timesDeadAtEnd,
@@ -77,6 +51,10 @@ public record PlayerStatisticsDTO(
                 description = "Number of games where the player was on the evil team at the end.",
                 example = "30"
         ) int timesEvil,
+        @Schema(
+                description = "Number of games this player has acted as storyteller for.",
+                example = "10"
+        ) Map<CharacterTypeDTO, Integer> characterTypeCounts,
         @Schema(
                 description = "Map mapping character id to the number of games this player has played that character "
                         + "(beginning or end).",
