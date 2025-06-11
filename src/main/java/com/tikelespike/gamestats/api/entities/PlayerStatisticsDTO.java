@@ -36,51 +36,51 @@ public record PlayerStatisticsDTO(
                 description = "Total number of games this player has participated in either as player or as "
                         + "storyteller.",
                 example = "100"
-        ) long totalGamesPlayed,
+        ) int totalGamesPlayed,
         @Schema(
                 description = "Total number of games this player has won.",
                 example = "50"
-        ) long totalWins,
+        ) int totalWins,
         @Schema(
                 description = "Number of games this player has acted as storyteller for.",
                 example = "10"
-        ) long timesStoryteller,
+        ) int timesStoryteller,
         @Schema(
                 description = "Number of games this player has played as a townsfolk character, either as initial or "
                         + "final character.",
                 example = "30"
-        ) long timesTownsfolk,
+        ) int timesTownsfolk,
         @Schema(
                 description = "Number of games this player has played as an outsider character, either as initial or "
                         + "final character.",
                 example = "20"
-        ) long timesOutsider,
+        ) int timesOutsider,
         @Schema(
                 description = "Number of games this player has played as a minion character, either as initial or "
                         + "final character.",
                 example = "15"
-        ) long timesMinion,
+        ) int timesMinion,
         @Schema(
                 description = "Number of games this player has played as a demon character, either as initial or "
                         + "final character.",
                 example = "5"
-        ) long timesDemon,
+        ) int timesDemon,
         @Schema(
                 description = "Number of games where the player was dead at the end of the game.",
                 example = "25"
-        ) long timesDeadAtEnd,
+        ) int timesDeadAtEnd,
         @Schema(
                 description = "Number of games where the player was on the good team at the end.",
                 example = "40"
-        ) long timesGood,
+        ) int timesGood,
         @Schema(
                 description = "Number of games where the player was on the evil team at the end.",
                 example = "30"
-        ) long timesEvil,
+        ) int timesEvil,
         @Schema(
                 description = "Map mapping character id to the number of games this player has played that character "
                         + "(beginning or end).",
                 example = "{\"1\": 10, \"2\": 5}"
-        ) Map<Long, Long> characterPlayingCounts
+        ) Map<Long, Integer> characterPlayingCounts
 ) {
 }
