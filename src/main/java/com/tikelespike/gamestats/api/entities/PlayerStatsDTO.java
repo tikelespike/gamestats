@@ -20,7 +20,7 @@ import java.util.Map;
  * @param characterPlayingCounts a map mapping character id to the number of games this player has played that
  *         character (beginning or end)
  */
-public record PlayerStatisticsDTO(
+public record PlayerStatsDTO(
         @Schema(
                 description = "Unique numerical identifier of the player whose statistics are represented"
                         + " by this object. Is not null.",

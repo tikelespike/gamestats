@@ -2,7 +2,7 @@ package com.tikelespike.gamestats.businesslogic.services;
 
 import com.tikelespike.gamestats.businesslogic.entities.Game;
 import com.tikelespike.gamestats.businesslogic.entities.Player;
-import com.tikelespike.gamestats.businesslogic.entities.PlayerStatistics;
+import com.tikelespike.gamestats.businesslogic.entities.PlayerStats;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,15 +33,15 @@ public class StatService {
      *
      * @return a list of player statistics
      */
-    public List<PlayerStatistics> getAllPlayerStatistics() {
+    public List<PlayerStats> getAllPlayerStatistics() {
         List<Player> players = playerService.getAllPlayers();
         List<Game> games = gameService.getAllGames();
 
         return players.stream().map(player -> calculatePlayerStatistics(player, games)).toList();
     }
 
-    private PlayerStatistics calculatePlayerStatistics(Player player, List<Game> games) {
-        PlayerStatistics statistics = new PlayerStatistics(player);
+    private PlayerStats calculatePlayerStatistics(Player player, List<Game> games) {
+        PlayerStats statistics = new PlayerStats(player);
         games.forEach(statistics::addGame);
         return statistics;
     }

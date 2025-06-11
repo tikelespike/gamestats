@@ -9,7 +9,7 @@ import java.util.Optional;
 /**
  * Statistics about a player, like the number of games won.
  */
-public final class PlayerStatistics {
+public final class PlayerStats {
     private final Player player;
     private int totalGamesPlayed;
     private int totalWins;
@@ -25,7 +25,7 @@ public final class PlayerStatistics {
      *
      * @param player the player this statistics are about (may not be null)
      */
-    public PlayerStatistics(Player player) {
+    public PlayerStats(Player player) {
         this.player = Objects.requireNonNull(player);
     }
 
@@ -160,7 +160,7 @@ public final class PlayerStatistics {
         if (obj == null || obj.getClass() != this.getClass()) {
             return false;
         }
-        var that = (PlayerStatistics) obj;
+        var that = (PlayerStats) obj;
         return Objects.equals(this.player, that.player)
                 && this.totalGamesPlayed == that.totalGamesPlayed
                 && this.totalWins == that.totalWins
@@ -180,7 +180,7 @@ public final class PlayerStatistics {
 
     @Override
     public String toString() {
-        return "PlayerStatistics["
+        return "PlayerStats["
                 + "player=" + player + ", "
                 + "totalGamesPlayed=" + totalGamesPlayed + ", "
                 + "totalWins=" + totalWins + ", "

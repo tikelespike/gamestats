@@ -1,7 +1,7 @@
 package com.tikelespike.gamestats.api.controllers;
 
 import com.tikelespike.gamestats.api.entities.ErrorEntity;
-import com.tikelespike.gamestats.api.entities.PlayerStatisticsDTO;
+import com.tikelespike.gamestats.api.entities.PlayerStatsDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,7 +42,7 @@ public class StatController {
                             @Content(
                                     array = @ArraySchema(
                                             schema =
-                                            @Schema(implementation = PlayerStatisticsDTO.class)
+                                            @Schema(implementation = PlayerStatsDTO.class)
                                     )
                             )}
             ), @ApiResponse(
