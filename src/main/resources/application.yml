@@ -22,6 +22,9 @@ spring:
 
 server:
   port: ${PORT}
+  servlet:
+    context-path: /backend
+
 security:
   jwt:
     token:
