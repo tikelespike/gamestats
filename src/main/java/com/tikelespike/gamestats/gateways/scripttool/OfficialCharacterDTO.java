@@ -6,20 +6,26 @@ package com.tikelespike.gamestats.gateways.scripttool;
  *
  * @param id string identifier
  * @param name display name
- * @param roleType character type (e.g. townsfolk)
- * @param print sub-url to image containing character description
- * @param icon sub-url to icon of character
- * @param version string identifier of the pack in which the character was released (e.g."1 -Trouble Brewing")
- * @param isDisabled unknown, likely whether the character is displayed in the script tool
+ * @param team character type (e.g. townsfolk)
+ * @param edition which set the character was released as part of
+ * @param firstNightReminder first night storyteller reminder text
+ * @param reminders other nights storyteller reminder texts
+ * @param setup whether the character requires special setup before characters are assigned to the players
+ * @param ability description of the character ability
+ * @param flavor flavor text for the character
  */
-public record OfficialCharacterDTO(
+record OfficialCharacterDTO(
         String id,
         String name,
-        String roleType,
-        String print,
-        String icon,
-        String version,
-        boolean isDisabled
+        String team,
+        String edition,
+        String firstNightReminder,
+        String[] reminders,
+        boolean setup,
+        String ability,
+        String flavor
 ) {
-
+    boolean isGood() {
+        return team.equals("townsfolk") || team.equals("outsider");
+    }
 }
