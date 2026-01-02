@@ -22,13 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * Controller for accessing the official script tool and provided by it/scraped from it.
+ * Controller for accessing the official characters provided externally.
  */
 @RestController
 @RequestMapping("/api/v1/officialtool")
 @Tag(
-        name = "Official Script Tool API",
-        description = "Access information provided by the official script tool."
+        name = "Official Resources API",
+        description = "Access officially published game content."
 )
 public class OfficialToolController {
 
