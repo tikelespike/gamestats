@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Gateway to official BOTC tools for retrieving official, published characters.
+ * Gateway to external tools for retrieving official, published characters.
  */
 @Service
 public interface OfficialCharactersGateway {
@@ -17,7 +17,7 @@ public interface OfficialCharactersGateway {
      *
      * @return a list of all officially published characters (except those that are not supported by the application) as
      *         creation requests to import them into this application
-     * @throws ExternalServiceUnavailableException if the official tools the characters are retrieved from is
+     * @throws ExternalServiceUnavailableException if the external tools the characters are retrieved from is
      *         not available
      */
     List<CharacterCreationRequest> getAllOfficialCharacters() throws ExternalServiceUnavailableException;
