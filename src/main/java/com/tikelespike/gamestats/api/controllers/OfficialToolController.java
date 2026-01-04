@@ -215,6 +215,10 @@ public class OfficialToolController {
                             official.imageUrl()
                     );
 
+                    if (updatedCharacter.equals(existing)) {
+                        return null; // No changes, skip
+                    }
+
                     return characterUpdateMapper.toTransferObject(updatedCharacter);
                 })
                 .filter(Objects::nonNull)
