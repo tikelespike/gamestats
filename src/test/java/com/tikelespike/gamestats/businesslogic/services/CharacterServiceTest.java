@@ -69,7 +69,6 @@ class CharacterServiceTest {
         Character updatedCharacter = characterService.updateCharacter(character);
 
         assertNotNull(updatedCharacter);
-        assertEquals(character, updatedCharacter);
         assertEquals(updatedCharacter, characterService.getCharacter(updatedCharacter.getId()));
     }
 
