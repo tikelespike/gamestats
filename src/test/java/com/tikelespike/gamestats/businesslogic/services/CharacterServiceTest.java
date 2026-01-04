@@ -37,9 +37,9 @@ class CharacterServiceTest {
 
     @Test
     void testCreateCharacter() {
-        CharacterCreationRequest request = new CharacterCreationRequest("testCreateCharacter_id",
-                "testCreateCharacter_name",
-                CharacterType.TOWNSFOLK, "http://testCreateCharacter", "http://testCreateCharacter/image");
+        CharacterCreationRequest request =
+                new CharacterCreationRequest("testCreateCharacter_id", "testCreateCharacter_name",
+                        CharacterType.TOWNSFOLK, "http://testCreateCharacter", "http://testCreateCharacter/image");
 
         Character newCharacter = characterService.createCharacter(request);
 
@@ -95,6 +95,77 @@ class CharacterServiceTest {
         assertThrows(StaleDataException.class, () -> characterService.updateCharacter(character));
     }
 
+    @Test
+    void testUpdateCharacters() throws StaleDataException {
+        Character character1 = addTestCharacter("testUpdateCharacters1");
+        Character character2 = addTestCharacter("testUpdateCharacters2");
+
+        character1.setScriptToolIdentifier("testUpdateCharacters1_id_updated");
+        character1.setName("testUpdateCharacters1_name_updated");
+        character1.setWikiPageLink("http://testUpdateCharacters1_updated");
+        character1.setCharacterType(CharacterType.OUTSIDER);
+
+        character2.setScriptToolIdentifier("testUpdateCharacters2_id_updated");
+        character2.setName("testUpdateCharacters2_name_updated");
+        character2.setWikiPageLink("http://testUpdateCharacters2_updated");
+        character2.setCharacterType(CharacterType.MINION);
+
+        List<Character> updatedCharacters = characterService.updateCharacters(List.of(character1, character2));
+
+        assertEquals(2, updatedCharacters.size());
+        assertTrue(updatedCharacters.stream()
+                .anyMatch(c -> c.getName().equals("testUpdateCharacters1_name_updated")));
+        assertTrue(updatedCharacters.stream()
+                .anyMatch(c -> c.getName().equals("testUpdateCharacters2_name_updated")));
+        assertTrue(updatedCharacters.stream()
+                .anyMatch(c -> c.getCharacterType() == CharacterType.OUTSIDER));
+        assertTrue(updatedCharacters.stream()
+                .anyMatch(c -> c.getCharacterType() == CharacterType.MINION));
+
+        // Verify the updates were persisted
+        Character retrievedCharacter1 = characterService.getCharacter(character1.getId());
+        Character retrievedCharacter2 = characterService.getCharacter(character2.getId());
+        assertEquals("testUpdateCharacters1_name_updated", retrievedCharacter1.getName());
+        assertEquals("testUpdateCharacters2_name_updated", retrievedCharacter2.getName());
+    }
+
+    @Test
+    void testUpdateCharactersNullRequest() {
+        assertThrows(NullPointerException.class, () -> characterService.updateCharacters(null));
+    }
+
+    @Test
+    void testUpdateCharactersEmptyList() throws StaleDataException {
+        List<Character> characters = characterService.updateCharacters(List.of());
+        assertTrue(characters.isEmpty());
+    }
+
+    @Test
+    void testUpdateCharactersNonExisting() {
+        Character character1 = addTestCharacter("testUpdateCharactersNonExisting1");
+        Character character2 = new Character(NON_EXISTENT_ID, 1L, "testUpdateCharactersNonExisting2",
+                "testUpdateCharactersNonExisting2", CharacterType.TOWNSFOLK, "http://testUpdateCharactersNonExisting2",
+                "http://testUpdateCharactersNonExisting2/image");
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> characterService.updateCharacters(List.of(character1, character2)));
+    }
+
+    @Test
+    void testUpdateCharactersOutdated() throws StaleDataException {
+        Character character1 = addTestCharacter("testUpdateCharactersOutdated1");
+        Character character2 = addTestCharacter("testUpdateCharactersOutdated2");
+
+        character1.setName("testUpdateCharactersOutdated1_updated");
+        character2.setName("testUpdateCharactersOutdated2_updated");
+        characterService.updateCharacters(List.of(character1, character2));
+
+        character1.setName("testUpdateCharactersOutdated1_updated2");
+        character2.setName("testUpdateCharactersOutdated2_updated2");
+        assertThrows(StaleDataException.class,
+                () -> characterService.updateCharacters(List.of(character1, character2)));
+    }
+
 
     @Test
     void testGetAllCharacters() {
@@ -133,12 +204,11 @@ class CharacterServiceTest {
 
     @Test
     void testCreateCharacters() {
-        List<CharacterCreationRequest> requests = List.of(
-                new CharacterCreationRequest("test1_id", "test1_name", CharacterType.TOWNSFOLK, "http://test1",
-                        "http://test1/image"),
-                new CharacterCreationRequest("test2_id", "test2_name", CharacterType.MINION, "http://test2",
-                        "http://test2/image")
-        );
+        List<CharacterCreationRequest> requests =
+                List.of(new CharacterCreationRequest("test1_id", "test1_name", CharacterType.TOWNSFOLK, "http://test1",
+                                "http://test1/image"),
+                        new CharacterCreationRequest("test2_id", "test2_name", CharacterType.MINION, "http://test2",
+                                "http://test2/image"));
 
         List<Character> characters = characterService.createCharacters(requests);
 
@@ -241,20 +311,17 @@ class CharacterServiceTest {
     }
 
     private Character addTestCharacter(String testName) {
-        CharacterCreationRequest request = new CharacterCreationRequest(testName + "_id",
-                testName + "_name",
-                CharacterType.TOWNSFOLK, "http://" + testName, "http://" + testName + "/image");
+        CharacterCreationRequest request =
+                new CharacterCreationRequest(testName + "_id", testName + "_name", CharacterType.TOWNSFOLK,
+                        "http://" + testName, "http://" + testName + "/image");
         return characterService.createCharacter(request);
     }
 
     private Script addTestScript(String testName, Character... characters) {
         Set<Character> characterSet = new HashSet<>(Arrays.asList(characters));
-        ScriptCreationRequest request = new ScriptCreationRequest(
-                testName + "_name",
-                testName + "_description",
-                "http://" + testName,
-                characterSet
-        );
+        ScriptCreationRequest request =
+                new ScriptCreationRequest(testName + "_name", testName + "_description", "http://" + testName,
+                        characterSet);
         return scriptService.createScript(request);
     }
 }
