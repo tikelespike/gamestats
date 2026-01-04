@@ -387,4 +387,93 @@ public class CharacterController {
 
         return ResponseEntity.created(URI.create("/api/v1/characters/batch")).body(transferObjects);
     }
+
+    /**
+     * Updates multiple characters in a single request. The update is atomic - either all characters are updated, or
+     * none are. This is useful for bulk updating characters or updating multiple related characters at once.
+     *
+     * @param characterDTOs list of character DTOs to update
+     *
+     * @return a REST response entity containing all updated characters
+     */
+    @Operation(
+            summary = "Updates multiple characters",
+            description = "Updates multiple in-game characters in a single atomic operation. If any character update "
+                    + "fails, none of the characters will be updated. This is useful for bulk updating characters or "
+                    + "updating multiple related characters at once."
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    responseCode = "200",
+                    description = "Updated characters successfully. The response body contains the updated characters.",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CharacterDTO.class)))}
+            ), @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request. The response body contains an error message.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized. Your session has expired or you are not logged in. Please sign in "
+                            + "again.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden. You do not have the necessary permissions to perform this request. "
+                            + "Please sign in with an account that has the necessary permissions.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "404",
+                    description = "Not found. At least one of the characters with the given ids does not exist.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict. At least one of the resources was deleted concurrently during the "
+                            + "processing of this request, or there already exists a newer version of at least one "
+                            + "resource that would be overwritten.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            ), @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error. Please try again later. If the issue persists, contact "
+                            + "the system administrator or development team.",
+                    content = {@Content(schema = @Schema(implementation = ErrorEntity.class))}
+            )}
+    )
+    @PreAuthorize("hasAuthority('STORYTELLER')")
+    @PutMapping("/batch")
+    public ResponseEntity<Object> updateCharacters(@RequestBody List<CharacterDTO> characterDTOs) {
+        if (characterDTOs == null || characterDTOs.isEmpty()) {
+            return ValidationUtils.requestInvalid("No characters provided", "/api/v1/characters/batch");
+        }
+
+        for (CharacterDTO characterDTO : characterDTOs) {
+            if (characterDTO.id() == null) {
+                return ValidationUtils.requestInvalid("At least one character is missing an id",
+                        "/api/v1/characters/batch");
+            }
+            ValidationResult validation = characterDTO.validateUpdate(characterDTO.id());
+            if (!validation.isValid()) {
+                return ValidationUtils.requestInvalid("At least one character is invalid: " + validation.getMessage(),
+                        "/api/v1/characters/batch");
+            }
+        }
+
+        List<Character> characterUpdates = characterDTOs.stream()
+                .map(characterMapper::toBusinessObject)
+                .toList();
+
+        List<Character> updatedCharacters;
+        try {
+            updatedCharacters = characterService.updateCharacters(characterUpdates);
+        } catch (ResourceNotFoundException e) {
+            return ValidationUtils.notFound("/api/v1/characters/batch");
+        } catch (StaleDataException e) {
+            return ValidationUtils.conflict("/api/v1/characters/batch");
+        }
+
+        List<CharacterDTO> transferObjects = updatedCharacters.stream()
+                .map(characterMapper::toTransferObject)
+                .toList();
+
+        return ResponseEntity.ok(transferObjects);
+    }
 }
