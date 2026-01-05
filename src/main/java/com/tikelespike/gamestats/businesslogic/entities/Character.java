@@ -164,15 +164,15 @@ public class Character implements HasWikiPage, HasId, HasVersion {
             return false;
         }
         Character character = (Character) o;
-        return Objects.equals(id, character.id) && Objects.equals(scriptToolIdentifier,
-                character.scriptToolIdentifier) && Objects.equals(name, character.name)
+        return Objects.equals(id, character.id) && Objects.equals(version, character.version) && Objects.equals(
+                scriptToolIdentifier, character.scriptToolIdentifier) && Objects.equals(name, character.name)
                 && characterType == character.characterType && Objects.equals(wikiPageLink,
-                character.wikiPageLink);
+                character.wikiPageLink) && Objects.equals(imageUrl, character.imageUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, scriptToolIdentifier, name, characterType, wikiPageLink);
+        return Objects.hash(id, version, scriptToolIdentifier, name, characterType, wikiPageLink, imageUrl);
     }
 
     @Override

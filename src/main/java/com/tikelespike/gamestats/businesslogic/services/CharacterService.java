@@ -118,6 +118,47 @@ public class CharacterService {
     }
 
     /**
+     * Updates multiple characters in a single atomic transaction. If any character update fails, none of the characters
+     * will be updated.
+     *
+     * @param characters list of characters to update. May not be null.
+     *
+     * @return list of all updated characters
+     * @throws ResourceNotFoundException if at least one of the characters with the given ids does not exist
+     * @throws StaleDataException if at least one of the characters has been modified or deleted in the meantime
+     *         (concurrently)
+     */
+    @Transactional
+    public List<Character> updateCharacters(List<Character> characters)
+            throws ResourceNotFoundException, StaleDataException {
+        Objects.requireNonNull(characters, "Characters may not be null");
+
+        // Check all characters exist first
+        for (Character character : characters) {
+            if (characterRepository.findById(character.getId()) == null) {
+                throw new ResourceNotFoundException("Character with id " + character.getId() + " does not exist");
+            }
+        }
+
+        // Convert to entities and save
+        List<CharacterEntity> entitiesToSave = characters.stream()
+                .map(characterMapper::toTransferObject)
+                .toList();
+
+        List<CharacterEntity> savedEntities = new ArrayList<>();
+        try {
+            Iterable<CharacterEntity> savedIterable = characterRepository.saveAll(entitiesToSave);
+            savedIterable.forEach(savedEntities::add);
+        } catch (StaleObjectStateException | OptimisticLockException | ObjectOptimisticLockingFailureException e) {
+            throw new StaleDataException(e);
+        }
+
+        return savedEntities.stream()
+                .map(characterMapper::toBusinessObject)
+                .toList();
+    }
+
+    /**
      * Returns the list of characters currently known to the system.
      *
      * @return the list of characters currently known to the system.

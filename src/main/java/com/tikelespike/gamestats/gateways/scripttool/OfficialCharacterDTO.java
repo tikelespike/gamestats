@@ -1,25 +1,34 @@
 package com.tikelespike.gamestats.gateways.scripttool;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Reverse-engineered format of an official character (also known as role) as used in the official script tool.
  *
  * @param id string identifier
  * @param name display name
- * @param roleType character type (e.g. townsfolk)
- * @param print sub-url to image containing character description
- * @param icon sub-url to icon of character
- * @param version string identifier of the pack in which the character was released (e.g."1 -Trouble Brewing")
- * @param isDisabled unknown, likely whether the character is displayed in the script tool
+ * @param team character type (e.g. townsfolk)
+ * @param edition which set the character was released as part of
+ * @param firstNightReminder first night storyteller reminder text
+ * @param otherNightReminder other nights storyteller reminder text
+ * @param reminders reminder tokens belonging to this character
+ * @param setup whether the character requires special setup before characters are assigned to the players
+ * @param ability description of the character ability
+ * @param flavor flavor text for the character
  */
-public record OfficialCharacterDTO(
+@JsonIgnoreProperties(ignoreUnknown = true)
+record OfficialCharacterDTO(
         String id,
         String name,
-        String roleType,
-        String print,
-        String icon,
-        String version,
-        boolean isDisabled
+        String team,
+        String edition,
+        String firstNightReminder,
+        String otherNightReminder,
+        String[] reminders,
+        boolean setup,
+        String ability,
+        String flavor
 ) {
 
 }
