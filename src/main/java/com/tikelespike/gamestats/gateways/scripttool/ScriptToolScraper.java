@@ -34,7 +34,7 @@ public class ScriptToolScraper implements OfficialCharactersGateway {
             "outsider", CharacterType.OUTSIDER,
             "minion", CharacterType.MINION,
             "demon", CharacterType.DEMON,
-            "travellers", CharacterType.TRAVELLER
+            "traveller", CharacterType.TRAVELLER
     );
     private static final Map<CharacterType, String> TYPE_ICON_SUFFIX_MAP = Map.of(
             CharacterType.TOWNSFOLK, "_g",
